@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Typer – typuj mecze dla zabawy</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF1EE;--card:#fff;--ink:#12201A;--mute:#5B6B62;--line:#CBD6CF;--green:#1E6B45;--gi:#fff;--gold:#F2C230;--goldi:#3a2c00;--bad:#A8362B;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1713;--card:#17231D;--ink:#E8F0EB;--mute:#93A59B;--line:#2B3B33;--green:#4FB07F;--gi:#06130c;--bad:#E57C70;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Source Sans 3",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-height:1.1}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-size:clamp(34px,8vw,52px);font-weight:800;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:4px 0 0}.me{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input,select{font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;max-width:100%}
+button{font:600 15px "Source Sans 3",system-ui,sans-serif;cursor:pointer;border:0;border-radius:8px;padding:9px 14px;background:var(--green);color:var(--gi)}
+button.ghost{background:none;color:var(--ink);border:1.5px solid var(--line)}button.del{background:var(--bad);color:#fff}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+nav{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:18px;overflow-x:auto}
+nav button{background:none;color:var(--mute);border-radius:8px 8px 0 0;padding:10px 14px;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
+.sec{margin:22px 0 10px;font-size:20px}.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.match{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:14px;margin-bottom:10px;gap:8px}
+.row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.team{font-weight:600;font-size:17px}.team.r{text-align:right}
+.score{display:flex;align-items:center;gap:6px}.score input{width:46px;text-align:center;font-size:20px;font-weight:600;padding:6px 0}
+.fin{font:800 24px "Bricolage Grotesque",sans-serif;min-width:70px;text-align:center}
+.res{margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:15px}
+.pill{border-radius:99px;padding:2px 10px;font-weight:600;font-size:14px;background:var(--line);color:var(--ink)}
+.p3{background:var(--gold);color:var(--goldi)}.p1{background:var(--green);color:var(--gi)}
+.ok{color:var(--green);font-size:14px}.err{color:var(--bad);font-size:14px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line)}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600;font-size:14px}
+.n{text-align:right}.pos{font:800 18px "Bricolage Grotesque",sans-serif;width:44px}
+tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:600}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;max-width:420px}
+.box label{display:block;margin:10px 0 4px;font-weight:600}.box input:not([type=checkbox]){width:100%}.box .chk{display:flex;gap:8px;font-weight:400;align-items:flex-start}
+.prize{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.medal{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font:800 28px "Bricolage Grotesque",sans-serif;background:var(--gold);color:var(--goldi)}
+.prize p{margin:2px 0 0;color:var(--mute)}.note{background:var(--card);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 8px 8px 0;color:var(--mute);font-size:15px}
+.adm{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:8px}.adm .score input{width:42px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="wrap"><div id="app"></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// ===== USTAWIENIA (tu zmieniasz nazwę i nagrody) =====
+const CFG={url:"https://kjvgibqcvegdgxmiqhhg.supabase.co",key:"sb_publishable_kEH6hdANVsbif6gyXMrDuA_1EU74Bxg",name:"Typer"};
+const PRIZES=[["1","Nagroda główna","Wpisz tu, co można wygrać."],["2","Drugie miejsce","Nagroda od sponsora albo karta podarunkowa."],["3","Trzecie miejsce","Gadżet, szalik, kubek."]];
+// =====================================================
+const sb=supabase.createClient(CFG.url,CFG.key);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],scope:"all",bleague:"",err:""};
+const fdate=t=>new Date(t).toLocaleString("pl-PL",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+const say=(el,t,bad)=>{if(el){el.textContent=t;el.className=bad?"err":"ok"}};
+function pts(t,m){if(!t||m.home_goals==null)return null;if(t.home_goals==m.home_goals&&t.away_goals==m.away_goals)return 3;return Math.sign(t.home_goals-t.away_goals)==Math.sign(m.home_goals-m.away_goals)?1:0}
+function plErr(m){if(/invalid login/i.test(m))return"Zły e-mail lub hasło.";if(/already registered/i.test(m))return"Konto z tym adresem już istnieje.";if(/password/i.test(m))return"Hasło musi mieć co najmniej 6 znaków.";if(/database/i.test(m))return"Ten nick jest zajęty.";if(/confirm/i.test(m))return"Potwierdź adres e-mail linkiem z wiadomości.";return"Coś poszło nie tak. Spróbuj ponownie."}
+
+async function load(){
+  const since=new Date(Date.now()-14*864e5).toISOString();
+  const [lg,mt]=await Promise.all([sb.from("leagues").select("*").order("id"),sb.from("matches").select("*,leagues(code,name)").gte("kickoff",since).order("kickoff")]);
+  S.leagues=lg.data||[];S.matches=mt.data||[];S.err=(lg.error||mt.error)?"Nie udało się wczytać danych. Odśwież stronę.":"";
+  S.tips={};S.me=null;
+  if(S.user){const [p,t]=await Promise.all([sb.from("profiles").select("*").eq("id",S.user.id).single(),sb.from("predictions").select("*").eq("user_id",S.user.id)]);S.me=p.data;(t.data||[]).forEach(x=>S.tips[x.match_id]=x)}
+  if(S.tab=="ranking")await loadBoard();render()}
+
+async function loadBoard(){
+  const n=new Date();let from=null,to=null;
+  if(S.scope=="week"){const d=new Date(n.getFullYear(),n.getMonth(),n.getDate()-((n.getDay()+6)%7));from=d;to=new Date(d.getTime()+7*864e5)}
+  if(S.scope=="month"){from=new Date(n.getFullYear(),n.getMonth(),1);to=new Date(n.getFullYear(),n.getMonth()+1,1)}
+  const {data,error}=await sb.rpc("get_leaderboard",{p_league:S.bleague||null,p_from:from&&from.toISOString(),p_to:to&&to.toISOString()});
+  S.board=data||[];if(error)S.err="Nie udało się wczytać rankingu."}
+
+function card(m){
+  const open=new Date(m.kickoff)>Date.now(),t=S.tips[m.id],fin=m.home_goals!=null,tt=t?`Twój typ: ${t.home_goals} : ${t.away_goals}`:"Nie typowałeś";
+  let mid,bot;
+  if(fin){mid=`<div class="fin">${m.home_goals} : ${m.away_goals}</div>`;const p=pts(t,m)??0;bot=`<span>${tt}</span><span class="pill p${p}">+${p} pkt</span>`}
+  else if(open&&S.user){mid=`<div class="score"><input type="number" min="0" max="20" inputmode="numeric" id="h${m.id}" value="${t?t.home_goals:""}" aria-label="Gole ${esc(m.home)}"><span>:</span><input type="number" min="0" max="20" inputmode="numeric" id="a${m.id}" value="${t?t.away_goals:""}" aria-label="Gole ${esc(m.away)}"></div>`;
+    bot=`<span id="ok${m.id}" class="ok">${t?"Zapisano. Możesz zmienić typ do startu meczu.":""}</span><button data-act="tip" data-id="${m.id}">Zapisz typ</button>`}
+  else if(open){mid=`<div class="fin">– : –</div>`;bot=`<span class="sub">Zaloguj się, aby typować.</span><button data-act="login">Zaloguj</button>`}
+  else{mid=`<div class="fin">– : –</div>`;bot=`<span>${tt}</span><span class="pill">Czeka na wynik</span>`}
+  return`<div class="match"><div class="meta"><span>${esc(m.leagues?.name)}${m.round?", kolejka "+m.round:""}</span><span>${fdate(m.kickoff)}</span></div><div class="row"><div class="team r">${esc(m.home)}</div>${mid}<div class="team">${esc(m.away)}</div></div><div class="res">${bot}</div></div>`}
+
+function leagueSel(id,val,all){return`<select id="${id}" aria-label="Liga">${all?`<option value="">Wszystkie ligi</option>`:""}${S.leagues.map(l=>`<option value="${all?l.code:l.id}" ${val==(all?l.code:l.id)?"selected":""}>${esc(l.name)}</option>`).join("")}</select>`}
+
+function view(){
+  if(S.tab=="auth"){const up=S.mode=="up";return`<form id="af" class="box"><h2>${up?"Załóż konto":"Zaloguj się"}</h2>
+   <label for="em">E-mail</label><input id="em" name="email" type="email" required autocomplete="email">
+   ${up?`<label for="nk">Nick (3–20 znaków, widoczny w rankingu)</label><input id="nk" name="nick" minlength="3" maxlength="20" required>`:""}
+   <label for="pw">Hasło</label><input id="pw" name="pw" type="password" minlength="6" required autocomplete="${up?"new-password":"current-password"}">
+   ${up?`<label class="chk"><input type="checkbox" name="ok"> Mam ukończone 18 lat i akceptuję regulamin.</label>`:""}
+   <p id="am" class="err"></p><button type="submit">${up?"Załóż konto":"Zaloguj"}</button> <button type="button" class="ghost" data-act="${up?"login":"reg"}">${up?"Mam już konto":"Nie mam konta"}</button></form>`}
+  if(S.tab=="mecze"){
+    const f=S.matches.filter(m=>!S.league||m.leagues?.code==S.league),up=f.filter(m=>new Date(m.kickoff)>Date.now()),past=f.filter(m=>new Date(m.kickoff)<=Date.now()).reverse();
+    return`<div class="bar">${leagueSel("lf",S.league,1)}</div><h2 class="sec" style="margin-top:0">Do typowania</h2>${up.map(card).join("")||`<p class="sub">Brak nadchodzących meczów. Zajrzyj później.</p>`}<h2 class="sec">Rozegrane (ostatnie 14 dni)</h2>${past.map(card).join("")||`<p class="sub">Jeszcze nic.</p>`}`}
+  if(S.tab=="ranking")return`<div class="bar"><select id="sc" aria-label="Okres"><option value="all" ${S.scope=="all"?"selected":""}>Ogólny</option><option value="week" ${S.scope=="week"?"selected":""}>Ten tydzień</option><option value="month" ${S.scope=="month"?"selected":""}>Ten miesiąc</option></select>${leagueSel("lb",S.bleague,1)}</div>
+   <div style="overflow-x:auto"><table><thead><tr><th>Miejsce</th><th>Gracz</th><th class="n">Punkty</th><th class="n">Dokładne</th><th class="n">Typy</th></tr></thead><tbody>${S.board.map((r,i)=>`<tr class="${r.nick==S.me?.nick?"you":""}"><td class="pos">${i+1}</td><td>${esc(r.nick)}</td><td class="n">${r.total_points}</td><td class="n">${r.exact_hits}</td><td class="n">${r.tips_count}</td></tr>`).join("")||`<tr><td colspan="5">Brak graczy.</td></tr>`}</tbody></table></div>`;
+  if(S.tab=="nagrody")return`<h2 class="sec" style="margin-top:0">Do wygrania</h2>${PRIZES.map(p=>`<div class="prize"><div class="medal">${esc(p[0])}</div><div><h3>${esc(p[1])}</h3><p>${esc(p[2])}</p></div></div>`).join("")}`;
+  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:0">Jak to działa</h2><ul><li><b>3 punkty</b> za dokładny wynik.</li><li><b>1 punkt</b> za trafionego zwycięzcę lub remis.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Nagrody fundują organizator i sponsorzy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień.</li></ul><p class="note">Tu wstawimy link do regulaminu i polityki prywatności.</p>`;
+  if(S.tab=="admin"&&S.me?.is_admin)return`<h2 class="sec" style="margin-top:0">Dodaj mecz</h2><form id="mf"><div class="grid">${leagueSel("ml",S.leagues[0]?.id,0).replace('id="ml"','id="ml" name="league"')}<input name="round" type="number" min="1" placeholder="Kolejka"><input name="home" placeholder="Gospodarz" required><input name="away" placeholder="Gość" required><input name="kickoff" type="datetime-local" required aria-label="Start meczu"></div><button type="submit">Dodaj mecz</button> <span id="mm"></span></form>
+   <h2 class="sec">Wyniki i mecze</h2>${S.matches.map(m=>`<div class="adm"><div><b>${esc(m.home)} – ${esc(m.away)}</b><br><span class="sub">${esc(m.leagues?.name)}, ${fdate(m.kickoff)}</span></div><div class="score"><input type="number" min="0" id="rh${m.id}" value="${m.home_goals??""}" aria-label="Gole gospodarza"><span>:</span><input type="number" min="0" id="ra${m.id}" value="${m.away_goals??""}" aria-label="Gole gościa"></div><div><button data-act="res" data-id="${m.id}">Zapisz</button> <button class="del" data-act="del" data-id="${m.id}" aria-label="Usuń mecz">Usuń</button></div></div>`).join("")}`;
+  return""}
+
+function render(){
+  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.me?.is_admin)tabs.push(["admin","Admin"]);
+  $("#app").innerHTML=`<header><div><h1>${esc(CFG.name)}</h1><p class="sub">Typuj wyniki, zbieraj punkty, wygrywaj nagrody. Za darmo, bez wpisowego.</p></div><div class="me">${S.user?`<span>${esc(S.me?.nick||"")}</span><button class="ghost" data-act="out">Wyloguj</button>`:`<button data-act="login">Zaloguj</button><button class="ghost" data-act="reg">Załóż konto</button>`}</div></header>
+  <nav role="tablist">${tabs.map(t=>`<button role="tab" data-tab="${t[0]}" aria-selected="${S.tab==t[0]}">${t[1]}</button>`).join("")}</nav>${S.err?`<p class="err">${S.err}</p>`:""}<main>${view()}</main>`}
+
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("button");if(!b)return;const a=b.dataset.act,id=+b.dataset.id;
+  if(b.dataset.tab){S.tab=b.dataset.tab;if(S.tab=="ranking")await loadBoard();return render()}
+  if(a=="login"||a=="reg"){S.tab="auth";S.mode=a=="reg"?"up":"in";return render()}
+  if(a=="out"){await sb.auth.signOut();return}
+  if(a=="tip"){const h=$("#h"+id).value,aw=$("#a"+id).value,ok=$("#ok"+id);
+    if(h===""||aw===""||h<0||aw<0||h>20||aw>20)return say(ok,"Wpisz gole od 0 do 20 dla obu drużyn.",1);
+    const {error}=await sb.from("predictions").upsert({user_id:S.user.id,match_id:id,home_goals:+h,away_goals:+aw,updated_at:new Date().toISOString()},{onConflict:"user_id,match_id"});
+    if(error)return say(ok,"Nie udało się zapisać. Mecz mógł się już zacząć.",1);
+    S.tips[id]={home_goals:+h,away_goals:+aw};return say(ok,"Zapisano. Możesz zmienić typ do startu meczu.")}
+  if(a=="res"){const h=$("#rh"+id).value,aw=$("#ra"+id).value;
+    const {error}=await sb.from("matches").update({home_goals:h===""?null:+h,away_goals:aw===""?null:+aw}).eq("id",id);
+    if(error)return alert("Nie udało się zapisać wyniku.");return load()}
+  if(a=="del"){if(!confirm("Usunąć ten mecz razem z typami?"))return;await sb.from("matches").delete().eq("id",id);return load()}
+});
+document.addEventListener("change",async e=>{
+  if(e.target.id=="lf"){S.league=e.target.value;render()}
+  if(e.target.id=="sc"||e.target.id=="lb"){S.scope=$("#sc").value;S.bleague=$("#lb").value;await loadBoard();render()}});
+document.addEventListener("submit",async e=>{
+  e.preventDefault();const f=new FormData(e.target);
+  if(e.target.id=="af"){const am=$("#am"),email=f.get("email").trim(),pw=f.get("pw");
+    if(S.mode=="up"){const nick=(f.get("nick")||"").trim();if(!f.get("ok"))return say(am,"Zaznacz zgodę: 18+ i regulamin.",1);
+      const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:{nick}}});if(error)return say(am,plErr(error.message),1);
+      if(!data.session){say(am,"Sprawdź skrzynkę i kliknij link potwierdzający. Potem możesz się zalogować.");return}}
+    else{const {error}=await sb.auth.signInWithPassword({email,password:pw});if(error)return say(am,plErr(error.message),1)}
+    S.tab="mecze"}
+  if(e.target.id=="mf"){const mm=$("#mm"),{error}=await sb.from("matches").insert({league_id:+f.get("league"),round:f.get("round")?+f.get("round"):null,home:f.get("home").trim(),away:f.get("away").trim(),kickoff:new Date(f.get("kickoff")).toISOString()});
+    if(error)return say(mm,"Nie udało się dodać meczu.",1);await load();say($("#mm"),"Dodano.")}});
+
+sb.auth.onAuthStateChange((_e,s)=>{S.user=s?.user||null;setTimeout(load,0)});
+render();
+</script>
+</body>
+</html>
