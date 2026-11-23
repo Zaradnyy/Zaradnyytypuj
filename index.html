@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Typer – typuj mecze dla zabawy</title>
+<title>Typerkowo – typuj mecze dla zabawy</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -52,8 +52,8 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 // ===== USTAWIENIA (tu zmieniasz nazwę i nagrody) =====
-const CFG={url:"https://kjvgibqcvegdgxmiqhhg.supabase.co",key:"sb_publishable_kEH6hdANVsbif6gyXMrDuA_1EU74Bxg",name:"Typer"};
-const PRIZES=[["1","Nagroda główna","Wpisz tu, co można wygrać."],["2","Drugie miejsce","Nagroda od sponsora albo karta podarunkowa."],["3","Trzecie miejsce","Gadżet, szalik, kubek."]];
+const CFG={url:"https://kjvgibqcvegdgxmiqhhg.supabase.co",key:"sb_publishable_kEH6hdANVsbif6gyXMrDuA_1EU74Bxg",name:"Typerkowo"};
+const PRIZES=[["1","Zwycięzca miesiąca","Karta podarunkowa 50 zł dla gracza z największą liczbą punktów w rankingu miesięcznym. Przy remisie decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta."]];
 // =====================================================
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
@@ -104,7 +104,7 @@ function view(){
   if(S.tab=="ranking")return`<div class="bar"><select id="sc" aria-label="Okres"><option value="all" ${S.scope=="all"?"selected":""}>Ogólny</option><option value="week" ${S.scope=="week"?"selected":""}>Ten tydzień</option><option value="month" ${S.scope=="month"?"selected":""}>Ten miesiąc</option></select>${leagueSel("lb",S.bleague,1)}</div>
    <div style="overflow-x:auto"><table><thead><tr><th>Miejsce</th><th>Gracz</th><th class="n">Punkty</th><th class="n">Dokładne</th><th class="n">Typy</th></tr></thead><tbody>${S.board.map((r,i)=>`<tr class="${r.nick==S.me?.nick?"you":""}"><td class="pos">${i+1}</td><td>${esc(r.nick)}</td><td class="n">${r.total_points}</td><td class="n">${r.exact_hits}</td><td class="n">${r.tips_count}</td></tr>`).join("")||`<tr><td colspan="5">Brak graczy.</td></tr>`}</tbody></table></div>`;
   if(S.tab=="nagrody")return`<h2 class="sec" style="margin-top:0">Do wygrania</h2>${PRIZES.map(p=>`<div class="prize"><div class="medal">${esc(p[0])}</div><div><h3>${esc(p[1])}</h3><p>${esc(p[2])}</p></div></div>`).join("")}`;
-  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:0">Jak to działa</h2><ul><li><b>3 punkty</b> za dokładny wynik.</li><li><b>1 punkt</b> za trafionego zwycięzcę lub remis.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Nagrody fundują organizator i sponsorzy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień.</li></ul><p class="note">Tu wstawimy link do regulaminu i polityki prywatności.</p>`;
+  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:0">Jak to działa</h2><ul><li><b>3 punkty</b> za dokładny wynik.</li><li><b>1 punkt</b> za trafionego zwycięzcę lub remis.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów kartą podarunkową 50 zł, a nagrodę funduje organizator.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Tu wstawimy link do regulaminu i polityki prywatności.</p>`;
   if(S.tab=="admin"&&S.me?.is_admin)return`<h2 class="sec" style="margin-top:0">Dodaj mecz</h2><form id="mf"><div class="grid">${leagueSel("ml",S.leagues[0]?.id,0).replace('id="ml"','id="ml" name="league"')}<input name="round" type="number" min="1" placeholder="Kolejka"><input name="home" placeholder="Gospodarz" required><input name="away" placeholder="Gość" required><input name="kickoff" type="datetime-local" required aria-label="Start meczu"></div><button type="submit">Dodaj mecz</button> <span id="mm"></span></form>
    <h2 class="sec">Wyniki i mecze</h2>${S.matches.map(m=>`<div class="adm"><div><b>${esc(m.home)} – ${esc(m.away)}</b><br><span class="sub">${esc(m.leagues?.name)}, ${fdate(m.kickoff)}</span></div><div class="score"><input type="number" min="0" id="rh${m.id}" value="${m.home_goals??""}" aria-label="Gole gospodarza"><span>:</span><input type="number" min="0" id="ra${m.id}" value="${m.away_goals??""}" aria-label="Gole gościa"></div><div><button data-act="res" data-id="${m.id}">Zapisz</button> <button class="del" data-act="del" data-id="${m.id}" aria-label="Usuń mecz">Usuń</button></div></div>`).join("")}`;
   return""}
