@@ -689,12 +689,18 @@ function drawDM(toBottom){
   if(near||toBottom||!el.dataset.init){el.scrollTop=el.scrollHeight;el.dataset.init=1}}
 
 /* ===== dzwoneczek / powiadomienia ===== */
-const unreadN=()=>S.notifs.filter(n=>!n.read_at).length;
+const dbUnread=()=>S.notifs.filter(n=>!n.read_at).length;
+function remindInfo(){
+  if(!S.user)return null;
+  const day=new Date().toDateString(),todays=S.matches.filter(m=>new Date(m.kickoff).toDateString()==day&&new Date(m.kickoff)>Date.now()).sort((a,b)=>new Date(a.kickoff)-new Date(b.kickoff));
+  const miss=todays.filter(m=>!S.tips[m.id]);
+  return miss.length?{n:miss.length,next:miss[0],feat:miss.some(m=>m.featured)}:null}
+const unreadN=()=>dbUnread()+(remindInfo()?1:0);
 const ago=t=>{const d=(Date.now()-new Date(t))/1000;if(d<60)return"przed chwilą";if(d<3600)return Math.floor(d/60)+" min temu";if(d<86400)return Math.floor(d/3600)+" godz. temu";return new Date(t).toLocaleDateString("pl-PL",{day:"numeric",month:"long"})};
 const NTXT={friend_request:"wysłał(a) Ci zaproszenie do znajomych",friend_accept:"zaakceptował(a) Twoje zaproszenie do znajomych",dm:"wysłał(a) Ci wiadomość",comment_reply:"odpowiedział(a) na Twój komentarz"};
 function bellInner(){
-  const n=unreadN();
-  return`<button class="bellbtn${S.bell?" on":""}" data-act="bell" aria-label="Powiadomienia${n?` (${n} nowych)`:""}" aria-expanded="${S.bell}">${icon("bell")}${n?`<i class="nbadge">${n>9?"9+":n}</i>`:""}</button>`+(S.bell?`<div class="bellp" role="dialog" aria-label="Powiadomienia"><div class="bellh"><span>Powiadomienia</span>${n?`<button class="lnk" data-act="nread">Oznacz jako przeczytane</button>`:""}</div>${S.notifs.length?S.notifs.map(x=>x.type=="exact_hit"?`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="exact_hit" data-ref="${x.ref||""}"><b>🎯 Trafiłeś dokładny wynik! +${x.match&&x.match.featured?8:4} pkt</b> ${x.match?`${esc(x.match.home)} ${x.match.home_goals}:${x.match.away_goals} ${esc(x.match.away)}`:""}<small>${esc(ago(x.created_at))}</small></button>`:`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="${x.type}" data-uid="${x.actor_id||""}" data-ref="${x.ref||""}" data-nick="${esc(x.actor?.nick||"")}"><b>${esc(x.actor?.nick||"Gracz")}</b> ${NTXT[x.type]||""}<small>${esc(ago(x.created_at))}</small></button>`).join(""):`<p class="nempty">Brak powiadomień.</p>`}</div>`:"")}
+  const n=unreadN(),nd=dbUnread(),rm=remindInfo();
+  return`<button class="bellbtn${S.bell?" on":""}" data-act="bell" aria-label="Powiadomienia${n?` (${n} nowych)`:""}" aria-expanded="${S.bell}">${icon("bell")}${n?`<i class="nbadge">${n>9?"9+":n}</i>`:""}</button>`+(S.bell?`<div class="bellp" role="dialog" aria-label="Powiadomienia"><div class="bellh"><span>Powiadomienia</span>${nd?`<button class="lnk" data-act="nread">Oznacz jako przeczytane</button>`:""}</div>${rm?`<button class="nitem un" data-act="nrem"><b>⚠️ Nie wytypowałeś dzisiejszych meczów!</b> Brakuje typów: ${rm.n}${rm.feat?" (w tym ⭐ Mecz dnia)":""}.<small>Najbliższy: ${esc(rm.next.home)} – ${esc(rm.next.away)}, start o ${esc(hm(rm.next.kickoff))}</small></button>`:""}${S.notifs.length?S.notifs.map(x=>x.type=="exact_hit"?`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="exact_hit" data-ref="${x.ref||""}"><b>🎯 Trafiłeś dokładny wynik! +${x.match&&x.match.featured?8:4} pkt</b> ${x.match?`${esc(x.match.home)} ${x.match.home_goals}:${x.match.away_goals} ${esc(x.match.away)}`:""}<small>${esc(ago(x.created_at))}</small></button>`:`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="${x.type}" data-uid="${x.actor_id||""}" data-ref="${x.ref||""}" data-nick="${esc(x.actor?.nick||"")}"><b>${esc(x.actor?.nick||"Gracz")}</b> ${NTXT[x.type]||""}<small>${esc(ago(x.created_at))}</small></button>`).join(""):(rm?"":`<p class="nempty">Brak powiadomień.</p>`)}</div>`:"")}
 function drawBell(){document.querySelectorAll(".bellwrap").forEach(el=>el.innerHTML=bellInner())}
 async function loadNotifs(){
   if(!S.user){S.notifs=[];return}
@@ -867,6 +873,7 @@ document.addEventListener("click",async e=>{
   if(a=="goprize"){S.scope="month";S.bleague="";await loadBoard();return render()}
   if(a=="onlyrep"){S.onlyRep=!S.onlyRep;return render()}
   if(a=="bell"){S.bell=!S.bell;return drawBell()}
+  if(a=="nrem"){S.bell=false;S.tab="mecze";render();window.scrollTo(0,0);return}
   if(a=="nread"){const now=new Date().toISOString();await sb.from("notifications").update({read_at:now}).is("read_at",null).eq("user_id",S.user.id);S.notifs.forEach(n=>{if(!n.read_at)n.read_at=now});return drawBell()}
   if(a=="nopen"){const t=b.dataset.type,uid=b.dataset.uid,nick=b.dataset.nick,ref=+b.dataset.ref;
     S.bell=false;const n=S.notifs.find(x=>x.id==id);if(n&&!n.read_at){n.read_at=new Date().toISOString();sb.from("notifications").update({read_at:n.read_at}).eq("id",id).then(()=>{})}
@@ -912,7 +919,7 @@ document.addEventListener("click",async e=>{
     const {error}=await sb.from("predictions").upsert({user_id:S.user.id,match_id:id,home_goals:+h,away_goals:+aw,updated_at:new Date().toISOString()},{onConflict:"user_id,match_id"});
     if(error)return say(ok,"Nie udało się zapisać. Mecz mógł się już zacząć.",1);
     loadForecast().then(()=>{const mm=S.matches.find(x=>x.id==id),el=$("#fc"+id);if(mm&&el)el.innerHTML=fcHTML(mm)});
-    S.tips[id]={home_goals:+h,away_goals:+aw};return say(ok,"Zapisano. Możesz zmienić typ do startu meczu.")}
+    S.tips[id]={home_goals:+h,away_goals:+aw};drawBell();return say(ok,"Zapisano. Możesz zmienić typ do startu meczu.")}
   if(a=="res"){const h=$("#rh"+id).value,aw=$("#ra"+id).value;
     if((h===""||aw==="")&&!(h===""&&aw===""))return alert("Wpisz wynik obu drużyn.");
     const {error}=await sb.from("matches").update({home_goals:h===""?null:+h,away_goals:aw===""?null:+aw}).eq("id",id);
