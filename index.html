@@ -191,6 +191,7 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .lt b{font-weight:700;overflow-wrap:anywhere}.lt .sub{margin:0;font-size:13px}
 .psearch{display:flex;gap:8px;margin-top:18px}.psearch input{flex:1;min-width:0;font-size:16px;padding:10px 12px}
 .psearch button{display:flex;align-items:center;gap:6px;padding:9px 14px}.psearch .ic{width:20px;height:20px}
+.sres{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 12px;margin-top:10px}.sres .frreq{border-bottom:1px solid var(--line)}.sres .frreq:last-child{border:0}.sres .ab{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .pres{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .pres button{background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:99px;padding:6px 14px}
 .nickb{background:none;color:inherit;padding:0;font:inherit;font-weight:700;border-radius:4px;cursor:pointer}.nickb:hover{text-decoration:underline}
@@ -372,8 +373,8 @@ async function openProfile(nick){S.viewNick=nick&&nick!=S.me?.nick?nick:null;S.t
 async function searchPlayers(q){
   const t=q.trim().replace(/[%_\\,()]/g," ").trim();S.pq=q;
   if(t.length<2){S.pres=[];S.pmsg="Wpisz co najmniej 2 znaki.";return render()}
-  const r=await sb.from("profiles").select("nick").ilike("nick","%"+t+"%").order("nick").limit(12);
-  S.pres=r.data||[];S.pmsg=r.error?"Nie udało się wyszukać.":(S.pres.length?"":"Nie znaleziono gracza o takim nicku.");render()}
+  const r=await sb.from("profiles").select("id,nick").ilike("nick","%"+t+"%").order("nick").limit(12);
+  S.pres=(r.data||[]).filter(x=>x.id!=S.user.id);S.pmsg=r.error?"Nie udało się wyszukać.":(S.pres.length?"":"Nie znaleziono gracza o takim nicku.");render()}
 
 const pc=(a,b)=>b?Math.round(a/b*100):null;
 function profStats(){
@@ -402,8 +403,7 @@ function kontoView(){
    <label for="kd">Aby potwierdzić, wpisz swój nick: <b>${esc(me.nick||"")}</b></label><input id="kd" name="confirm" autocomplete="off" required><p id="md" class="err" role="status"></p><button type="submit" class="del">Usuń moje konto na stałe</button></form>`}
 function profView(){
   if(!S.user)return`<div class="box"><h2>Profil</h2><p class="sub">Zaloguj się, aby zobaczyć swój profil i statystyki.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
-  const sch=`<form id="pf" class="psearch" role="search"><input id="pq" name="q" type="search" maxlength="20" autocomplete="off" placeholder="Szukaj gracza po nicku" aria-label="Szukaj gracza po nicku" value="${esc(S.pq||"")}"><button type="submit" aria-label="Szukaj">${icon("lupa")}<span>Szukaj</span></button></form>`
-   +(S.pres?(S.pres.length?`<div class="pres">${S.pres.map(r=>`<button data-act="pview" data-nick="${esc(r.nick)}">${esc(r.nick)}</button>`).join("")}</div>`:`<p class="sub">${esc(S.pmsg||"")}</p>`):"");
+  const sch="";
   if(!S.prof)return sch+`<p class="sub" style="margin-top:18px">Wczytuję profil…</p>`;
   if(S.prof.notfound)return sch+`<p class="note" style="margin-top:18px">Nie ma takiego gracza.</p><button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
   const own=S.prof.own,st=profStats(),me=S.prof.user||{},since=me.created_at?new Date(me.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"",role=me.is_admin?`<span class="bdg o">Organizator</span>`:me.is_moderator?`<span class="bdg a">Administrator</span>`:"";
@@ -556,16 +556,15 @@ function friendsListHTML(){
   if(inc.length)h+=`<h3>Zaproszenia (${inc.length})</h3>`+inc.map(f=>`<div class="frreq"><button class="nickb" data-act="pview" data-nick="${esc(f.nick)}">${esc(f.nick)}</button><span class="ab"><button data-act="facc" data-id="${f.id}">Akceptuj</button><button class="ghost" data-act="fdec" data-id="${f.id}">Odrzuć</button></span></div>`).join("");
   h+=`<h3>Znajomi (${acc.length})</h3>`+(acc.length?acc.map(f=>`<button class="fitem" data-act="dmopen" data-uid="${f.uid}" data-nick="${esc(f.nick)}" aria-current="${S.dm&&S.dm.id==f.uid}">${esc(f.nick)}${S.unread[f.uid]?`<i class="nbadge">${S.unread[f.uid]}</i>`:""}</button>`).join(""):`<p class="sub">Nie masz jeszcze znajomych.</p>`);
   if(out.length)h+=`<h3>Wysłane zaproszenia</h3>`+out.map(f=>`<div class="frreq"><button class="nickb" data-act="pview" data-nick="${esc(f.nick)}">${esc(f.nick)}</button><button class="ghost" data-act="fdec" data-id="${f.id}">Anuluj</button></div>`).join("");
-  h+=`<p style="margin-top:14px"><button class="ghost" data-tab="profil">${icon("lupa")} Znajdź graczy</button></p>`;
   return h}
 function drawFriendsList(){const el=$("#frl");if(el)el.innerHTML=friendsListHTML()}
 function dmHTML(){
-  if(!S.dm)return`<p class="sub" style="padding:8px">Wybierz znajomego z listy, aby napisać wiadomość. Nowych znajomych dodasz z poziomu ich profilu (zakładka Profil → wyszukaj gracza, albo kliknij nick na czacie lub w rankingu).</p>`;
+  if(!S.dm)return`<p class="sub" style="padding:8px">Wybierz znajomego z listy, aby napisać wiadomość. Nowych znajomych znajdziesz wyszukiwarką powyżej albo klikając nick na czacie lub w rankingu.</p>`;
   return`<div class="dmhead"><span><button class="ghost dmback" data-act="dmback">← Lista</button> <button class="nickb" data-act="pview" data-nick="${esc(S.dm.nick)}" style="font-size:18px">${esc(S.dm.nick)}</button></span><button class="lnk bad" data-act="funf" data-id="${(frOf(S.dm.id)||{}).id}" data-uid="${S.dm.id}" data-nick="${esc(S.dm.nick)}">Usuń ze znajomych</button></div>
   <div id="dl" class="dml" aria-live="polite"></div><form id="df" class="cf"><input id="di" data-key="dm" maxlength="500" autocomplete="off" placeholder="Napisz wiadomość do ${esc(S.dm.nick)}" aria-label="Wiadomość prywatna" value="${esc(S.cDraft.dm||"")}"><button type="submit">Wyślij</button></form><p id="dme" class="err"></p>`}
 function friendsView(){
   if(!S.user)return`<div class="box"><h2>Znajomi</h2><p class="sub">Zaloguj się, aby dodawać znajomych i pisać z nimi.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
-  return`<h2 class="sec" style="margin-top:18px">Znajomi</h2><p class="sub">Wiadomości prywatne możesz wymieniać tylko ze znajomymi. Zaproszenie musi zostać zaakceptowane. Bez linków, wulgaryzmów i reklam.</p><div class="frwrap${S.dm?" open":""}"><div class="frcol" id="frl">${friendsListHTML()}</div><div class="dmcol" id="dmc">${dmHTML()}</div></div>`}
+  return`<h2 class="sec" style="margin-top:18px">Znajomi</h2><p class="sub">Wiadomości prywatne możesz wymieniać tylko ze znajomymi. Zaproszenie musi zostać zaakceptowane. Bez linków, wulgaryzmów i reklam.</p>${S.dm?"":""}<form id="pf" class="psearch" role="search"><input id="pq" name="q" type="search" maxlength="20" autocomplete="off" placeholder="Szukaj gracza po nicku, aby dodać go do znajomych" aria-label="Szukaj gracza po nicku" value="${esc(S.pq||"")}"><button type="submit" aria-label="Szukaj">${icon("lupa")}<span>Szukaj</span></button></form>${S.pres?(S.pres.length?`<div class="sres">${S.pres.map(r=>`<div class="frreq"><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}">${esc(r.nick)}</button><span class="ab">${friendBtn(r.id,r.nick)}</span></div>`).join("")}</div>`:`<p class="sub">${esc(S.pmsg||"")}</p>`):""}<div class="frwrap${S.dm?" open":""}"><div class="frcol" id="frl">${friendsListHTML()}</div><div class="dmcol" id="dmc">${dmHTML()}</div></div>`}
 async function loadDM(){
   if(!S.dm||!S.user)return;
   const a=S.user.id,b=S.dm.id;
