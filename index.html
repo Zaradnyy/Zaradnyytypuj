@@ -413,7 +413,7 @@ async function loadProfile(){
     sb.from("predictions").select("home_goals,away_goals,created_at,matches(home,away,kickoff,home_goals,away_goals,round,league_id,leagues(name))").eq("user_id",who.id),
     sb.rpc("get_leaderboard",{p_league:null,p_from:null,p_to:null})]);
   await ensureLevels([who.id],true);const sv=S.lv[who.id];
-  S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error,srv:sv&&sv.tips?{tips:sv.tips,days:sv.days}:null}}
+  S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error,srv:sv&&(sv.tips||sv.friends||sv.chats)?{tips:sv.tips,days:sv.days,friends:sv.friends,chats:sv.chats}:null}}
 async function openProfile(nick){S.viewNick=nick&&nick!=S.me?.nick?nick:null;S.tab="profil";S.prof=null;render();await loadProfile();render();window.scrollTo(0,0)}
 async function searchPlayers(q){
   const t=q.trim().replace(/[%_\\,()]/g," ").trim();S.pq=q;
@@ -429,7 +429,8 @@ function profStats(){
   let best=0,cur=0;calc.forEach(x=>{if(x.p>=3){cur++;best=Math.max(best,cur)}else cur=0});
   const lg={};calc.forEach(x=>{const k=x.matches.leagues?.name||"Inne";const o=lg[k]=lg[k]||{n:0,p:0,h:0,e:0};o.n++;o.p+=x.p;if(x.p>=3)o.h++;if(x.p==4)o.e++});
   const days=S.prof?.srv?S.prof.srv.days:new Set((S.prof?.rows||[]).filter(x=>x.created_at).map(x=>new Date(x.created_at).toLocaleDateString("sv-SE"))).size;
-  return{calc,n,total,hit,exact,best,cur,lg,days,pending:(S.prof?.rows||[]).length-n}}
+  const sv=S.prof?.srv,friends=sv?sv.friends:(S.prof?.own?S.fr.filter(f=>f.status=="accepted").length:0),chats=sv?sv.chats:0;
+  return{calc,n,total,hit,exact,best,cur,lg,days,friends,chats,pending:(S.prof?.rows||[]).length-n}}
 /* ===== poziomy (XP) i osiągnięcia: wszystko do ustawienia w tym bloku ===== */
 const XP_TIP=10;                                        // XP za każdy wytypowany mecz
 const XP_DIFF={e:{n:"Łatwa",xp:50},m:{n:"Średnia",xp:200},h:{n:"Trudna",xp:750},l:{n:"Legendarna",xp:2000}};
@@ -445,7 +446,12 @@ const ACH_GROUPS=[
   {ic:"📅",name:"Regularny",desc:"Typowanie przez 7 różnych dni",d:"m",goal:7,f:st=>st.days},
   {ic:"💪",name:"Wytrwały",desc:"Typowanie przez 30 różnych dni",d:"h",goal:30,f:st=>st.days},
   {ic:"🏃",name:"Maratończyk",desc:"Typowanie przez 90 różnych dni",d:"h",goal:90,f:st=>st.days},
-  {ic:"🏆",name:"Weteran",desc:"Typowanie przez 365 różnych dni",d:"l",goal:365,f:st=>st.days}]}
+  {ic:"🏆",name:"Weteran",desc:"Typowanie przez 365 różnych dni",d:"l",goal:365,f:st=>st.days}]},
+ {name:"Społeczność",items:[
+  {ic:"🤝",name:"Pierwszy znajomy",desc:"Dodanie pierwszego znajomego",d:"e",goal:1,f:st=>st.friends},
+  {ic:"🙈",name:"Wstydzioszek",desc:"Pierwsza wiadomość na czacie",d:"e",goal:1,f:st=>st.chats},
+  {ic:"💬",name:"Rozmowny",desc:"50 wiadomości na czacie",d:"m",goal:50,f:st=>st.chats},
+  {ic:"🗣️",name:"Gaduła",desc:"200 wiadomości na czacie",d:"h",goal:200,f:st=>st.chats}]}
 ];
 function calcXp(st,tips){
   const tipXp=tips*XP_TIP;let achXp=0,got=0,all=0;
@@ -456,11 +462,11 @@ function xpInfo(st){return calcXp(st,S.prof?.srv?S.prof.srv.tips:(S.prof?.rows||
 async function ensureLevels(ids,force){
   const need=[...new Set(ids.filter(Boolean))].filter(i=>force||!S.lv[i]);if(!need.length)return;
   const {data,error}=await sb.rpc("player_levels",{uids:need});if(error)return;
-  need.forEach(i=>{if(!S.lv[i])S.lv[i]={tips:0,hits:0,exacts:0,days:0}});
-  (data||[]).forEach(r=>S.lv[r.user_id]={tips:+r.tips,hits:+r.hits,exacts:+r.exacts,days:+r.days})}
+  need.forEach(i=>{if(!S.lv[i])S.lv[i]={tips:0,hits:0,exacts:0,days:0,friends:0,chats:0}});
+  (data||[]).forEach(r=>S.lv[r.user_id]={tips:+r.tips,hits:+r.hits,exacts:+r.exacts,days:+r.days,friends:+r.friends,chats:+r.chats})}
 function lvTag(uid){
   const r=S.lv[uid];if(!r)return"";
-  const x=calcXp({hit:r.hits,exact:r.exacts,days:r.days},r.tips);
+  const x=calcXp({hit:r.hits,exact:r.exacts,days:r.days,friends:r.friends,chats:r.chats},r.tips);
   return`<span class="lvchip sm" title="Poziom ${x.L}">poz. ${x.L}</span>`}
 function badgesHTML(st){
   const x=xpInfo(st),pctL=Math.round((x.xp-x.from)/(x.to-x.from)*100);
