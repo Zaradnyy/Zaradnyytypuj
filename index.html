@@ -157,6 +157,7 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .dmm.mine{margin-left:auto;background:color-mix(in srgb,var(--gold) 28%,transparent)}
 .dmm time,.dmm .rd{display:block;font-size:11px;color:var(--mute);white-space:normal}
 .dmm .lnk{font-size:11px}
+.dmm.gone,.msg.del .mb{color:var(--mute);font-style:italic}.msg.del{padding:4px 10px}.msg.del time{font-style:normal;font-size:13px;margin-left:6px}
 .dmback{display:none}
 .pact{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 @media(max-width:720px){.frwrap{grid-template-columns:1fr}.frwrap.open .frcol{display:none}.frwrap:not(.open) .dmcol{display:none}.dmback{display:inline-block}.pact{margin-left:0;width:100%}}
@@ -694,14 +695,15 @@ function friendsView(){
 async function loadDM(){
   if(!S.dm||!S.user)return;
   const a=S.user.id,b=S.dm.id;
-  const {data}=await sb.from("direct_messages").select("id,sender_id,body,created_at,read_at").or(`and(sender_id.eq.${a},recipient_id.eq.${b}),and(sender_id.eq.${b},recipient_id.eq.${a})`).order("created_at",{ascending:false}).limit(100);
+  const {data}=await sb.from("direct_messages").select("id,sender_id,body,created_at,read_at,deleted_at").or(`and(sender_id.eq.${a},recipient_id.eq.${b}),and(sender_id.eq.${b},recipient_id.eq.${a})`).order("created_at",{ascending:false}).limit(100);
   S.dmMsgs=(data||[]).reverse();
   if(S.unread[b]){await sb.from("direct_messages").update({read_at:new Date().toISOString()}).eq("recipient_id",a).eq("sender_id",b).is("read_at",null);delete S.unread[b];updBadge();drawFriendsList()}
   drawDM()}
 function drawDM(toBottom){
   const el=$("#dl");if(!el||!S.dm)return;
-  const near=el.scrollHeight-el.scrollTop-el.clientHeight<80,msgs=S.dmMsgs,lastMine=[...msgs].reverse().find(m=>m.sender_id==S.user.id);
+  const near=el.scrollHeight-el.scrollTop-el.clientHeight<80,msgs=S.dmMsgs,lastMine=[...msgs].reverse().find(m=>m.sender_id==S.user.id&&!m.deleted_at);
   el.innerHTML=msgs.length?msgs.map(m=>{const mine=m.sender_id==S.user.id,t=new Date(m.created_at),ts=t.toDateString()==new Date().toDateString()?hm(m.created_at):t.toLocaleString("pl-PL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    if(m.deleted_at)return`<div class="dmm gone${mine?" mine":""}"><i>Wiadomość usunięta</i><time>${esc(ts)}</time></div>`;
     return`<div class="dmm${mine?" mine":""}">${esc(m.body)}<time>${esc(ts)}${mine?` <button class="lnk" data-act="dmdel" data-id="${m.id}">Usuń</button>`:""}</time>${mine&&lastMine&&lastMine.id==m.id&&m.read_at?`<span class="rd">Przeczytano</span>`:""}</div>`}).join(""):`<p class="sub" style="padding:8px">Brak wiadomości. Napisz pierwszą.</p>`;
   if(near||toBottom||!el.dataset.init){el.scrollTop=el.scrollHeight;el.dataset.init=1}}
 
@@ -767,7 +769,7 @@ const isStaff=()=>!!(S.me?.is_admin||S.me?.is_moderator);
 const fmtT=t=>new Date(t).toLocaleString("pl-PL",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"});
 async function loadChat(light){
   if(!S.user)return;
-  const {data}=await sb.from("chat_messages").select("id,body,created_at,user_id,profiles(nick,is_admin,is_moderator)").order("created_at",{ascending:false}).limit(60);
+  const {data}=await sb.from("chat_messages").select("id,body,created_at,user_id,deleted_at,profiles(nick,is_admin,is_moderator)").order("created_at",{ascending:false}).limit(60);
   S.chat=(data||[]).reverse();
   await ensureLevels(S.chat.map(m=>m.user_id),!light);
   if(!light){
@@ -788,6 +790,7 @@ function stopChat(){if(chTimer){clearInterval(chTimer);chTimer=null}if(chCh){sb.
 const muteCount=uid=>S.mutes.filter(x=>x.user_id==uid).length;
 const activeMute=uid=>S.mutes.find(x=>x.user_id==uid&&new Date(x.until)>Date.now());
 function chatMsg(m){
+  if(m.deleted_at){const t=new Date(m.created_at),ts=t.toDateString()==new Date().toDateString()?hm(m.created_at):t.toLocaleString("pl-PL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});return`<div class="msg del"><div class="mb"><i>Wiadomość usunięta</i> <time>${esc(ts)}</time></div></div>`}
   const p=m.profiles||{},mine=m.user_id==S.user.id,rc=S.reports[m.id]||0,isS=p.is_admin||p.is_moderator;
   const badge=p.is_admin?`<span class="bdg o">Organizator</span>`:p.is_moderator?`<span class="bdg a">Administrator</span>`:"";
   const t=new Date(m.created_at),ts=t.toDateString()==new Date().toDateString()?hm(m.created_at):t.toLocaleString("pl-PL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
@@ -805,7 +808,7 @@ function drawChat(force,toBottom){
   const el=$("#cl");if(!el)return;
   const ae=document.activeElement;
   if(!force&&ae&&ae.tagName=="SELECT"&&el.contains(ae))return;
-  const near=el.scrollHeight-el.scrollTop-el.clientHeight<80,list=S.onlyRep?S.chat.filter(m=>S.reports[m.id]):S.chat;
+  const near=el.scrollHeight-el.scrollTop-el.clientHeight<80,list=S.onlyRep?S.chat.filter(m=>S.reports[m.id]&&!m.deleted_at):S.chat;
   el.innerHTML=list.length?list.map(chatMsg).join(""):`<p class="sub" style="padding:12px">${S.onlyRep?"Brak zgłoszonych wiadomości.":"Cisza na czacie. Napisz pierwszy."}</p>`;
   if(near||toBottom)el.scrollTop=el.scrollHeight;
   const muted=!!S.myMute&&new Date(S.myMute)>Date.now();
@@ -907,7 +910,7 @@ document.addEventListener("click",async e=>{
     await sb.from("friendships").delete().eq("id",id);if(S.dm&&S.dm.id==b.dataset.uid)S.dm=null;await loadFriends();return render()}
   if(a=="dmopen"){if(!S.dm||S.dm.id!=b.dataset.uid){S.cDraft.dm=""}S.dm={id:b.dataset.uid,nick:b.dataset.nick};S.dmMsgs=[];S.tab="znajomi";render();await loadDM();drawDM(true);window.scrollTo(0,0);return}
   if(a=="dmback"){S.dm=null;return render()}
-  if(a=="dmdel"){await sb.from("direct_messages").delete().eq("id",id);return loadDM()}
+  if(a=="dmdel"){if(!confirm("Usunąć tę wiadomość? Zniknie u obu stron, a w jej miejscu zostanie napis „Wiadomość usunięta”."))return;const {error}=await sb.rpc("delete_dm",{msg_id:id});if(error)alert("Nie udało się usunąć wiadomości.");return loadDM()}
   if(a=="ctog")return toggleComments(id);
   if(a=="crep"){S.cReply[+b.dataset.mid]={pid:+b.dataset.top,nick:b.dataset.nick};
     const mid=+b.dataset.mid,top=+b.dataset.top;
@@ -926,7 +929,7 @@ document.addEventListener("click",async e=>{
   if(a=="ccdis"){await sb.from("comment_reports").delete().eq("comment_id",id);await loadCRepList();return drawCRep()}
   if(a=="rep"){const {error}=await sb.from("chat_reports").insert({message_id:id,reporter_id:S.user.id});
     if(!error||/duplicate/i.test(error.message)){S.reported.add(id);drawChat(true)}return}
-  if(a=="cdel"){if(!confirm("Usunąć tę wiadomość?"))return;await sb.from("chat_messages").delete().eq("id",id);return loadChat()}
+  if(a=="cdel"){if(!confirm("Usunąć tę wiadomość? W jej miejscu zostanie napis „Wiadomość usunięta”."))return;const {error}=await sb.rpc("delete_chat_message",{msg_id:id});if(error)alert("Nie udało się usunąć wiadomości.");return loadChat()}
   if(a=="mute"){const hrs=+$("#mt"+id).value;if(!confirm(`Wyciszyć ${b.dataset.nick} na ${hrs} h?`))return;
     const {error}=await sb.from("chat_mutes").insert({user_id:b.dataset.uid,until:new Date(Date.now()+hrs*36e5).toISOString(),hours:hrs,created_by:S.user.id});
     if(error)return alert("Nie udało się wyciszyć.");return loadChat()}
