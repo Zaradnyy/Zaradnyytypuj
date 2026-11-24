@@ -943,7 +943,9 @@ document.addEventListener("click",async e=>{
     if(error)return alert("Nie udało się zapisać wyniku.");S.editing.delete(id);return load()}
   if(a=="redit"){if(!confirm("Czy na pewno chcesz edytować zatwierdzony wynik tego meczu? Po zapisaniu zmiany punkty graczy zostaną przeliczone."))return;S.editing.add(id);return render()}
   if(a=="rcancel"){S.editing.delete(id);return render()}
-  if(a=="feat"){const m=S.matches.find(x=>x.id==id);if(!m)return;const {error}=await sb.from("matches").update({featured:!m.featured}).eq("id",id);if(error)return alert("Nie udało się zmienić. Czy uruchomiono SQL „Mecz dnia”?");return load()}
+  if(a=="feat"){const m=S.matches.find(x=>x.id==id);if(!m)return;if(!m.featured){const dk=x=>new Date(x.kickoff).toLocaleDateString("sv-SE",{timeZone:"Europe/Warsaw"}),other=S.matches.find(x=>x.id!=id&&x.featured&&dk(x)==dk(m));
+      if(other&&!confirm(`Na ten dzień Mecz dnia jest już ustawiony: ${other.home} – ${other.away}.\n\nCzy na pewno zmienić go na: ${m.home} – ${m.away}?`))return}
+    const {error}=await sb.from("matches").update({featured:!m.featured}).eq("id",id);if(error)return alert("Nie udało się zmienić. Czy uruchomiono SQL „Mecz dnia”?");return load()}
   if(a=="del"){if(!confirm("Usunąć ten mecz razem z typami?"))return;await sb.from("matches").delete().eq("id",id);return load()}
 });
 document.addEventListener("change",async e=>{
