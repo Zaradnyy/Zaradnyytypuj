@@ -586,7 +586,7 @@ function cItem(mid,c,top){
   if(!mine&&!isS)acts+=S.cRepd.has(c.id)?`<span>Zgłoszono</span>`:`<button class="lnk" data-act="crpt" data-id="${c.id}" data-mid="${mid}">Zgłoś</button>`;
   if(mine||isStaff())acts+=`<button class="lnk bad" data-act="cdel2" data-id="${c.id}" data-mid="${mid}">Usuń</button>`;
   if(isStaff()&&rc)acts+=`<b style="color:var(--bad)">Zgłoszenia: ${rc}</b>`;
-  if(S.me?.is_admin&&!mine&&!isS){
+  if(isStaff()&&!mine&&!isS){
     const n=muteCount(c.user_id),next=[1,6,12,24][Math.min(n,3)],am=activeMute(c.user_id);
     acts+=am?`<span>Wyciszony do ${esc(fmtT(am.until))}</span><button class="lnk" data-act="cunmute" data-uid="${c.user_id}" data-mid="${mid}">Zdejmij</button>`
       :`<select id="cmt${c.id}" aria-label="Czas wyciszenia">${[1,6,12,24].map(h=>`<option value="${h}" ${h==next?"selected":""}>${h} h</option>`).join("")}</select><button class="lnk bad" data-act="cmute" data-id="${c.id}" data-mid="${mid}" data-uid="${c.user_id}" data-nick="${esc(p.nick||"")}">Wycisz</button><span>wyciszany wcześniej: ${n}×</span>`}
@@ -727,7 +727,7 @@ function admRow(m){
   const fin=m.home_goals!=null,ed=S.editing.has(m.id),lock=fin&&!ed,dis=lock?" disabled":"";
   const btns=lock?`<span class="okb">✓ Zatwierdzone</span> <button class="ghost" data-act="redit" data-id="${m.id}">Edytuj</button>`
     :`<button data-act="res" data-id="${m.id}">${ed?"Zapisz zmianę":"Zatwierdź"}</button>${ed?` <button class="ghost" data-act="rcancel" data-id="${m.id}">Anuluj</button>`:""}`;
-  return`<div class="adm${lock?" done":""}"><div><b>${esc(m.home)} – ${esc(m.away)}</b><br><span class="sub">${hm(m.kickoff)}${m.round?", kolejka "+m.round:""}</span></div><div class="score"><input type="number" min="0" id="rh${m.id}" value="${m.home_goals??""}"${dis} aria-label="Gole gospodarza"><span>:</span><input type="number" min="0" id="ra${m.id}" value="${m.away_goals??""}"${dis} aria-label="Gole gościa"></div><div class="ab">${btns} <button class="ghost" data-act="feat" data-id="${m.id}" title="Podwójne punkty">${m.featured?"⭐ Mecz dnia (zdejmij)":"☆ Mecz dnia"}</button> <button class="del" data-act="del" data-id="${m.id}" aria-label="Usuń mecz">Usuń</button></div></div>`}
+  return`<div class="adm${lock?" done":""}"><div><b>${esc(m.home)} – ${esc(m.away)}</b><br><span class="sub">${hm(m.kickoff)}${m.round?", kolejka "+m.round:""}</span></div><div class="score"><input type="number" min="0" id="rh${m.id}" value="${m.home_goals??""}"${dis} aria-label="Gole gospodarza"><span>:</span><input type="number" min="0" id="ra${m.id}" value="${m.away_goals??""}"${dis} aria-label="Gole gościa"></div><div class="ab">${btns} <button class="ghost" data-act="feat" data-id="${m.id}" title="Podwójne punkty">${m.featured?"⭐ Mecz dnia (zdejmij)":"☆ Mecz dnia"}</button> ${S.me?.is_admin?`<button class="del" data-act="del" data-id="${m.id}" aria-label="Usuń mecz">Usuń</button>`:""}</div></div>`}
 
 function leagueSel(id,val,all){return`<select id="${id}" aria-label="Liga">${all?`<option value="">Wszystkie ligi</option>`:""}${S.leagues.map(l=>`<option value="${all?l.code:l.id}" ${val==(all?l.code:l.id)?"selected":""}>${esc(l.name)}</option>`).join("")}</select>`}
 
@@ -779,7 +779,7 @@ function chatMsg(m){
   if(isStaff()){
     if(rc)acts+=`<b style="color:var(--bad)">Zgłoszenia: ${rc}</b>`;
     acts+=`<button class="lnk bad" data-act="cdel" data-id="${m.id}">Usuń</button>`;
-    if(S.me.is_admin&&!mine&&!isS){
+    if(isStaff()&&!mine&&!isS){
       const n=muteCount(m.user_id),next=[1,6,12,24][Math.min(n,3)],am=activeMute(m.user_id);
       acts+=am?`<span>Wyciszony do ${esc(fmtT(am.until))}</span><button class="lnk" data-act="unmute" data-uid="${m.user_id}">Zdejmij</button>`
         :`<select id="mt${m.id}" aria-label="Czas wyciszenia">${[1,6,12,24].map(h=>`<option value="${h}" ${h==next?"selected":""}>${h} h</option>`).join("")}</select><button class="lnk bad" data-act="mute" data-id="${m.id}" data-uid="${m.user_id}" data-nick="${esc(p.nick)}">Wycisz</button><span>wyciszany wcześniej: ${n}×</span>`}}
@@ -828,7 +828,7 @@ function view(){
   if(S.tab=="regulamin"||S.tab=="polityka")return legalView(S.tab);
   if(S.tab=="nagrody")return`<h2 class="sec" style="margin-top:18px">Do wygrania</h2>${PRIZES.map(p=>`<div class="prize"><div class="medal">${esc(p[0])}</div><div><h3>${esc(p[1])}</h3><p>${esc(p[2])}</p></div></div>`).join("")}`;
   if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li><b>Mecz dnia ⭐</b>: jeden wybrany mecz dziennie ma <b>podwójne punkty</b>, czyli <b>6 pkt</b> za trafionego zwycięzcę lub remis i <b>8 pkt</b> za dokładny wynik.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig kartą podarunkową 50 zł, a nagrodę funduje organizator. Pozostałe rankingi (tygodniowy, sezonowy i dla poszczególnych lig) są tylko dla zabawy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Pełne zasady znajdziesz w dokumentach: <button class="lnk" data-tab="regulamin">Regulamin</button> i <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>`;
-  if(S.tab=="admin"&&S.me?.is_admin)return`<h2 class="sec" style="margin-top:18px">Dodaj mecz</h2><form id="mf"><div class="grid">${leagueSel("ml",S.ml||S.leagues[0]?.id,0).replace('id="ml"','id="ml" name="league"')}<input name="round" type="number" min="1" placeholder="Kolejka" value="${esc(S.mr)}"><input name="home" placeholder="Gospodarz" required><input name="away" placeholder="Gość" required><input name="kickoff" type="datetime-local" required aria-label="Start meczu" value="${esc(S.mk)}"></div><button type="submit">Dodaj mecz</button> <span id="mm"></span></form>
+  if(S.tab=="admin"&&isStaff())return`<h2 class="sec" style="margin-top:18px">Dodaj mecz</h2><form id="mf"><div class="grid">${leagueSel("ml",S.ml||S.leagues[0]?.id,0).replace('id="ml"','id="ml" name="league"')}<input name="round" type="number" min="1" placeholder="Kolejka" value="${esc(S.mr)}"><input name="home" placeholder="Gospodarz" required><input name="away" placeholder="Gość" required><input name="kickoff" type="datetime-local" required aria-label="Start meczu" value="${esc(S.mk)}"></div><button type="submit">Dodaj mecz</button> <span id="mm"></span></form>
    <p class="sub">Mecze są automatycznie grupowane według ligi i sortowane według godziny, więc kolejność wpisywania nie ma znaczenia. Liga, kolejka i data zostają w formularzu po dodaniu meczu.</p>
    <h2 class="sec">Wyniki i mecze</h2>${section(S.matches,false,admRow)||`<p class="sub">Brak meczów.</p>`}`;
   return""}
@@ -847,7 +847,7 @@ profil:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21c.4-4.2 3.5-6.5 7.5-6.5s7.
  admin:'<path d="M12 3l8 3v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>'};
 const icon=k=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[k]||""}</svg>`;
 function render(){
-  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.user){tabs.push(["konto","Konto"]);tabs.splice(3,0,["znajomi","Znajomi"])}if(S.me?.is_admin)tabs.push(["admin","Admin"]);
+  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.user){tabs.push(["konto","Konto"]);tabs.splice(3,0,["znajomi","Znajomi"])}if(isStaff())tabs.push(["admin","Admin"]);
   const kept=S.tab=="chat"&&$("#ci")?$("#ci").value:null;
   const bell=S.user?`<span class="bellwrap">${bellInner()}</span>`:"";
   const meBox=S.user?`<span class="nick">${esc(S.me?.nick||"")}</span><button class="ghost" data-act="out">Wyloguj</button>`:`<button data-act="login">Zaloguj</button><button class="ghost" data-act="reg">Załóż konto</button>`;
