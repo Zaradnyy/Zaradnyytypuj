@@ -155,6 +155,10 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .pres button{background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:99px;padding:6px 14px}
 .nickb{background:none;color:inherit;padding:0;font:inherit;font-weight:700;border-radius:4px;cursor:pointer}.nickb:hover{text-decoration:underline}
 .back{margin-top:14px}
+.kbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+.kbox h3{font-size:20px;margin-bottom:6px}.kbox label{display:block;margin:10px 0 4px;font-weight:600}.kbox input{width:100%;max-width:380px}
+.kbox button[type=submit]{margin-top:10px}.kbox p{margin:6px 0}.kbox .row2{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line)}.kbox .row2:last-of-type{border:0}
+.kbox.danger{border-color:var(--bad)}.kbox.danger h3{color:var(--bad)}
 .adm.done{border-color:var(--green)}.adm.done input{opacity:.75;background:var(--bg)}
 .okb{color:var(--green);font-weight:700;white-space:nowrap}.ab{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .lt .mo{display:none}
@@ -187,7 +191,7 @@ const dayOf=t=>cap(new Date(t).toLocaleDateString("pl-PL",{weekday:"long",day:"n
 const hm=t=>new Date(t).toLocaleTimeString("pl-PL",{hour:"2-digit",minute:"2-digit"});
 function soon(t){const d=new Date(t)-Date.now();if(d<=0||d>864e5)return"";const h=Math.floor(d/36e5);return h<1?"Start za "+Math.max(1,Math.round(d/6e4))+" min":"Start za "+h+" godz."}
 function pts(t,m){if(!t||m.home_goals==null)return null;if(t.home_goals==m.home_goals&&t.away_goals==m.away_goals)return 4;return Math.sign(t.home_goals-t.away_goals)==Math.sign(m.home_goals-m.away_goals)?3:0}
-function plErr(m){if(/invalid login/i.test(m))return"Zły e-mail lub hasło.";if(/already registered/i.test(m))return"Konto z tym adresem już istnieje.";if(/captcha/i.test(m))return"Weryfikacja nie powiodła się. Odśwież stronę i spróbuj ponownie.";if(/rate limit|too many|seconds/i.test(m))return"Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.";if(/password/i.test(m))return"Hasło musi mieć co najmniej 6 znaków.";if(/database/i.test(m))return"Ten nick jest zajęty.";if(/confirm/i.test(m))return"Potwierdź adres e-mail linkiem z wiadomości.";return"Coś poszło nie tak. Spróbuj ponownie."}
+function plErr(m){if(/nick_taken/.test(m))return"Ten nick jest zajęty.";if(/nick_cooldown/.test(m))return"Nick możesz zmienić raz na 30 dni.";if(/nick_length/.test(m))return"Nick musi mieć od 3 do 20 znaków.";if(/admin_no_delete/.test(m))return"Konta Organizatora nie można usunąć z poziomu strony.";if(/same.*password/i.test(m))return"Nowe hasło musi być inne niż obecne.";if(/reauth|recent/i.test(m))return"Ze względów bezpieczeństwa wyloguj się, zaloguj ponownie i spróbuj jeszcze raz.";if(/invalid login/i.test(m))return"Zły e-mail lub hasło.";if(/already registered/i.test(m))return"Konto z tym adresem już istnieje.";if(/captcha/i.test(m))return"Weryfikacja nie powiodła się. Odśwież stronę i spróbuj ponownie.";if(/rate limit|too many|seconds/i.test(m))return"Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.";if(/password/i.test(m))return"Hasło musi mieć co najmniej 6 znaków.";if(/database/i.test(m))return"Ten nick jest zajęty.";if(/confirm/i.test(m))return"Potwierdź adres e-mail linkiem z wiadomości.";return"Coś poszło nie tak. Spróbuj ponownie."}
 
 async function load(){
   const since=new Date(Date.now()-14*864e5).toISOString();
@@ -227,6 +231,21 @@ function profStats(){
   return{calc,n,total,hit,exact,best,cur,lg,pending:(S.prof?.rows||[]).length-n}}
 function rankOf(arr,nick){const i=arr.findIndex(r=>r.nick==nick);return i<0||!arr[i].tips_count?`<span class="tv">–</span>`:`<span class="tv">${i+1}.</span> <small class="tl">z ${arr.length}</small>`}
 function tile(v,l,bar){return`<div class="tile"><div class="tv">${v}</div><div class="tl">${l}</div>${bar!=null?`<div class="meter" aria-hidden="true"><i style="width:${bar}%"></i></div>`:""}</div>`}
+function kontoView(){
+  if(!S.user)return`<div class="box"><h2>Konto</h2><p class="sub">Zaloguj się, aby zarządzać kontem.</p><button data-act="login">Zaloguj się</button></div>`;
+  const me=S.me||{},since=me.created_at?new Date(me.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"",ch=me.nick_changed_at?new Date(new Date(me.nick_changed_at).getTime()+30*864e5):null,wait=ch&&ch>Date.now()?ch.toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"";
+  return`<h2 class="sec" style="margin-top:18px">Moje konto</h2>
+  <div class="kbox"><h3>Dane konta</h3><div class="row2"><span>E-mail</span><b>${esc(S.user.email||"")}</b></div><div class="row2"><span>Nick</span><b>${esc(me.nick||"")}</b></div>${since?`<div class="row2"><span>Konto od</span><b>${esc(since)}</b></div>`:""}
+   <p class="sub">Nick, statystyki i typy z rozpoczętych meczów są widoczne dla innych graczy. Adresu e-mail nikt poza Tobą nie widzi.</p></div>
+  <form id="nkf" class="kbox"><h3>Zmień nick</h3><p class="sub">3–20 znaków, widoczny w rankingu i na czacie. Zmiana możliwa raz na 30 dni.${wait?` Najbliższa zmiana: od ${esc(wait)}.`:""}</p>
+   <label for="kn">Nowy nick</label><input id="kn" name="nick" minlength="3" maxlength="20" required autocomplete="off"><p id="mn" class="err" role="status"></p><button type="submit">Zapisz nick</button></form>
+  <form id="emf" class="kbox"><h3>Zmień e-mail</h3><p class="sub">Wyślemy link potwierdzający. Adres zmieni się dopiero po jego kliknięciu.</p>
+   <label for="ke">Nowy e-mail</label><input id="ke" name="email" type="email" required autocomplete="email"><p id="me" class="err" role="status"></p><button type="submit">Zmień e-mail</button></form>
+  <form id="pwf" class="kbox"><h3>Zmień hasło</h3>
+   <label for="kp">Nowe hasło (min. 6 znaków)</label><input id="kp" name="pw" type="password" minlength="6" required autocomplete="new-password">
+   <label for="kp2">Powtórz nowe hasło</label><input id="kp2" name="pw2" type="password" minlength="6" required autocomplete="new-password"><p id="mp" class="err" role="status"></p><button type="submit">Zmień hasło</button></form>
+  <form id="dlf" class="kbox danger"><h3>Usuń konto</h3><p>Usunięcie jest <b>nieodwracalne</b>. Znikną Twój profil, wszystkie typy, punkty, statystyki i wiadomości z czatu.</p>
+   <label for="kd">Aby potwierdzić, wpisz swój nick: <b>${esc(me.nick||"")}</b></label><input id="kd" name="confirm" autocomplete="off" required><p id="md" class="err" role="status"></p><button type="submit" class="del">Usuń moje konto na stałe</button></form>`}
 function profView(){
   if(!S.user)return`<div class="box"><h2>Profil</h2><p class="sub">Zaloguj się, aby zobaczyć swój profil i statystyki.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
   const sch=`<form id="pf" class="psearch" role="search"><input id="pq" name="q" type="search" maxlength="20" autocomplete="off" placeholder="Szukaj gracza po nicku" aria-label="Szukaj gracza po nicku" value="${esc(S.pq||"")}"><button type="submit" aria-label="Szukaj">${icon("lupa")}<span>Szukaj</span></button></form>`
@@ -278,7 +297,7 @@ function leagueSel(id,val,all){return`<select id="${id}" aria-label="Liga">${all
 function prizebar(c){const n=new Date(),d=Math.ceil((new Date(n.getFullYear(),n.getMonth()+1,1)-n)/864e5);return`<div class="prizebar ${c||""}"><div class="pbadge">${esc(PRIZE_BADGE)}</div><div><b>Nagroda miesiąca</b><br><span>${esc(PRIZE_LINE)} Do końca miesiąca: ${d} ${d==1?"dzień":"dni"}.</span></div></div>`}
 
 function aside(){
-  if(S.tab=="auth"||S.tab=="admin"||S.tab=="profil")return"";
+  if(S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto")return"";
   const top=S.side.filter(r=>r.total_points>0).slice(0,5);
   const list=S.tab=="ranking"?"":`<div class="acard"><h3>Najlepsi w tym miesiącu</h3>${top.length?`<ol class="mini">${top.map((r,i)=>`<li class="${r.nick==S.me?.nick?"you":""}"><span class="mp">${i+1}</span><span class="mn"><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}" title="Zobacz profil">${esc(r.nick)}</button></span><b>${r.total_points}</b></li>`).join("")}</ol><button class="ghost" data-tab="ranking">Cały ranking</button>`:`<p class="sub">Nikt jeszcze nie zdobył punktów. Zacznij pierwszy.</p>`}</div>`;
   return`<aside class="aside" style="padding-top:16px">${list}<div class="acard"><h3>Punktacja</h3><p class="sub">3 pkt za trafionego zwycięzcę lub remis.<br>+1 pkt za dokładny wynik, razem 4 pkt.</p></div></aside>`}
@@ -364,6 +383,7 @@ function view(){
       :`<div class="note">Ten ranking jest tylko dla zabawy, bez nagrody. Nagrodę dostaje zwycięzca rankingu miesięcznego ze wszystkich lig. <button class="lnk" data-act="goprize">Pokaż ranking nagrodowy</button></div>`)+podium(top,prize)+
     (rest.length?`<div style="overflow-x:auto"><table><thead><tr><th>Miejsce</th><th>Gracz</th><th class="n">Punkty</th><th class="n">Dokładne</th><th class="n">Typy</th></tr></thead><tbody>${rest.map((r,i)=>`<tr class="${r.nick==S.me?.nick?"you":""}"><td class="pos">${k+i+1}</td><td><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}" title="Zobacz profil">${esc(r.nick)}</button></td><td class="n">${r.total_points}</td><td class="n">${r.exact_hits}</td><td class="n">${r.tips_count}</td></tr>`).join("")}</tbody></table></div>`:(b.length?"":`<p class="sub">Brak graczy.</p>`))}
   if(S.tab=="profil")return profView();
+  if(S.tab=="konto")return kontoView();
   if(S.tab=="nagrody")return`<h2 class="sec" style="margin-top:18px">Do wygrania</h2>${PRIZES.map(p=>`<div class="prize"><div class="medal">${esc(p[0])}</div><div><h3>${esc(p[1])}</h3><p>${esc(p[2])}</p></div></div>`).join("")}`;
   if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig kartą podarunkową 50 zł, a nagrodę funduje organizator. Pozostałe rankingi (tygodniowy, sezonowy i dla poszczególnych lig) są tylko dla zabawy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Tu wstawimy link do regulaminu i polityki prywatności.</p>`;
   if(S.tab=="admin"&&S.me?.is_admin)return`<h2 class="sec" style="margin-top:18px">Dodaj mecz</h2><form id="mf"><div class="grid">${leagueSel("ml",S.ml||S.leagues[0]?.id,0).replace('id="ml"','id="ml" name="league"')}<input name="round" type="number" min="1" placeholder="Kolejka" value="${esc(S.mr)}"><input name="home" placeholder="Gospodarz" required><input name="away" placeholder="Gość" required><input name="kickoff" type="datetime-local" required aria-label="Start meczu" value="${esc(S.mk)}"></div><button type="submit">Dodaj mecz</button> <span id="mm"></span></form>
@@ -377,12 +397,13 @@ const IC={
  chat:'<path d="M20.5 12a8 8 0 0 1-11.6 7.1L3.5 20.5l1.4-4.7A8 8 0 1 1 20.5 12z"/><path d="M8.5 11.5h7M8.5 14.5h4"/>',
  nagrody:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12"/><path d="M12 8C10.5 4 6.5 4.5 7.3 7c.4 1.2 2.7 1.2 4.7 1zM12 8c1.5-4 5.5-3.5 4.7-1-.4 1.2-2.7 1.2-4.7 1z"/>',
  zasady:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6"/>',
+konto:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
 lupa:'<circle cx="11" cy="11" r="7"/><path d="M20.5 20.5L16 16"/>',
 profil:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21c.4-4.2 3.5-6.5 7.5-6.5s7.1 2.3 7.5 6.5"/>',
  admin:'<path d="M12 3l8 3v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>'};
 const icon=k=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[k]||""}</svg>`;
 function render(){
-  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.me?.is_admin)tabs.push(["admin","Admin"]);
+  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.user)tabs.push(["konto","Konto"]);if(S.me?.is_admin)tabs.push(["admin","Admin"]);
   const kept=S.tab=="chat"&&$("#ci")?$("#ci").value:null;
   const meBox=S.user?`<span class="nick">${esc(S.me?.nick||"")}</span><button class="ghost" data-act="out">Wyloguj</button>`:`<button data-act="login">Zaloguj</button><button class="ghost" data-act="reg">Załóż konto</button>`;
   const brand=`<h1 class="brand"><button class="brandbtn" data-tab="mecze"><span class="logo" aria-hidden="true"></span>${esc(CFG.name)}</button></h1>`;
@@ -390,7 +411,7 @@ function render(){
   $("#app").innerHTML=`<aside class="side">${brand}<nav aria-label="Menu główne">${items}</nav><div class="sideme">${meBox}</div></aside>
   <div class="top"><div class="in"><div class="brandrow">${brand}<div class="me">${meBox}</div></div></div></div>
   <nav class="bnav" aria-label="Menu główne">${items}</nav>
-  <div class="wrap">${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"?" one":""}"><main>${view()}</main>${aside()}</div></div>`;
+  <div class="wrap">${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"?" one":""}"><main>${view()}</main>${aside()}</div></div>`;
   chatSync(kept);tsSync()}
 
 document.addEventListener("click",async e=>{
@@ -429,6 +450,21 @@ document.addEventListener("change",async e=>{
 document.addEventListener("submit",async e=>{
   e.preventDefault();const f=new FormData(e.target);
   if(e.target.id=="pf")return searchPlayers(f.get("q")||"");
+  if(e.target.id=="nkf"){const m=$("#mn"),n=(f.get("nick")||"").trim();
+    const {error}=await sb.rpc("change_nick",{new_nick:n});if(error)return say(m,plErr(error.message),1);
+    await load();render();const m2=$("#mn");return say(m2,"Nick zmieniony.")}
+  if(e.target.id=="emf"){const m=$("#me"),mail=(f.get("email")||"").trim();
+    const {error}=await sb.auth.updateUser({email:mail});if(error)return say(m,plErr(error.message),1);
+    e.target.reset();return say(m,"Wysłaliśmy link potwierdzający na nowy adres. Kliknij go, aby dokończyć zmianę.")}
+  if(e.target.id=="pwf"){const m=$("#mp"),a=f.get("pw"),b2=f.get("pw2");
+    if(a!==b2)return say(m,"Hasła nie są takie same.",1);
+    const {error}=await sb.auth.updateUser({password:a});if(error)return say(m,plErr(error.message),1);
+    e.target.reset();return say(m,"Hasło zmienione.")}
+  if(e.target.id=="dlf"){const m=$("#md");
+    if((f.get("confirm")||"").trim()!==S.me?.nick)return say(m,"Wpisany nick nie zgadza się z Twoim.",1);
+    if(!confirm("Na pewno usunąć konto? Tej operacji nie da się cofnąć."))return;
+    const {error}=await sb.rpc("delete_my_account");if(error)return say(m,plErr(error.message),1);
+    S.prof=null;S.tab="mecze";await sb.auth.signOut();alert("Konto zostało usunięte.");return}
   if(e.target.id=="af"){const am=$("#am"),email=f.get("email").trim(),pw=f.get("pw");
     if(S.mode=="up"){const nick=(f.get("nick")||"").trim();if(!f.get("ok"))return say(am,"Zaznacz zgodę: 18+ i regulamin.",1);
       if(CFG.turnstile&&!tsTok)return say(am,"Potwierdź, że nie jesteś robotem.",1);
