@@ -201,7 +201,7 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .lvchip{font-size:13px;font-weight:700;background:var(--gold);color:var(--goldi);border-radius:99px;padding:2px 10px;vertical-align:middle}
 .lvchip.sm{font-size:11px;padding:0 7px;margin-left:2px}
 .dif{border-radius:99px;padding:1px 8px;font-size:12px;font-weight:700}
-.dif.e{background:#d6efdf;color:#17623a}.dif.m{background:#fbeab0;color:#6d5000}.dif.h{background:#ffd8c0;color:#9a3b00}.dif.l{background:#e4d4ff;color:#58279c}
+.dif.e{background:#d6efdf;color:#17623a}.dif.m{background:#fbeab0;color:#6d5000}.dif.h{background:#ffd8c0;color:#9a3b00}.dif.x{background:#12201A;color:#F2C230}.dif.l{background:#e4d4ff;color:#58279c}
 .bcard .okb{font-weight:700;color:var(--green)}
 .bcard .meter{margin-top:4px}
 
@@ -428,7 +428,7 @@ async function loadProfile(){
     sb.from("predictions").select("home_goals,away_goals,created_at,matches(home,away,kickoff,home_goals,away_goals,round,league_id,leagues(name))").eq("user_id",who.id),
     sb.rpc("get_leaderboard",{p_league:null,p_from:null,p_to:null})]);
   await ensureLevels([who.id],true);const sv=S.lv[who.id];
-  S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error,srv:sv&&(sv.tips||sv.friends||sv.chats)?{tips:sv.tips,days:sv.days,friends:sv.friends,chats:sv.chats}:null}}
+  S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error,srv:sv&&(sv.tips||sv.friends||sv.chats)?{tips:sv.tips,days:sv.days,friends:sv.friends,chats:sv.chats,bestDay:sv.bestDay,perfect:sv.perfect}:null}}
 async function openProfile(nick){S.viewNick=nick&&nick!=S.me?.nick?nick:null;S.tab="profil";S.prof=null;render();await loadProfile();render();window.scrollTo(0,0)}
 async function searchPlayers(q){
   const t=q.trim().replace(/[%_\\,()]/g," ").trim();S.pq=q;
@@ -444,51 +444,66 @@ function profStats(){
   let best=0,cur=0;calc.forEach(x=>{if(x.b>=3){cur++;best=Math.max(best,cur)}else cur=0});
   const lg={};calc.forEach(x=>{const k=x.matches.leagues?.name||"Inne";const o=lg[k]=lg[k]||{n:0,p:0,h:0,e:0};o.n++;o.p+=x.p;if(x.b>=3)o.h++;if(x.b==4)o.e++});
   const days=S.prof?.srv?S.prof.srv.days:new Set((S.prof?.rows||[]).filter(x=>x.created_at).map(x=>new Date(x.created_at).toLocaleDateString("sv-SE"))).size;
-  const sv=S.prof?.srv,friends=sv?sv.friends:(S.prof?.own?S.fr.filter(f=>f.status=="accepted").length:0),chats=sv?sv.chats:0;
-  return{calc,n,total,hit,exact,best,cur,lg,days,friends,chats,pending:(S.prof?.rows||[]).length-n}}
+  const dayMap={};calc.forEach(x=>{const k=new Date(x.matches.kickoff).toLocaleDateString("sv-SE");const o=dayMap[k]=dayMap[k]||{p:0,n:0,ok:0};o.p+=x.p;o.n++;if(x.b>=3)o.ok++});
+  const dv=Object.values(dayMap),bestDayL=dv.reduce((m,o)=>Math.max(m,o.p),0),perfectL=dv.filter(o=>o.n>=3&&o.ok==o.n).length;
+  const sv=S.prof?.srv,bestDay=sv&&sv.bestDay!=null?sv.bestDay:bestDayL,perfect=sv&&sv.perfect!=null?sv.perfect:perfectL,friends=sv?sv.friends:(S.prof?.own?S.fr.filter(f=>f.status=="accepted").length:0),chats=sv?sv.chats:0;
+  return{calc,n,total,hit,exact,best,cur,lg,days,friends,chats,bestDay,perfect,pending:(S.prof?.rows||[]).length-n}}
 /* ===== poziomy (XP) i osiągnięcia: wszystko do ustawienia w tym bloku ===== */
 const XP_TIP=10;                                        // XP za każdy wytypowany mecz
-const XP_DIFF={e:{n:"Łatwa",xp:50},m:{n:"Średnia",xp:200},h:{n:"Trudna",xp:750},l:{n:"Legendarna",xp:2000}};
+const XP_DIFF={e:{n:"Łatwa",xp:50},m:{n:"Średnia",xp:200},h:{n:"Trudna",xp:750},l:{n:"Legendarna",xp:2000},x:{n:"Mistrzowska",xp:1500}};
 const xpFor=L=>50*L*(L-1);                              // XP potrzebne, by osiągnąć poziom L (1 = 0, 2 = 100, 3 = 300, 4 = 600 ...)
 const ACH_GROUPS=[
- {name:"Typowanie",items:[
+ {name:"Typowanie",meta:{ic:"🎖️",name:"Wirtuoz typowania",desc:"Zdobądź wszystkie odznaki z kategorii Typowanie"},items:[
   {ic:"🥅",name:"Pierwszy strzał",desc:"Pierwszy poprawny typ (trafiony zwycięzca lub remis)",d:"e",goal:1,f:st=>st.hit},
   {ic:"🎯",name:"Snajper",desc:"10 dokładnych wyników",d:"m",goal:10,f:st=>st.exact},
+  {ic:"🏹",name:"Strzelec wyborowy",desc:"25 dokładnych wyników",d:"m",goal:25,f:st=>st.exact},
   {ic:"🏅",name:"Mistrz wyniku",desc:"50 dokładnych wyników",d:"h",goal:50,f:st=>st.exact},
-  {ic:"👑",name:"Król typowania",desc:"100 dokładnych wyników",d:"l",goal:100,f:st=>st.exact}]},
- {name:"Aktywność",items:[
+  {ic:"🔭",name:"Mistrz precyzji",desc:"75 dokładnych wyników",d:"h",goal:75,f:st=>st.exact},
+  {ic:"👑",name:"Król typowania",desc:"100 dokładnych wyników",d:"l",goal:100,f:st=>st.exact},
+  {ic:"🌟",name:"Legenda dokładności",desc:"150 dokładnych wyników",d:"l",goal:150,f:st=>st.exact}]},
+ {name:"Aktywność",meta:{ic:"🦾",name:"Człowiek z żelaza",desc:"Zdobądź wszystkie odznaki z kategorii Aktywność"},items:[
   {ic:"🌱",name:"Początkujący",desc:"Typowanie w pierwszym dniu",d:"e",goal:1,f:st=>st.days},
   {ic:"📅",name:"Regularny",desc:"Typowanie przez 7 różnych dni",d:"m",goal:7,f:st=>st.days},
   {ic:"💪",name:"Wytrwały",desc:"Typowanie przez 30 różnych dni",d:"h",goal:30,f:st=>st.days},
+  {ic:"🧱",name:"Niezłomny",desc:"Typowanie przez 60 różnych dni",d:"h",goal:60,f:st=>st.days},
   {ic:"🏃",name:"Maratończyk",desc:"Typowanie przez 90 różnych dni",d:"h",goal:90,f:st=>st.days},
+  {ic:"🔩",name:"Stalowy",desc:"Typowanie przez 120 różnych dni",d:"h",goal:120,f:st=>st.days},
   {ic:"🏆",name:"Weteran",desc:"Typowanie przez 365 różnych dni",d:"l",goal:365,f:st=>st.days}]},
- {name:"Społeczność",items:[
+ {name:"Społeczność",meta:{ic:"🎉",name:"Dusza towarzystwa",desc:"Zdobądź wszystkie odznaki z kategorii Społeczność"},items:[
   {ic:"🤝",name:"Pierwszy znajomy",desc:"Dodanie pierwszego znajomego",d:"e",goal:1,f:st=>st.friends},
   {ic:"🙈",name:"Wstydzioszek",desc:"Pierwsza wiadomość na czacie",d:"e",goal:1,f:st=>st.chats},
   {ic:"💬",name:"Rozmowny",desc:"50 wiadomości na czacie",d:"m",goal:50,f:st=>st.chats},
-  {ic:"🗣️",name:"Gaduła",desc:"200 wiadomości na czacie",d:"h",goal:200,f:st=>st.chats}]}
+  {ic:"📣",name:"Mówca",desc:"100 wiadomości na czacie",d:"m",goal:100,f:st=>st.chats},
+  {ic:"🗣️",name:"Gaduła",desc:"200 wiadomości na czacie",d:"h",goal:200,f:st=>st.chats},
+  {ic:"📻",name:"Król czatu",desc:"300 wiadomości na czacie",d:"h",goal:300,f:st=>st.chats}]},
+ {name:"Specjalne",meta:{ic:"💎",name:"Kolekcjoner rekordów",desc:"Zdobądź wszystkie odznaki specjalne"},items:[
+  {ic:"💯",name:"Setka",desc:"Zdobycie 100 punktów w jednym dniu",d:"l",goal:100,f:st=>st.bestDay},
+  {ic:"🧠",name:"Piłkarski ekspert",desc:"Wszystkie typy z jednego dnia poprawne (min. 3 typy w tym dniu)",d:"h",goal:1,f:st=>st.perfect}]}
 ];
+// odznaka kategorii: zdobywasz ją, gdy masz wszystkie pozostałe odznaki z tej kategorii
+ACH_GROUPS.forEach(g=>{const base=g.items.slice();g.items.push({...g.meta,d:"x",meta:true,base})});
+const achVal=(a,st)=>a.meta?[a.base.filter(b=>(b.f(st)||0)>=b.goal).length,a.base.length]:[a.f(st)||0,a.goal];
 function calcXp(st,tips){
   const tipXp=tips*XP_TIP;let achXp=0,got=0,all=0;
-  ACH_GROUPS.forEach(g=>g.items.forEach(a=>{all++;if((a.f(st)||0)>=a.goal){got++;achXp+=XP_DIFF[a.d].xp}}));
+  ACH_GROUPS.forEach(g=>g.items.forEach(a=>{all++;const [v,gl]=achVal(a,st);if(v>=gl){got++;achXp+=XP_DIFF[a.d].xp}}));
   const xp=tipXp+achXp;let L=1;while(xp>=xpFor(L+1))L++;
   return{xp,tips,tipXp,achXp,got,all,L,from:xpFor(L),to:xpFor(L+1)}}
 function xpInfo(st){return calcXp(st,S.prof?.srv?S.prof.srv.tips:(S.prof?.rows||[]).length)}
 async function ensureLevels(ids,force){
   const need=[...new Set(ids.filter(Boolean))].filter(i=>force||!S.lv[i]);if(!need.length)return;
   const {data,error}=await sb.rpc("player_levels",{uids:need});if(error)return;
-  need.forEach(i=>{if(!S.lv[i])S.lv[i]={tips:0,hits:0,exacts:0,days:0,friends:0,chats:0}});
-  (data||[]).forEach(r=>S.lv[r.user_id]={tips:+r.tips,hits:+r.hits,exacts:+r.exacts,days:+r.days,friends:+r.friends,chats:+r.chats})}
+  need.forEach(i=>{if(!S.lv[i])S.lv[i]={tips:0,hits:0,exacts:0,days:0,friends:0,chats:0,bestDay:0,perfect:0}});
+  (data||[]).forEach(r=>S.lv[r.user_id]={tips:+r.tips,hits:+r.hits,exacts:+r.exacts,days:+r.days,friends:+r.friends,chats:+r.chats,bestDay:+r.best_day||0,perfect:+r.perfect||0})}
 function lvTag(uid){
   const r=S.lv[uid];if(!r)return"";
-  const x=calcXp({hit:r.hits,exact:r.exacts,days:r.days,friends:r.friends,chats:r.chats},r.tips);
+  const x=calcXp({hit:r.hits,exact:r.exacts,days:r.days,friends:r.friends,chats:r.chats,bestDay:r.bestDay,perfect:r.perfect},r.tips);
   return`<span class="lvchip sm" title="Poziom ${x.L}">poz. ${x.L}</span>`}
 function badgesHTML(st){
   const x=xpInfo(st),pctL=Math.round((x.xp-x.from)/(x.to-x.from)*100);
   const lvl=`<h2 class="sec">Poziom i doświadczenie</h2><div class="xpcard"><div class="lvbig" aria-label="Poziom ${x.L}"><small>poziom</small>${x.L}</div><div class="xpbody"><div class="xprow"><b>${x.xp} XP</b><span class="sub">do poziomu ${x.L+1}: ${x.to-x.xp} XP</span></div><div class="meter" aria-hidden="true"><i style="width:${pctL}%"></i></div><p class="sub xpsrc">Typy: ${x.tips} × ${XP_TIP} = ${x.tipXp} XP · Osiągnięcia: ${x.achXp} XP. Za każdy wytypowany mecz dostajesz ${XP_TIP} XP, a za osiągnięcia jednorazowy bonus.</p></div></div>`;
   const groups=ACH_GROUPS.map(g=>`<h3 class="achg">${esc(g.name)}</h3><div class="bdgs">${g.items.map(a=>{
-    const v=a.f(st)||0,ok=v>=a.goal,df=XP_DIFF[a.d];
-    return`<div class="bcard${ok?" on":""}"><div class="bi" aria-hidden="true">${a.ic}</div><div class="bl"><span class="dif ${a.d}">${df.n}</span> +${df.xp} XP</div><div class="bn">${esc(a.name)}</div><div class="bnext sub">${esc(a.desc)}</div>${ok?`<div class="okb">✓ Zdobyte</div>`:`<div class="meter" aria-hidden="true"><i style="width:${Math.round(v/a.goal*100)}%"></i></div><div class="bnext sub">${v}/${a.goal}</div>`}</div>`}).join("")}</div>`).join("");
+    const [v,gl]=achVal(a,st),ok=v>=gl,df=XP_DIFF[a.d];
+    return`<div class="bcard${ok?" on":""}"><div class="bi" aria-hidden="true">${a.ic}</div><div class="bl"><span class="dif ${a.d}">${df.n}</span> +${df.xp} XP</div><div class="bn">${esc(a.name)}</div><div class="bnext sub">${esc(a.desc)}</div>${ok?`<div class="okb">✓ Zdobyte</div>`:`<div class="meter" aria-hidden="true"><i style="width:${Math.round(v/gl*100)}%"></i></div><div class="bnext sub">${v}/${gl}</div>`}</div>`}).join("")}</div>`).join("");
   return lvl+`<h2 class="sec">Osiągnięcia <small class="sub">(${x.got}/${x.all})</small></h2>`+groups}
 
 function rankOf(arr,nick){const i=arr.findIndex(r=>r.nick==nick);return i<0||!arr[i].tips_count?`<span class="tv">–</span>`:`<span class="tv">${i+1}.</span> <small class="tl">z ${arr.length}</small>`}
