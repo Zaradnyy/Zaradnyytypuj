@@ -83,6 +83,8 @@ nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold
 .pod .pp{font:800 24px "Bricolage Grotesque",sans-serif;line-height:1.1;margin-top:2px}
 .pod .ps{color:var(--mute);font-size:13px}
 .pod.r1 .md,.pod.r1 .step{background:var(--gold)}.pod.r2 .md,.pod.r2 .step{background:var(--silver)}.pod.r3 .md,.pod.r3 .step{background:var(--bronze)}
+.podium.plain .md,.podium.plain .step{background:var(--line)}
+.note.nprize{border-left-color:var(--green);color:var(--ink);margin-bottom:12px}.note{margin:0 0 12px}
 .pod.r1 .step{height:44px}.pod.r2 .step{height:28px}.pod.r3 .step{height:16px}
 table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line)}
 th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600;font-size:14px}
@@ -124,13 +126,13 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 // ===== USTAWIENIA (tu zmieniasz nazwę i nagrody) =====
 const CFG={url:"https://kjvgibqcvegdgxmiqhhg.supabase.co",key:"sb_publishable_kEH6hdANVsbif6gyXMrDuA_1EU74Bxg",name:"Typerkowo"};
 const PRIZE_BADGE="50 zł";
-const PRIZE_LINE="Karta podarunkowa dla gracza z największą liczbą punktów w miesiącu. Udział za darmo, bez wpisowego.";
-const PRIZES=[["1","Zwycięzca miesiąca","Karta podarunkowa 50 zł dla gracza z największą liczbą punktów w rankingu miesięcznym. Przy remisie decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta."]];
+const PRIZE_LINE="Karta podarunkowa dla gracza z największą liczbą punktów w miesiącu (wszystkie ligi razem). Udział za darmo, bez wpisowego.";
+const PRIZES=[["1","Zwycięzca miesiąca","Karta podarunkowa 50 zł dla gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig razem. Rankingi tygodniowe, sezonowe i dla poszczególnych lig są tylko dla zabawy i nie mają nagród. Przy remisie decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta."]];
 // =====================================================
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,scope:"all",bleague:"",err:"",ml:"",mr:"",mk:""};
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,scope:"month",bleague:"",err:"",ml:"",mr:"",mk:""};
 const say=(el,t,bad)=>{if(el){el.textContent=t;el.className=bad?"err":"ok"}};
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const dayOf=t=>cap(new Date(t).toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"}));
@@ -182,9 +184,9 @@ function aside(){
   const list=S.tab=="ranking"?"":`<div class="acard"><h3>Najlepsi w tym miesiącu</h3>${top.length?`<ol class="mini">${top.map((r,i)=>`<li class="${r.nick==S.me?.nick?"you":""}"><span class="mp">${i+1}</span><span class="mn">${esc(r.nick)}</span><b>${r.total_points}</b></li>`).join("")}</ol><button class="ghost" data-tab="ranking">Cały ranking</button>`:`<p class="sub">Nikt jeszcze nie zdobył punktów. Zacznij pierwszy.</p>`}</div>`;
   return`<aside class="aside" style="padding-top:16px">${list}<div class="acard"><h3>Punktacja</h3><p class="sub">3 pkt za trafionego zwycięzcę lub remis.<br>+1 pkt za dokładny wynik, razem 4 pkt.</p></div></aside>`}
 
-function podium(top){
+function podium(top,prize){
   if(!top.length)return"";
-  return`<div class="podium">${[1,0,2].filter(i=>top[i]).map(i=>{const r=top[i];return`<div class="pod r${i+1}${r.nick==S.me?.nick?" you":""}"><div class="info"><div class="md">${i+1}</div><div class="pn">${esc(r.nick)}</div><div class="pp">${r.total_points} pkt</div><div class="ps">dokładne: ${r.exact_hits}</div></div><div class="step"></div></div>`}).join("")}</div>`}
+  return`<div class="podium${prize?"":" plain"}">${[1,0,2].filter(i=>top[i]).map(i=>{const r=top[i];return`<div class="pod r${i+1}${r.nick==S.me?.nick?" you":""}"><div class="info"><div class="md">${i+1}</div><div class="pn">${esc(r.nick)}</div><div class="pp">${r.total_points} pkt</div><div class="ps">dokładne: ${r.exact_hits}</div></div><div class="step"></div></div>`}).join("")}</div>`}
 
 /* ===== CZAT ===== */
 const LINK_RE=/(https?:\/\/|www\.|[a-z0-9]\.(pl|com|net|org|eu|ru|io|tv|me|ly|cc|xyz)(\/|\s|$))/i;
@@ -257,11 +259,13 @@ function view(){
     const chips=`<div class="chips" role="group" aria-label="Liga"><button class="chip" data-lg="" aria-pressed="${!S.league}">Wszystkie</button>${S.leagues.map(l=>`<button class="chip" data-lg="${esc(l.code)}" aria-pressed="${S.league==l.code}">${esc(l.name)}</button>`).join("")}</div>`;
     return prizebar("inl")+chips+`<h2 class="sec">Do typowania</h2>`+(section(up,false,card)||`<p class="sub">Brak nadchodzących meczów. Zajrzyj później.</p>`)+`<h2 class="sec">Rozegrane (ostatnie 14 dni)</h2>`+(section(past,true,card)||`<p class="sub">Jeszcze nic.</p>`)}
   if(S.tab=="ranking"){
-    const b=S.board,top=b.slice(0,3).filter(r=>r.total_points>0),k=top.length,rest=b.slice(k);
-    return`<div class="bar"><select id="sc" aria-label="Okres"><option value="all" ${S.scope=="all"?"selected":""}>Ogólny</option><option value="week" ${S.scope=="week"?"selected":""}>Ten tydzień</option><option value="month" ${S.scope=="month"?"selected":""}>Ten miesiąc</option></select>${leagueSel("lb",S.bleague,1)}</div>`+podium(top)+
+    const b=S.board,top=b.slice(0,3).filter(r=>r.total_points>0),k=top.length,rest=b.slice(k),prize=S.scope=="month"&&!S.bleague;
+    return`<div class="bar"><select id="sc" aria-label="Okres"><option value="month" ${S.scope=="month"?"selected":""}>Ten miesiąc</option><option value="week" ${S.scope=="week"?"selected":""}>Ten tydzień</option><option value="all" ${S.scope=="all"?"selected":""}>Cały sezon</option></select>${leagueSel("lb",S.bleague,1)}</div>`+
+    (prize?`<div class="note nprize"><b>Ranking nagrodowy.</b> Zwycięzca miesiąca (wszystkie ligi razem) dostaje kartę podarunkową ${esc(PRIZE_BADGE)}.</div>`
+      :`<div class="note">Ten ranking jest tylko dla zabawy, bez nagrody. Nagrodę dostaje zwycięzca rankingu miesięcznego ze wszystkich lig. <button class="lnk" data-act="goprize">Pokaż ranking nagrodowy</button></div>`)+podium(top,prize)+
     (rest.length?`<div style="overflow-x:auto"><table><thead><tr><th>Miejsce</th><th>Gracz</th><th class="n">Punkty</th><th class="n">Dokładne</th><th class="n">Typy</th></tr></thead><tbody>${rest.map((r,i)=>`<tr class="${r.nick==S.me?.nick?"you":""}"><td class="pos">${k+i+1}</td><td>${esc(r.nick)}</td><td class="n">${r.total_points}</td><td class="n">${r.exact_hits}</td><td class="n">${r.tips_count}</td></tr>`).join("")}</tbody></table></div>`:(b.length?"":`<p class="sub">Brak graczy.</p>`))}
   if(S.tab=="nagrody")return`<h2 class="sec" style="margin-top:18px">Do wygrania</h2>${PRIZES.map(p=>`<div class="prize"><div class="medal">${esc(p[0])}</div><div><h3>${esc(p[1])}</h3><p>${esc(p[2])}</p></div></div>`).join("")}`;
-  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów kartą podarunkową 50 zł, a nagrodę funduje organizator.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Tu wstawimy link do regulaminu i polityki prywatności.</p>`;
+  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig kartą podarunkową 50 zł, a nagrodę funduje organizator. Pozostałe rankingi (tygodniowy, sezonowy i dla poszczególnych lig) są tylko dla zabawy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Tu wstawimy link do regulaminu i polityki prywatności.</p>`;
   if(S.tab=="admin"&&S.me?.is_admin)return`<h2 class="sec" style="margin-top:18px">Dodaj mecz</h2><form id="mf"><div class="grid">${leagueSel("ml",S.ml||S.leagues[0]?.id,0).replace('id="ml"','id="ml" name="league"')}<input name="round" type="number" min="1" placeholder="Kolejka" value="${esc(S.mr)}"><input name="home" placeholder="Gospodarz" required><input name="away" placeholder="Gość" required><input name="kickoff" type="datetime-local" required aria-label="Start meczu" value="${esc(S.mk)}"></div><button type="submit">Dodaj mecz</button> <span id="mm"></span></form>
    <p class="sub">Mecze są automatycznie grupowane według ligi i sortowane według godziny, więc kolejność wpisywania nie ma znaczenia. Liga, kolejka i data zostają w formularzu po dodaniu meczu.</p>
    <h2 class="sec">Wyniki i mecze</h2>${section(S.matches,false,admRow)||`<p class="sub">Brak meczów.</p>`}`;
@@ -282,6 +286,7 @@ document.addEventListener("click",async e=>{
   if(a=="login"||a=="reg"){S.tab="auth";S.mode=a=="reg"?"up":"in";return render()}
   if(a=="forgot"){S.tab="auth";S.mode="reset";return render()}
   if(a=="out"){await sb.auth.signOut();return}
+  if(a=="goprize"){S.scope="month";S.bleague="";await loadBoard();return render()}
   if(a=="onlyrep"){S.onlyRep=!S.onlyRep;return render()}
   if(a=="rep"){const {error}=await sb.from("chat_reports").insert({message_id:id,reporter_id:S.user.id});
     if(!error||/duplicate/i.test(error.message)){S.reported.add(id);drawChat(true)}return}
