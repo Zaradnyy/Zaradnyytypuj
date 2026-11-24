@@ -155,6 +155,8 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .pres button{background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:99px;padding:6px 14px}
 .nickb{background:none;color:inherit;padding:0;font:inherit;font-weight:700;border-radius:4px;cursor:pointer}.nickb:hover{text-decoration:underline}
 .back{margin-top:14px}
+.fl{width:24px;height:16px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.2);vertical-align:-3px;margin-right:8px;flex:none}
+.chip .fl{width:20px;height:13px;vertical-align:-2px;margin-right:6px}
 .legal{margin-top:18px;line-height:1.55}.legal h2{font-size:28px}.legal h3{font-size:19px;margin:22px 0 6px}.legal ol,.legal ul{padding-left:22px;margin:6px 0}.legal li{margin:6px 0}.legal .upd{color:var(--mute);margin:4px 0 8px}.legal a{color:var(--green)}
 .legal .lnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.legal .lnk{font-size:inherit;color:var(--green)}
 .foot{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);color:var(--mute);font-size:14px;display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center}
@@ -197,7 +199,7 @@ regulamin:`<h2>Regulamin konkursu „Typerkowo”</h2><p class="upd">Obowiązuje
 <li>Nick nie może naruszać prawa, dóbr osobistych innych osób ani zasad współżycia społecznego. Organizator może zmienić lub usunąć nick niezgodny z regulaminem.</li>
 <li>Organizator może wykluczyć uczestnika, który narusza regulamin, i usunąć jego konto.</li></ol>
 <h3>3. Zasady typowania</h3><ol>
-<li>Typować można mecze wprowadzone do Serwisu przez Organizatora: Premier League, La Liga, Serie A, Ligue 1 i Ekstraklasa.</li>
+<li>Typować można mecze wprowadzone do Serwisu przez Organizatora: Premier League, La Liga, Serie A, Bundesliga, Ligue 1 i Ekstraklasa.</li>
 <li>Typ polega na wskazaniu liczby goli obu drużyn. Typ można dodać i zmieniać <b>do momentu rozpoczęcia meczu</b> wskazanego w Serwisie. Po rozpoczęciu meczu typ jest zablokowany.</li>
 <li>Typuje się wynik po regulaminowym czasie gry (90 minut z doliczonym czasem), bez dogrywki i rzutów karnych.</li>
 <li>Typy innych uczestników są widoczne dopiero po rozpoczęciu danego meczu.</li>
@@ -252,6 +254,16 @@ polityka:`<h2>Polityka prywatności</h2><p class="upd">Obowiązuje od 1 grudnia 
 <h3>6. Pliki cookies i pamięć przeglądarki</h3><p>Serwis korzysta z pamięci przeglądarki (np. localStorage lub ciasteczek) wyłącznie w celach niezbędnych do działania: utrzymania sesji po zalogowaniu. Nie używamy cookies reklamowych ani analitycznych. Formularze logowania i rejestracji korzystają z zabezpieczenia Cloudflare Turnstile, które służy wyłącznie do sprawdzenia, że formularz wypełnia człowiek, i może w tym celu zapisywać dane techniczne w przeglądarce. Serwis korzysta z czcionek Google Fonts, przy czym zapytania o czcionki trafiają do serwerów Google.</p>
 <h3>7. Zmiany polityki</h3><p>Polityka może być aktualizowana. O istotnych zmianach poinformujemy w Serwisie. Obowiązuje od 1 grudnia 2026 r.</p>`};
 function legalView(k){return`<div class="legal"><div class="lnav"><button class="chip" data-tab="regulamin" aria-pressed="${k=="regulamin"}">Regulamin</button><button class="chip" data-tab="polityka" aria-pressed="${k=="polityka"}">Polityka prywatności</button><button class="ghost" data-tab="mecze">Wróć do serwisu</button></div>${LEGAL[k]}</div>`}
+const FL={
+ PL:'<rect width="30" height="20" fill="#fff"/><rect x="12.5" width="5" height="20" fill="#CE1124"/><rect y="7.5" width="30" height="5" fill="#CE1124"/>',
+ PD:'<rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/>',
+ SA:'<rect width="10" height="20" fill="#009246"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#CE2B37"/>',
+ BL1:'<rect width="30" height="7" fill="#000"/><rect y="6.5" width="30" height="7" fill="#DD0000"/><rect y="13" width="30" height="7" fill="#FFCE00"/>',
+ FL1:'<rect width="10" height="20" fill="#0055A4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#EF4135"/>',
+ EKS:'<rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#DC143C"/>'};
+const LEAGUE_ORDER=["PL","PD","SA","BL1","FL1","EKS"];
+const flag=c=>FL[c]?`<svg class="fl" viewBox="0 0 30 20" aria-hidden="true">${FL[c]}</svg>`:"";
+const flagName=n=>flag((S.leagues.find(l=>l.name==n)||{}).code);
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -273,7 +285,7 @@ async function load(){
   const since=new Date(Date.now()-14*864e5).toISOString();
   const now=new Date(),m0=new Date(now.getFullYear(),now.getMonth(),1),m1=new Date(now.getFullYear(),now.getMonth()+1,1);
   const [lg,mt,sd]=await Promise.all([sb.from("leagues").select("*").order("id"),sb.from("matches").select("*,leagues(code,name)").gte("kickoff",since).order("kickoff"),sb.rpc("get_leaderboard",{p_league:null,p_from:m0.toISOString(),p_to:m1.toISOString()})]);
-  S.leagues=lg.data||[];S.matches=mt.data||[];S.side=sd.data||[];S.err=(lg.error||mt.error)?"Nie udało się wczytać danych. Odśwież stronę.":"";
+  S.leagues=(lg.data||[]).slice().sort((a,b)=>{const i=LEAGUE_ORDER.indexOf(a.code),j=LEAGUE_ORDER.indexOf(b.code);return (i<0?99:i)-(j<0?99:j)||a.id-b.id});S.matches=mt.data||[];S.side=sd.data||[];S.err=(lg.error||mt.error)?"Nie udało się wczytać danych. Odśwież stronę.":"";
   S.tips={};S.me=null;
   if(S.user){const [p,t]=await Promise.all([sb.from("profiles").select("*").eq("id",S.user.id).single(),sb.from("predictions").select("*").eq("user_id",S.user.id)]);S.me=p.data;(t.data||[]).forEach(x=>S.tips[x.match_id]=x)}
   if(S.tab=="ranking")await loadBoard();
@@ -335,9 +347,9 @@ function profView(){
   if(!st.n)return sch+backBtn+head+rank+`<h2 class="sec">Statystyki</h2><p class="note">${own?"Nie masz jeszcze rozliczonych typów. Statystyki pojawią się po pierwszych zakończonych meczach.":"Ten gracz nie ma jeszcze rozliczonych typów."}${own&&st.pending?` Czeka na wynik: ${st.pending}.`:""}</p>`;
   const sk=pc(st.hit,st.n),dk=pc(st.exact,st.n);
   const tiles=`<div class="tiles">${tile(st.total,"Zdobyte punkty")}${tile(sk+"<small>%</small>","Skuteczność (trafiony zwycięzca lub remis)",sk)}${tile(dk+"<small>%</small>","Dokładne wyniki",dk)}${tile((st.total/st.n).toFixed(2).replace(".",","),"Średnio punktów na typ")}${tile(st.n,"Rozliczone typy"+(own&&st.pending?` (czeka na wynik: ${st.pending})`:""))}${tile(st.best,"Najlepsza seria trafień"+(st.cur?` (teraz: ${st.cur})`:""))}</div>`;
-  const lgRows=Object.entries(st.lg).sort((a,b)=>b[1].p-a[1].p).map(([k,o])=>`<tr><td>${esc(k)}</td><td class="n">${o.n}</td><td class="n">${o.p}</td><td class="n">${pc(o.h,o.n)}%</td><td class="n">${o.e}</td></tr>`).join("");
+  const lgRows=Object.entries(st.lg).sort((a,b)=>b[1].p-a[1].p).map(([k,o])=>`<tr><td>${flagName(k)}${esc(k)}</td><td class="n">${o.n}</td><td class="n">${o.p}</td><td class="n">${pc(o.h,o.n)}%</td><td class="n">${o.e}</td></tr>`).join("");
   const lgT=`<h2 class="sec">Według lig</h2><div style="overflow-x:auto"><table><thead><tr><th>Liga</th><th class="n">Typy</th><th class="n">Pkt</th><th class="n">Skut.</th><th class="n">Dokł.</th></tr></thead><tbody>${lgRows}</tbody></table></div>`;
-  const last=st.calc.slice(-8).reverse().map(x=>{const m=x.matches;return`<div class="lt"><div><b>${esc(m.home)} – ${esc(m.away)}</b><p class="sub">${esc(m.leagues?.name||"")}<span class="mo"> · typ ${x.home_goals}:${x.away_goals} · wynik ${m.home_goals}:${m.away_goals}</span></p></div><span class="hide">typ ${x.home_goals}:${x.away_goals}</span><span class="hide">wynik ${m.home_goals}:${m.away_goals}</span><span class="pill p${x.p}">+${x.p} pkt</span></div>`}).join("");
+  const last=st.calc.slice(-8).reverse().map(x=>{const m=x.matches;return`<div class="lt"><div><b>${esc(m.home)} – ${esc(m.away)}</b><p class="sub">${flagName(m.leagues?.name)}${esc(m.leagues?.name||"")}<span class="mo"> · typ ${x.home_goals}:${x.away_goals} · wynik ${m.home_goals}:${m.away_goals}</span></p></div><span class="hide">typ ${x.home_goals}:${x.away_goals}</span><span class="hide">wynik ${m.home_goals}:${m.away_goals}</span><span class="pill p${x.p}">+${x.p} pkt</span></div>`}).join("");
   return sch+backBtn+head+rank+`<h2 class="sec">Statystyki</h2>`+tiles+`<p class="sub">Statystyki liczą się z rozegranych meczów, w których wpisano wynik.</p>`+lgT+`<h2 class="sec">${own?"Ostatnie typy":"Ostatnie typy gracza"}</h2>`+last}
 
 async function loadBoard(){
@@ -349,7 +361,7 @@ async function loadBoard(){
 
 // mecze zawsze osobno dla każdej ligi i posortowane godzinami (niezależnie od kolejności wpisywania)
 function groups(list,desc){return S.leagues.map(l=>({l,items:list.filter(m=>m.league_id==l.id).sort((a,b)=>(new Date(a.kickoff)-new Date(b.kickoff))*(desc?-1:1))})).filter(g=>g.items.length)}
-function section(list,desc,fn){return groups(list,desc).map(g=>{let last="";return`<h3 class="lg">${esc(g.l.name)}</h3>`+g.items.map(m=>{const d=dayOf(m.kickoff),h=d!=last?`<div class="day">${esc(d)}</div>`:"";last=d;return h+fn(m)}).join("")}).join("")}
+function section(list,desc,fn){return groups(list,desc).map(g=>{let last="";return`<h3 class="lg">${flag(g.l.code)}${esc(g.l.name)}</h3>`+g.items.map(m=>{const d=dayOf(m.kickoff),h=d!=last?`<div class="day">${esc(d)}</div>`:"";last=d;return h+fn(m)}).join("")}).join("")}
 
 function card(m){
   const open=new Date(m.kickoff)>Date.now(),t=S.tips[m.id],fin=m.home_goals!=null,p=fin?(pts(t,m)??0):0,tt=t?`Twój typ: ${t.home_goals} : ${t.away_goals}`:"Nie typowałeś";
@@ -450,7 +462,7 @@ function view(){
    <div id="ts" class="ts"></div><p id="am" class="err"></p><button type="submit">${up?"Załóż konto":"Zaloguj"}</button> <button type="button" class="ghost" data-act="${up?"login":"reg"}">${up?"Mam już konto":"Nie mam konta"}</button>${up?"":` <button type="button" class="ghost" data-act="forgot">Nie pamiętam hasła</button>`}</form>`}
   if(S.tab=="mecze"){
     const f=S.matches.filter(m=>!S.league||m.leagues?.code==S.league),up=f.filter(m=>new Date(m.kickoff)>Date.now()),past=f.filter(m=>new Date(m.kickoff)<=Date.now());
-    const chips=`<div class="chips" role="group" aria-label="Liga"><button class="chip" data-lg="" aria-pressed="${!S.league}">Wszystkie</button>${S.leagues.map(l=>`<button class="chip" data-lg="${esc(l.code)}" aria-pressed="${S.league==l.code}">${esc(l.name)}</button>`).join("")}</div>`;
+    const chips=`<div class="chips" role="group" aria-label="Liga"><button class="chip" data-lg="" aria-pressed="${!S.league}">Wszystkie</button>${S.leagues.map(l=>`<button class="chip" data-lg="${esc(l.code)}" aria-pressed="${S.league==l.code}">${flag(l.code)}${esc(l.name)}</button>`).join("")}</div>`;
     return prizebar("inl")+chips+`<h2 class="sec">Do typowania</h2>`+(section(up,false,card)||`<p class="sub">Brak nadchodzących meczów. Zajrzyj później.</p>`)+`<h2 class="sec">Rozegrane (ostatnie 14 dni)</h2>`+(section(past,true,card)||`<p class="sub">Jeszcze nic.</p>`)}
   if(S.tab=="ranking"){
     const b=S.board,top=b.slice(0,3).filter(r=>r.total_points>0),k=top.length,rest=b.slice(k),prize=S.scope=="month"&&!S.bleague;
