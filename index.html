@@ -221,9 +221,10 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 
 
 /* awatary i personalizacja profilu */
-.avs{display:inline-grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--goldi);font:800 13px "Bricolage Grotesque",sans-serif;line-height:1;vertical-align:middle;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--green) 70%,transparent);overflow:hidden}
-.avs.lg{width:64px;height:64px;font-size:32px;box-shadow:inset 0 0 0 4px var(--green)}
-.avs.md{width:34px;height:34px;font-size:17px}
+.avs{display:inline-flex;align-items:center;justify-content:center;text-align:center;flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--goldi);font:800 13px "Bricolage Grotesque",sans-serif;line-height:1;vertical-align:middle;padding:0;margin:0;border:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--green) 70%,transparent);overflow:hidden}
+.avs.em{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;font-weight:400}
+.avs.xl{width:64px;height:64px;font-size:32px;box-shadow:inset 0 0 0 4px var(--green)}
+.avs.mid{width:34px;height:34px;font-size:17px}
 .mh .avs,.fitem .avs,.frreq .avs{align-self:center}
 .avedit{display:flex;gap:14px;align-items:center;margin:6px 0 4px}
 .emg,.colg{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
@@ -531,24 +532,25 @@ function badgesHTML(st){
 
 /* ===== awatary i personalizacja profilu ===== */
 const AV_EMOJI=["⚽","🥅","🏆","🥇","🔥","⚡","🎯","🧤","👟","🏟️","🎽","📣","🦁","🐯","🦅","🐺","🐻","🦊","🐉","🦄","🐙","🦈","🐸","🐧","🦉","👑","💎","🚀","🌟","😎","🤓","🥳","😈","🤠","👽","🤖","🧠","💪","🍀","🎩"];
+const CLUBS=[["Premier League (Anglia)", ["Arsenal", "Aston Villa", "AFC Bournemouth", "Brentford", "Brighton & Hove Albion", "Chelsea", "Coventry City", "Crystal Palace", "Everton", "Fulham", "Hull City", "Ipswich Town", "Leeds United", "Liverpool", "Manchester City", "Manchester United", "Newcastle United", "Nottingham Forest", "Sunderland", "Tottenham Hotspur"]], ["La Liga (Hiszpania)", ["Deportivo Alavés", "Athletic Bilbao", "Atlético Madryt", "FC Barcelona", "Celta Vigo", "Deportivo La Coruña", "Elche", "Espanyol", "Getafe", "Levante", "Málaga", "Osasuna", "Racing Santander", "Rayo Vallecano", "Real Betis", "Real Madryt", "Real Sociedad", "Sevilla", "Valencia", "Villarreal"]], ["Serie A (Włochy)", ["Atalanta", "Bologna", "Cagliari", "Como", "Fiorentina", "Frosinone", "Genoa", "Inter Mediolan", "Juventus", "Lazio", "Lecce", "AC Milan", "Monza", "Napoli", "Parma", "AS Roma", "Sassuolo", "Torino", "Udinese", "Venezia"]], ["Bundesliga (Niemcy)", ["FC Augsburg", "Union Berlin", "Werder Brema", "Borussia Dortmund", "SV Elversberg", "Eintracht Frankfurt", "SC Freiburg", "Hamburger SV", "TSG Hoffenheim", "1. FC Köln", "RB Lipsk", "Bayer Leverkusen", "Mainz 05", "Borussia Mönchengladbach", "Bayern Monachium", "SC Paderborn", "Schalke 04", "VfB Stuttgart"]], ["Ligue 1 (Francja)", ["Angers", "Auxerre", "Brest", "Le Havre", "Le Mans", "Lens", "Lille", "Lorient", "Olympique Lyon", "Olympique Marsylia", "AS Monaco", "OGC Nice", "Paris FC", "Paris Saint-Germain", "Stade Rennais", "RC Strasbourg", "Toulouse", "Troyes"]], ["Ekstraklasa (Polska)", ["Cracovia", "GKS Katowice", "Górnik Zabrze", "Jagiellonia Białystok", "Korona Kielce", "Lech Poznań", "Legia Warszawa", "Motor Lublin", "Piast Gliwice", "Pogoń Szczecin", "Radomiak Radom", "Raków Częstochowa", "Śląsk Wrocław", "Widzew Łódź", "Wieczysta Kraków", "Wisła Kraków", "Wisła Płock", "Zagłębie Lubin"]]];   // lista klubów do wyboru (sezon 2026/27), łatwa do edycji
 const AV_COLORS=["#1E6B45","#F2C230","#D94B3D","#2F6FDE","#7B4FD6","#EE8A2B","#1AA39A","#E0568F","#2E3A34","#5CB8E6"];
 function avHTML(p,cls){
   const e=p&&p.avatar_emoji,c=p&&p.avatar_color,letter=((p&&p.nick)||"?").charAt(0).toUpperCase();
   const dark=c&&["#1E6B45","#D94B3D","#2F6FDE","#7B4FD6","#2E3A34","#E0568F","#1AA39A"].includes(c);
-  return`<span class="avs${cls?" "+cls:""}" style="${c?`background:${esc(c)};${dark?"color:#fff":""}`:""}" aria-hidden="true">${esc(e||letter)}</span>`}
+  return`<span class="avs${e?" em":""}${cls?" "+cls:""}" style="${c?`background:${esc(c)};${dark?"color:#fff":""}`:""}" aria-hidden="true">${esc(e||letter)}</span>`}
 function drawPed(){
   const ped=S.ped||{emoji:"",color:""},prev=$("#avprev");
-  if(prev)prev.innerHTML=avHTML({nick:S.me?.nick,avatar_emoji:ped.emoji,avatar_color:ped.color},"lg");
+  if(prev)prev.innerHTML=avHTML({nick:S.me?.nick,avatar_emoji:ped.emoji,avatar_color:ped.color},"xl");
   document.querySelectorAll("[data-emo]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.emo==ped.emoji)));
   document.querySelectorAll("[data-col]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.col==ped.color)))}
 function profEditForm(){
   const me=S.me||{};S.ped=S.ped||{emoji:me.avatar_emoji||"",color:me.avatar_color||""};
   return`<form id="ppf" class="kbox"><h3>Wygląd profilu</h3><p class="sub">Awatar, opis i ulubiona drużyna są widoczne dla wszystkich graczy. Wszystko jest dobrowolne.</p>
-   <div class="avedit"><span id="avprev">${avHTML({nick:me.nick,avatar_emoji:S.ped.emoji,avatar_color:S.ped.color},"lg")}</span><button type="button" class="ghost" data-act="avreset">Usuń awatar</button></div>
+   <div class="avedit"><span id="avprev">${avHTML({nick:me.nick,avatar_emoji:S.ped.emoji,avatar_color:S.ped.color},"xl")}</span><button type="button" class="ghost" data-act="avreset">Usuń awatar</button></div>
    <label>Awatar</label><div class="emg">${AV_EMOJI.map(e=>`<button type="button" data-emo="${e}" aria-pressed="${e==S.ped.emoji}" aria-label="Emoji ${e}">${e}</button>`).join("")}</div>
    <label>Kolor tła awatara</label><div class="colg">${AV_COLORS.map(c=>`<button type="button" data-col="${c}" style="background:${c}" aria-pressed="${c==S.ped.color}" aria-label="Kolor ${c}"></button>`).join("")}</div>
    <label for="kb">O mnie (do 160 znaków, bez linków)</label><textarea id="kb" name="bio" rows="3" maxlength="160">${esc(me.bio||"")}</textarea>
-   <label for="kt">Ulubiona drużyna</label><input id="kt" name="team" maxlength="40" autocomplete="off" value="${esc(me.fav_team||"")}">
+   <label for="kt">Ulubiona drużyna</label>${(()=>{const cur=me.fav_team||"",known=CLUBS.some(g=>g[1].includes(cur)),other=cur&&!known;return`<select id="kt" name="team_sel"><option value="">Brak</option>${CLUBS.map(g=>`<optgroup label="${esc(g[0])}">${g[1].map(c=>`<option value="${esc(c)}"${c==cur?" selected":""}>${esc(c)}</option>`).join("")}</optgroup>`).join("")}<option value="__other"${other?" selected":""}>Inny klub (wpisz własny)…</option></select><input id="kto" name="team_other" maxlength="40" autocomplete="off" placeholder="Nazwa klubu" style="margin-top:6px${other?"":";display:none"}" value="${esc(other?cur:"")}">`})()}
    <label for="kl">Ulubiona liga</label><select id="kl" name="league"><option value="">Brak</option>${S.leagues.map(l=>`<option value="${esc(l.code)}"${me.fav_league==l.code?" selected":""}>${esc(l.name)}</option>`).join("")}</select>
    <p id="mpp" class="err" role="status"></p><button type="submit">Zapisz profil</button></form>`}
 function profAbout(me,own){
@@ -580,7 +582,7 @@ function profView(){
   if(!S.prof)return sch+`<p class="sub" style="margin-top:18px">Wczytuję profil…</p>`;
   if(S.prof.notfound)return sch+`<p class="note" style="margin-top:18px">Nie ma takiego gracza.</p><button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
   const own=S.prof.own,st=profStats(),me=S.prof.user||{},since=me.created_at?new Date(me.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"",role=me.is_admin?`<span class="bdg o">Organizator</span>`:me.is_moderator?`<span class="bdg a">Administrator</span>`:"";
-  const head=`<div class="phead">${avHTML(me,"lg")}<div><h2>${esc(me.nick||"")} <span class="lvchip" title="Poziom">poz. ${xpInfo(profStats()).L}</span></h2><p class="sub">${since?"Gracz od "+esc(since)+" ":""}${role}</p></div><div class="pact">${own?`<button class="ghost" data-act="editprof">Edytuj profil</button>`:friendBtn(me.id,me.nick)}</div></div>${profAbout(me,own)}${!own&&isStaff()&&!me.is_admin&&(me.bio||me.avatar_emoji||me.fav_team)?`<p><button class="lnk bad" data-act="preset" data-uid="${me.id}">Wyczyść awatar i opis (moderacja)</button></p>`:""}`;
+  const head=`<div class="phead">${avHTML(me,"xl")}<div><h2>${esc(me.nick||"")} <span class="lvchip" title="Poziom">poz. ${xpInfo(profStats()).L}</span></h2><p class="sub">${since?"Gracz od "+esc(since)+" ":""}${role}</p></div><div class="pact">${own?`<button class="ghost" data-act="editprof">Edytuj profil</button>`:friendBtn(me.id,me.nick)}</div></div>${profAbout(me,own)}${!own&&isStaff()&&!me.is_admin&&(me.bio||me.avatar_emoji||me.fav_team)?`<p><button class="lnk bad" data-act="preset" data-uid="${me.id}">Wyczyść awatar i opis (moderacja)</button></p>`:""}`;
   const backBtn=own?"":`<button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
   const rank=`<h2 class="sec">Miejsce w rankingu</h2><div class="tiles"><div class="tile"><div>${rankOf(S.side,me.nick)}</div><div class="tl">Ten miesiąc, ranking nagrodowy (wszystkie ligi)</div></div><div class="tile"><div>${rankOf(S.prof.all,me.nick)}</div><div class="tl">Cały sezon</div></div></div>`;
   if(!st.n)return sch+backBtn+head+rank+badgesHTML(st)+`<h2 class="sec">Statystyki</h2><p class="note">${own?"Nie masz jeszcze rozliczonych typów. Statystyki pojawią się po pierwszych zakończonych meczach.":"Ten gracz nie ma jeszcze rozliczonych typów."}${own&&st.pending?` Czeka na wynik: ${st.pending}.`:""}</p>`;
@@ -729,13 +731,13 @@ function friendsListHTML(){
     inc=S.fr.filter(f=>f.status=="pending"&&f.incoming),out=S.fr.filter(f=>f.status=="pending"&&!f.incoming);
   let h="";
   if(inc.length)h+=`<h3>Zaproszenia (${inc.length})</h3>`+inc.map(f=>`<div class="frreq"><span style="display:flex;gap:8px;align-items:center">${avHTML({...f.p,nick:f.nick})}<button class="nickb" data-act="pview" data-nick="${esc(f.nick)}">${esc(f.nick)}</button></span><span class="ab"><button data-act="facc" data-id="${f.id}">Akceptuj</button><button class="ghost" data-act="fdec" data-id="${f.id}">Odrzuć</button></span></div>`).join("");
-  h+=`<h3>Znajomi (${acc.length})</h3>`+(acc.length?acc.map(f=>`<button class="fitem" data-act="dmopen" data-uid="${f.uid}" data-nick="${esc(f.nick)}" aria-current="${S.dm&&S.dm.id==f.uid}">${avHTML({...f.p,nick:f.nick},"md")}${esc(f.nick)}${S.unread[f.uid]?`<i class="nbadge">${S.unread[f.uid]}</i>`:""}</button>`).join(""):`<p class="sub">Nie masz jeszcze znajomych.</p>`);
+  h+=`<h3>Znajomi (${acc.length})</h3>`+(acc.length?acc.map(f=>`<button class="fitem" data-act="dmopen" data-uid="${f.uid}" data-nick="${esc(f.nick)}" aria-current="${S.dm&&S.dm.id==f.uid}">${avHTML({...f.p,nick:f.nick},"mid")}${esc(f.nick)}${S.unread[f.uid]?`<i class="nbadge">${S.unread[f.uid]}</i>`:""}</button>`).join(""):`<p class="sub">Nie masz jeszcze znajomych.</p>`);
   if(out.length)h+=`<h3>Wysłane zaproszenia</h3>`+out.map(f=>`<div class="frreq"><button class="nickb" data-act="pview" data-nick="${esc(f.nick)}">${esc(f.nick)}</button><button class="ghost" data-act="fdec" data-id="${f.id}">Anuluj</button></div>`).join("");
   return h}
 function drawFriendsList(){const el=$("#frl");if(el)el.innerHTML=friendsListHTML()}
 function dmHTML(){
   if(!S.dm)return`<p class="sub" style="padding:8px">Wybierz znajomego z listy, aby napisać wiadomość. Nowych znajomych znajdziesz wyszukiwarką powyżej albo klikając nick na czacie lub w rankingu.</p>`;
-  return`<div class="dmhead"><span style="display:flex;gap:8px;align-items:center"><button class="ghost dmback" data-act="dmback">← Lista</button>${avHTML({...(frOf(S.dm.id)||{}).p,nick:S.dm.nick},"md")}<button class="nickb" data-act="pview" data-nick="${esc(S.dm.nick)}" style="font-size:18px">${esc(S.dm.nick)}</button></span><button class="lnk bad" data-act="funf" data-id="${(frOf(S.dm.id)||{}).id}" data-uid="${S.dm.id}" data-nick="${esc(S.dm.nick)}">Usuń ze znajomych</button></div>
+  return`<div class="dmhead"><span style="display:flex;gap:8px;align-items:center"><button class="ghost dmback" data-act="dmback">← Lista</button>${avHTML({...(frOf(S.dm.id)||{}).p,nick:S.dm.nick},"mid")}<button class="nickb" data-act="pview" data-nick="${esc(S.dm.nick)}" style="font-size:18px">${esc(S.dm.nick)}</button></span><button class="lnk bad" data-act="funf" data-id="${(frOf(S.dm.id)||{}).id}" data-uid="${S.dm.id}" data-nick="${esc(S.dm.nick)}">Usuń ze znajomych</button></div>
   <div id="dl" class="dml" aria-live="polite"></div><form id="df" class="cf"><input id="di" data-key="dm" maxlength="500" autocomplete="off" placeholder="Napisz wiadomość do ${esc(S.dm.nick)}" aria-label="Wiadomość prywatna" value="${esc(S.cDraft.dm||"")}"><button type="submit">Wyślij</button></form><p id="dme" class="err"></p>`}
 function friendsView(){
   if(!S.user)return`<div class="box"><h2>Znajomi</h2><p class="sub">Zaloguj się, aby dodawać znajomych i pisać z nimi.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
@@ -1007,6 +1009,7 @@ document.addEventListener("click",async e=>{
 document.addEventListener("change",async e=>{
   if(e.target.id=="ml")S.ml=e.target.value;
   if(e.target.id=="sc"||e.target.id=="lb"){S.scope=$("#sc").value;S.bleague=$("#lb").value;await loadBoard();render()}});
+document.addEventListener("change",e=>{if(e.target.id=="kt"){const o=$("#kto");if(o){o.style.display=e.target.value=="__other"?"":"none";if(e.target.value=="__other")o.focus()}}});
 document.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.key;if(k)S.cDraft[k]=e.target.value});
 document.addEventListener("submit",async e=>{
   e.preventDefault();const f=new FormData(e.target);
@@ -1025,7 +1028,7 @@ document.addEventListener("submit",async e=>{
     await loadComments(mid);return}
   if(e.target.id=="pf")return searchPlayers(f.get("q")||"");
   if(e.target.id=="ppf"){const m=$("#mpp"),ped=S.ped||{emoji:"",color:""};
-    const {error}=await sb.rpc("update_profile",{p_emoji:ped.emoji||"",p_color:ped.color||"",p_bio:(f.get("bio")||"").trim(),p_team:(f.get("team")||"").trim(),p_league:f.get("league")||""});
+    const {error}=await sb.rpc("update_profile",{p_emoji:ped.emoji||"",p_color:ped.color||"",p_bio:(f.get("bio")||"").trim(),p_team:((f.get("team_sel")=="__other"?f.get("team_other"):f.get("team_sel"))||"").trim(),p_league:f.get("league")||""});
     if(error){const t=error.message||"";return say(m,/links/.test(t)?"Opis i nazwa drużyny nie mogą zawierać linków.":/length/.test(t)?"Opis lub nazwa drużyny są za długie.":"Nie udało się zapisać profilu.",1)}
     S.ped=null;await load();render();return say($("#mpp"),"Profil zapisany.")}
   if(e.target.id=="nkf"){const m=$("#mn"),n=(f.get("nick")||"").trim();
