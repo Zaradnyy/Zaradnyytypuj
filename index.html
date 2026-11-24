@@ -155,6 +155,8 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .pres button{background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:99px;padding:6px 14px}
 .nickb{background:none;color:inherit;padding:0;font:inherit;font-weight:700;border-radius:4px;cursor:pointer}.nickb:hover{text-decoration:underline}
 .back{margin-top:14px}
+.adm.done{border-color:var(--green)}.adm.done input{opacity:.75;background:var(--bg)}
+.okb{color:var(--green);font-weight:700;white-space:nowrap}.ab{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .lt .mo{display:none}
 @media (max-width:520px){.lt{grid-template-columns:1fr auto}.lt .hide{display:none}.lt .mo{display:inline}}
 </style>
@@ -173,7 +175,7 @@ const PRIZES=[["1","Zwycięzca miesiąca","Karta podarunkowa 50 zł dla gracza z
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:""};
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:""};
 let tsTok=null,tsId=null;
 function tsSync(){tsTok=null;tsId=null;if(!$("#ts")||!CFG.turnstile)return;
   const go=()=>{if(!$("#ts")||tsId!==null)return;tsId=turnstile.render("#ts",{sitekey:CFG.turnstile,language:"pl",callback:t=>{tsTok=t},"expired-callback":()=>{tsTok=null},"error-callback":()=>{tsTok=null}})};
@@ -265,7 +267,11 @@ function card(m){
   const s=open?soon(m.kickoff):"",tag=s?`<span class="soon">${s}</span>`:"";
   return`<div class="match${fin?" p"+p:""}"><div class="meta"><span><span class="time">${hm(m.kickoff)}</span>${m.round?"kolejka "+m.round:""}</span>${tag}</div><div class="row"><div class="team r">${esc(m.home)}</div>${mid}<div class="team">${esc(m.away)}</div></div><div class="res">${bot}</div></div>`}
 
-function admRow(m){return`<div class="adm"><div><b>${esc(m.home)} – ${esc(m.away)}</b><br><span class="sub">${hm(m.kickoff)}${m.round?", kolejka "+m.round:""}</span></div><div class="score"><input type="number" min="0" id="rh${m.id}" value="${m.home_goals??""}" aria-label="Gole gospodarza"><span>:</span><input type="number" min="0" id="ra${m.id}" value="${m.away_goals??""}" aria-label="Gole gościa"></div><div><button data-act="res" data-id="${m.id}">Zapisz</button> <button class="del" data-act="del" data-id="${m.id}" aria-label="Usuń mecz">Usuń</button></div></div>`}
+function admRow(m){
+  const fin=m.home_goals!=null,ed=S.editing.has(m.id),lock=fin&&!ed,dis=lock?" disabled":"";
+  const btns=lock?`<span class="okb">✓ Zatwierdzone</span> <button class="ghost" data-act="redit" data-id="${m.id}">Edytuj</button>`
+    :`<button data-act="res" data-id="${m.id}">${ed?"Zapisz zmianę":"Zatwierdź"}</button>${ed?` <button class="ghost" data-act="rcancel" data-id="${m.id}">Anuluj</button>`:""}`;
+  return`<div class="adm${lock?" done":""}"><div><b>${esc(m.home)} – ${esc(m.away)}</b><br><span class="sub">${hm(m.kickoff)}${m.round?", kolejka "+m.round:""}</span></div><div class="score"><input type="number" min="0" id="rh${m.id}" value="${m.home_goals??""}"${dis} aria-label="Gole gospodarza"><span>:</span><input type="number" min="0" id="ra${m.id}" value="${m.away_goals??""}"${dis} aria-label="Gole gościa"></div><div class="ab">${btns} <button class="del" data-act="del" data-id="${m.id}" aria-label="Usuń mecz">Usuń</button></div></div>`}
 
 function leagueSel(id,val,all){return`<select id="${id}" aria-label="Liga">${all?`<option value="">Wszystkie ligi</option>`:""}${S.leagues.map(l=>`<option value="${all?l.code:l.id}" ${val==(all?l.code:l.id)?"selected":""}>${esc(l.name)}</option>`).join("")}</select>`}
 
@@ -274,12 +280,12 @@ function prizebar(c){const n=new Date(),d=Math.ceil((new Date(n.getFullYear(),n.
 function aside(){
   if(S.tab=="auth"||S.tab=="admin"||S.tab=="profil")return"";
   const top=S.side.filter(r=>r.total_points>0).slice(0,5);
-  const list=S.tab=="ranking"?"":`<div class="acard"><h3>Najlepsi w tym miesiącu</h3>${top.length?`<ol class="mini">${top.map((r,i)=>`<li class="${r.nick==S.me?.nick?"you":""}"><span class="mp">${i+1}</span><span class="mn">${esc(r.nick)}</span><b>${r.total_points}</b></li>`).join("")}</ol><button class="ghost" data-tab="ranking">Cały ranking</button>`:`<p class="sub">Nikt jeszcze nie zdobył punktów. Zacznij pierwszy.</p>`}</div>`;
+  const list=S.tab=="ranking"?"":`<div class="acard"><h3>Najlepsi w tym miesiącu</h3>${top.length?`<ol class="mini">${top.map((r,i)=>`<li class="${r.nick==S.me?.nick?"you":""}"><span class="mp">${i+1}</span><span class="mn"><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}" title="Zobacz profil">${esc(r.nick)}</button></span><b>${r.total_points}</b></li>`).join("")}</ol><button class="ghost" data-tab="ranking">Cały ranking</button>`:`<p class="sub">Nikt jeszcze nie zdobył punktów. Zacznij pierwszy.</p>`}</div>`;
   return`<aside class="aside" style="padding-top:16px">${list}<div class="acard"><h3>Punktacja</h3><p class="sub">3 pkt za trafionego zwycięzcę lub remis.<br>+1 pkt za dokładny wynik, razem 4 pkt.</p></div></aside>`}
 
 function podium(top,prize){
   if(!top.length)return"";
-  return`<div class="podium${prize?"":" plain"}">${[1,0,2].filter(i=>top[i]).map(i=>{const r=top[i];return`<div class="pod r${i+1}${r.nick==S.me?.nick?" you":""}"><div class="info"><div class="md">${i+1}</div><div class="pn">${esc(r.nick)}</div><div class="pp">${r.total_points} pkt</div><div class="ps">dokładne: ${r.exact_hits}</div></div><div class="step"></div></div>`}).join("")}</div>`}
+  return`<div class="podium${prize?"":" plain"}">${[1,0,2].filter(i=>top[i]).map(i=>{const r=top[i];return`<div class="pod r${i+1}${r.nick==S.me?.nick?" you":""}"><div class="info"><div class="md">${i+1}</div><div class="pn"><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}" title="Zobacz profil">${esc(r.nick)}</button></div><div class="pp">${r.total_points} pkt</div><div class="ps">dokładne: ${r.exact_hits}</div></div><div class="step"></div></div>`}).join("")}</div>`}
 
 /* ===== CZAT ===== */
 const LINK_RE=/(https?:\/\/|www\.|[a-z0-9]\.(pl|com|net|org|eu|ru|io|tv|me|ly|cc|xyz)(\/|\s|$))/i;
@@ -356,7 +362,7 @@ function view(){
     return`<div class="bar"><select id="sc" aria-label="Okres"><option value="month" ${S.scope=="month"?"selected":""}>Ten miesiąc</option><option value="week" ${S.scope=="week"?"selected":""}>Ten tydzień</option><option value="all" ${S.scope=="all"?"selected":""}>Cały sezon</option></select>${leagueSel("lb",S.bleague,1)}</div>`+
     (prize?`<div class="note nprize"><b>Ranking nagrodowy.</b> Zwycięzca miesiąca (wszystkie ligi razem) dostaje kartę podarunkową ${esc(PRIZE_BADGE)}.</div>`
       :`<div class="note">Ten ranking jest tylko dla zabawy, bez nagrody. Nagrodę dostaje zwycięzca rankingu miesięcznego ze wszystkich lig. <button class="lnk" data-act="goprize">Pokaż ranking nagrodowy</button></div>`)+podium(top,prize)+
-    (rest.length?`<div style="overflow-x:auto"><table><thead><tr><th>Miejsce</th><th>Gracz</th><th class="n">Punkty</th><th class="n">Dokładne</th><th class="n">Typy</th></tr></thead><tbody>${rest.map((r,i)=>`<tr class="${r.nick==S.me?.nick?"you":""}"><td class="pos">${k+i+1}</td><td>${esc(r.nick)}</td><td class="n">${r.total_points}</td><td class="n">${r.exact_hits}</td><td class="n">${r.tips_count}</td></tr>`).join("")}</tbody></table></div>`:(b.length?"":`<p class="sub">Brak graczy.</p>`))}
+    (rest.length?`<div style="overflow-x:auto"><table><thead><tr><th>Miejsce</th><th>Gracz</th><th class="n">Punkty</th><th class="n">Dokładne</th><th class="n">Typy</th></tr></thead><tbody>${rest.map((r,i)=>`<tr class="${r.nick==S.me?.nick?"you":""}"><td class="pos">${k+i+1}</td><td><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}" title="Zobacz profil">${esc(r.nick)}</button></td><td class="n">${r.total_points}</td><td class="n">${r.exact_hits}</td><td class="n">${r.tips_count}</td></tr>`).join("")}</tbody></table></div>`:(b.length?"":`<p class="sub">Brak graczy.</p>`))}
   if(S.tab=="profil")return profView();
   if(S.tab=="nagrody")return`<h2 class="sec" style="margin-top:18px">Do wygrania</h2>${PRIZES.map(p=>`<div class="prize"><div class="medal">${esc(p[0])}</div><div><h3>${esc(p[1])}</h3><p>${esc(p[2])}</p></div></div>`).join("")}`;
   if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig kartą podarunkową 50 zł, a nagrodę funduje organizator. Pozostałe rankingi (tygodniowy, sezonowy i dla poszczególnych lig) są tylko dla zabawy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Tu wstawimy link do regulaminu i polityki prywatności.</p>`;
@@ -410,8 +416,11 @@ document.addEventListener("click",async e=>{
     if(error)return say(ok,"Nie udało się zapisać. Mecz mógł się już zacząć.",1);
     S.tips[id]={home_goals:+h,away_goals:+aw};return say(ok,"Zapisano. Możesz zmienić typ do startu meczu.")}
   if(a=="res"){const h=$("#rh"+id).value,aw=$("#ra"+id).value;
+    if((h===""||aw==="")&&!(h===""&&aw===""))return alert("Wpisz wynik obu drużyn.");
     const {error}=await sb.from("matches").update({home_goals:h===""?null:+h,away_goals:aw===""?null:+aw}).eq("id",id);
-    if(error)return alert("Nie udało się zapisać wyniku.");return load()}
+    if(error)return alert("Nie udało się zapisać wyniku.");S.editing.delete(id);return load()}
+  if(a=="redit"){if(!confirm("Czy na pewno chcesz edytować zatwierdzony wynik tego meczu? Po zapisaniu zmiany punkty graczy zostaną przeliczone."))return;S.editing.add(id);return render()}
+  if(a=="rcancel"){S.editing.delete(id);return render()}
   if(a=="del"){if(!confirm("Usunąć ten mecz razem z typami?"))return;await sb.from("matches").delete().eq("id",id);return load()}
 });
 document.addEventListener("change",async e=>{
