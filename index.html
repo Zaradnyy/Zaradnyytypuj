@@ -161,6 +161,26 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .pact{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 @media(max-width:720px){.frwrap{grid-template-columns:1fr}.frwrap.open .frcol{display:none}.frwrap:not(.open) .dmcol{display:none}.dmback{display:inline-block}.pact{margin-left:0;width:100%}}
 
+
+/* dzwoneczek */
+.bellwrap{position:relative;display:inline-block}
+.bellbtn{position:relative;background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:50%;width:42px;height:42px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.bellbtn .nbadge{position:absolute;top:-5px;right:-5px}
+.bellbtn.on{border-color:var(--gold)}
+.bellp{position:fixed;top:60px;left:8px;right:8px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);max-height:70vh;overflow-y:auto;text-align:left}
+.bellh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);font-weight:700;position:sticky;top:0;background:var(--card)}
+.nitem{display:block;width:100%;background:none;color:inherit;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);border-radius:0;font-weight:400;font-size:15px}
+.nitem:hover{background:color-mix(in srgb,var(--green) 8%,transparent)}
+.nitem.un{background:color-mix(in srgb,var(--gold) 16%,transparent)}
+.nitem b{font-weight:700}.nitem small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+.nempty{padding:18px 14px;color:var(--mute)}
+.dtop{display:none}
+@media(max-width:520px){.top .brand{font-size:24px}.top .me .nick{display:none}.top .me{flex-wrap:nowrap}.brandrow{flex-wrap:nowrap}.bellbtn{width:38px;height:38px}.top .me button.ghost{padding:8px 12px}}
+@media(min-width:960px){
+  .dtop{display:flex;justify-content:flex-end;align-items:center;position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line);margin:0 -40px 8px -40px;padding:8px 40px}
+  .bellp{position:absolute;top:calc(100% + 8px);left:auto;right:0;width:360px}
+}
+
 /* czat */
 .chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:12px}
 .cl{height:min(60vh,520px);overflow-y:auto;padding:4px 4px 8px}
@@ -331,7 +351,7 @@ const flagName=n=>flag((S.leagues.find(l=>l.name==n)||{}).code);
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:"",cOpen:new Set(),cData:{},cCount:{},cRep:{},cRepd:new Set(),cReply:{},cDraft:{},cRepList:[],fr:[],unread:{},dm:null,dmMsgs:[]};
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:"",cOpen:new Set(),cData:{},cCount:{},cRep:{},cRepd:new Set(),cReply:{},cDraft:{},cRepList:[],fr:[],unread:{},dm:null,dmMsgs:[],notifs:[],bell:false};
 let tsTok=null,tsId=null;
 function tsSync(){tsTok=null;tsId=null;if(!$("#ts")||!CFG.turnstile)return;
   const go=()=>{if(!$("#ts")||tsId!==null)return;tsId=turnstile.render("#ts",{sitekey:CFG.turnstile,language:"pl",callback:t=>{tsTok=t},"expired-callback":()=>{tsTok=null},"error-callback":()=>{tsTok=null}})};
@@ -354,7 +374,7 @@ async function load(){
   if(S.user){const [p,t]=await Promise.all([sb.from("profiles").select("*").eq("id",S.user.id).single(),sb.from("predictions").select("*").eq("user_id",S.user.id)]);S.me=p.data;(t.data||[]).forEach(x=>S.tips[x.match_id]=x)}
   if(S.tab=="ranking")await loadBoard();
   if(S.tab=="profil")await loadProfile();
-  if(S.user)await Promise.all([loadFriends(),loadUnread()]);else{S.fr=[];S.unread={};S.dm=null}
+  if(S.user)await Promise.all([loadFriends(),loadUnread(),loadNotifs()]);else{S.fr=[];S.unread={};S.notifs=[];S.dm=null;S.bell=false}
   await loadCounts();
   render();startSocial();
   S.cOpen.forEach(id=>loadComments(id));cPoll()}
@@ -533,13 +553,13 @@ function updBadge(){
   document.querySelectorAll('[data-tab="znajomi"]').forEach(bt=>{const o=bt.querySelector(".nbadge");if(o)o.remove();if(n){const i=document.createElement("i");i.className="nbadge";i.textContent=n;bt.appendChild(i)}})}
 async function socialTick(){
   if(!S.user)return;
-  await Promise.all([loadFriends(),loadUnread()]);updBadge();
+  await Promise.all([loadFriends(),loadUnread(),loadNotifs()]);updBadge();
   if(S.tab=="znajomi"){drawFriendsList();if(S.dm){if(!frOf(S.dm.id)||frOf(S.dm.id).status!="accepted"){S.dm=null;return render()}await loadDM()}}}
 function startSocial(){
   if(!S.user)return stopSocial();
   if(soTimer)return;
   soTimer=setInterval(()=>{if(document.visibilityState=="visible")socialTick()},12000);
-  soCh=sb.channel("social").on("postgres_changes",{event:"*",schema:"public",table:"direct_messages"},()=>socialTick()).on("postgres_changes",{event:"*",schema:"public",table:"friendships"},()=>socialTick()).subscribe()}
+  soCh=sb.channel("social").on("postgres_changes",{event:"*",schema:"public",table:"direct_messages"},()=>socialTick()).on("postgres_changes",{event:"*",schema:"public",table:"friendships"},()=>socialTick()).on("postgres_changes",{event:"*",schema:"public",table:"notifications"},()=>socialTick()).subscribe()}
 function stopSocial(){if(soTimer){clearInterval(soTimer);soTimer=null}if(soCh){sb.removeChannel(soCh);soCh=null}}
 function dmSync(){
   if(S.tab=="znajomi"&&S.user){drawDM();if(!dmShown){dmShown=true;socialTick()}}else dmShown=false}
@@ -578,6 +598,20 @@ function drawDM(toBottom){
   el.innerHTML=msgs.length?msgs.map(m=>{const mine=m.sender_id==S.user.id,t=new Date(m.created_at),ts=t.toDateString()==new Date().toDateString()?hm(m.created_at):t.toLocaleString("pl-PL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
     return`<div class="dmm${mine?" mine":""}">${esc(m.body)}<time>${esc(ts)}${mine?` <button class="lnk" data-act="dmdel" data-id="${m.id}">Usuń</button>`:""}</time>${mine&&lastMine&&lastMine.id==m.id&&m.read_at?`<span class="rd">Przeczytano</span>`:""}</div>`}).join(""):`<p class="sub" style="padding:8px">Brak wiadomości. Napisz pierwszą.</p>`;
   if(near||toBottom||!el.dataset.init){el.scrollTop=el.scrollHeight;el.dataset.init=1}}
+
+/* ===== dzwoneczek / powiadomienia ===== */
+const unreadN=()=>S.notifs.filter(n=>!n.read_at).length;
+const ago=t=>{const d=(Date.now()-new Date(t))/1000;if(d<60)return"przed chwilą";if(d<3600)return Math.floor(d/60)+" min temu";if(d<86400)return Math.floor(d/3600)+" godz. temu";return new Date(t).toLocaleDateString("pl-PL",{day:"numeric",month:"long"})};
+const NTXT={friend_request:"wysłał(a) Ci zaproszenie do znajomych",friend_accept:"zaakceptował(a) Twoje zaproszenie do znajomych",dm:"wysłał(a) Ci wiadomość",comment_reply:"odpowiedział(a) na Twój komentarz"};
+function bellInner(){
+  const n=unreadN();
+  return`<button class="bellbtn${S.bell?" on":""}" data-act="bell" aria-label="Powiadomienia${n?` (${n} nowych)`:""}" aria-expanded="${S.bell}">${icon("bell")}${n?`<i class="nbadge">${n>9?"9+":n}</i>`:""}</button>`+(S.bell?`<div class="bellp" role="dialog" aria-label="Powiadomienia"><div class="bellh"><span>Powiadomienia</span>${n?`<button class="lnk" data-act="nread">Oznacz jako przeczytane</button>`:""}</div>${S.notifs.length?S.notifs.map(x=>`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="${x.type}" data-uid="${x.actor_id||""}" data-ref="${x.ref||""}" data-nick="${esc(x.actor?.nick||"")}"><b>${esc(x.actor?.nick||"Gracz")}</b> ${NTXT[x.type]||""}<small>${esc(ago(x.created_at))}</small></button>`).join(""):`<p class="nempty">Brak powiadomień.</p>`}</div>`:"")}
+function drawBell(){document.querySelectorAll(".bellwrap").forEach(el=>el.innerHTML=bellInner())}
+async function loadNotifs(){
+  if(!S.user){S.notifs=[];return}
+  const {data,error}=await sb.from("notifications").select("id,type,actor_id,ref,created_at,read_at,actor:profiles!notifications_actor_id_fkey(nick)").order("created_at",{ascending:false}).limit(30);
+  if(error)return;
+  S.notifs=data||[];drawBell()}
 
 function admRow(m){
   const fin=m.home_goals!=null,ed=S.editing.has(m.id),lock=fin&&!ed,dis=lock?" disabled":"";
@@ -689,6 +723,8 @@ function view(){
   return""}
 
 const IC={
+ znajomi:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.2c2.6.2 4.5 2 4.5 5.3"/>',
+ bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>',
  mecze:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5l3.8 2.8-1.4 4.4H9.6L8.2 10.3z"/><path d="M12 3v4.5M3.4 9.8l4.8.5M20.6 9.8l-4.8.5M6.2 19l2.6-4.3M17.8 19l-2.6-4.3"/>',
  ranking:'<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3M12 14v4M8 21h8M10 18h4"/>',
  chat:'<path d="M20.5 12a8 8 0 0 1-11.6 7.1L3.5 20.5l1.4-4.7A8 8 0 1 1 20.5 12z"/><path d="M8.5 11.5h7M8.5 14.5h4"/>',
@@ -702,16 +738,18 @@ const icon=k=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[k]||"
 function render(){
   const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.user){tabs.push(["konto","Konto"]);tabs.splice(3,0,["znajomi","Znajomi"])}if(S.me?.is_admin)tabs.push(["admin","Admin"]);
   const kept=S.tab=="chat"&&$("#ci")?$("#ci").value:null;
+  const bell=S.user?`<span class="bellwrap">${bellInner()}</span>`:"";
   const meBox=S.user?`<span class="nick">${esc(S.me?.nick||"")}</span><button class="ghost" data-act="out">Wyloguj</button>`:`<button data-act="login">Zaloguj</button><button class="ghost" data-act="reg">Załóż konto</button>`;
   const brand=`<h1 class="brand"><button class="brandbtn" data-tab="mecze"><span class="logo" aria-hidden="true"></span>${esc(CFG.name)}</button></h1>`;
   const items=tabs.map(t=>`<button data-tab="${t[0]}"${S.tab==t[0]?' aria-current="page"':""}>${icon(t[0])}<span>${t[1]}</span>${t[0]=="znajomi"&&badgeN()?`<i class="nbadge">${badgeN()}</i>`:""}</button>`).join("");
   $("#app").innerHTML=`<aside class="side">${brand}<nav aria-label="Menu główne">${items}</nav><div class="sideme">${meBox}</div>${socials("sbar")}</aside>
-  <div class="top"><div class="in"><div class="brandrow">${brand}<div class="me">${meBox}</div></div></div></div>
+  <div class="top"><div class="in"><div class="brandrow">${brand}<div class="me">${bell}${meBox}</div></div></div></div>
   <nav class="bnav" aria-label="Menu główne">${items}</nav>
-  <div class="wrap">${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="znajomi"||S.tab=="regulamin"||S.tab=="polityka"?" one":""}"><main>${view()}</main>${aside()}</div><footer class="foot"><span>© ${esc(CFG.name)}</span><button class="lnk" data-tab="regulamin">Regulamin</button><button class="lnk" data-tab="polityka">Polityka prywatności</button><a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>${socials("ftr")}</footer></div>`;
+  <div class="wrap">${S.user?`<div class="dtop"><span class="bellwrap">${bellInner()}</span></div>`:""}${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="znajomi"||S.tab=="regulamin"||S.tab=="polityka"?" one":""}"><main>${view()}</main>${aside()}</div><footer class="foot"><span>© ${esc(CFG.name)}</span><button class="lnk" data-tab="regulamin">Regulamin</button><button class="lnk" data-tab="polityka">Polityka prywatności</button><a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>${socials("ftr")}</footer></div>`;
   chatSync(kept);dmSync();tsSync()}
 
 document.addEventListener("click",async e=>{
+  if(S.bell&&!e.target.closest(".bellwrap")){S.bell=false;drawBell()}
   const b=e.target.closest("button");if(!b)return;const a=b.dataset.act,id=+b.dataset.id;
   if(b.dataset.lg!==undefined){S.league=b.dataset.lg;return render()}
   if(b.dataset.per!==undefined){S.scope=b.dataset.per;await loadBoard();return render()}
@@ -723,6 +761,13 @@ document.addEventListener("click",async e=>{
   if(a=="out"){S.prof=null;await sb.auth.signOut();return}
   if(a=="goprize"){S.scope="month";S.bleague="";await loadBoard();return render()}
   if(a=="onlyrep"){S.onlyRep=!S.onlyRep;return render()}
+  if(a=="bell"){S.bell=!S.bell;return drawBell()}
+  if(a=="nread"){const now=new Date().toISOString();await sb.from("notifications").update({read_at:now}).is("read_at",null).eq("user_id",S.user.id);S.notifs.forEach(n=>{if(!n.read_at)n.read_at=now});return drawBell()}
+  if(a=="nopen"){const t=b.dataset.type,uid=b.dataset.uid,nick=b.dataset.nick,ref=+b.dataset.ref;
+    S.bell=false;const n=S.notifs.find(x=>x.id==id);if(n&&!n.read_at){n.read_at=new Date().toISOString();sb.from("notifications").update({read_at:n.read_at}).eq("id",id).then(()=>{})}
+    if(t=="dm"&&uid){S.cDraft.dm=S.dm&&S.dm.id==uid?S.cDraft.dm:"";S.dm={id:uid,nick};S.dmMsgs=[];S.tab="znajomi";render();await loadDM();drawDM(true);window.scrollTo(0,0);return}
+    if(t=="comment_reply"&&ref){S.tab="mecze";S.cOpen.add(ref);render();await loadComments(ref);cPoll();const c=document.querySelector(`[data-act="ctog"][data-id="${ref}"]`);if(c)c.scrollIntoView({block:"center"});return}
+    S.tab="znajomi";render();window.scrollTo(0,0);return}
   if(a=="fadd"){const {error}=await sb.from("friendships").insert({requester_id:S.user.id,addressee_id:b.dataset.uid,status:"pending"});
     if(error&&!/duplicate/i.test(error.message))alert("Nie udało się wysłać zaproszenia (możliwy limit 30 oczekujących zaproszeń).");
     await loadFriends();return render()}
