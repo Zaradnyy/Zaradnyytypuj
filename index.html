@@ -155,6 +155,11 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .pres button{background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:99px;padding:6px 14px}
 .nickb{background:none;color:inherit;padding:0;font:inherit;font-weight:700;border-radius:4px;cursor:pointer}.nickb:hover{text-decoration:underline}
 .back{margin-top:14px}
+.legal{margin-top:18px;line-height:1.55}.legal h2{font-size:28px}.legal h3{font-size:19px;margin:22px 0 6px}.legal ol,.legal ul{padding-left:22px;margin:6px 0}.legal li{margin:6px 0}.legal .upd{color:var(--mute);margin:4px 0 8px}.legal a{color:var(--green)}
+.legal .lnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.legal .lnk{font-size:inherit;color:var(--green)}
+.foot{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);color:var(--mute);font-size:14px;display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center}
+.chk a{color:var(--green);font-weight:600}
+.foot .lnk{font-size:14px}.foot a{color:var(--mute)}
 .kbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
 .kbox h3{font-size:20px;margin-bottom:6px}.kbox label{display:block;margin:10px 0 4px;font-weight:600}.kbox input{width:100%;max-width:380px}
 .kbox button[type=submit]{margin-top:10px}.kbox p{margin:6px 0}.kbox .row2{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line)}.kbox .row2:last-of-type{border:0}
@@ -176,6 +181,77 @@ const PRIZE_BADGE="50 zł";
 const PRIZE_LINE="Karta podarunkowa dla gracza z największą liczbą punktów w miesiącu (wszystkie ligi razem). Udział za darmo, bez wpisowego.";
 const PRIZES=[["1","Zwycięzca miesiąca","Karta podarunkowa 50 zł dla gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig razem. Rankingi tygodniowe, sezonowe i dla poszczególnych lig są tylko dla zabawy i nie mają nagród. Przy remisie decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta."]];
 // =====================================================
+
+const LEGAL={
+regulamin:`<h2>Regulamin konkursu „Typerkowo”</h2><p class="upd">Obowiązuje od 1 grudnia 2026 r.</p>
+<h3>1. Postanowienia ogólne</h3><ol>
+<li>Organizatorem serwisu internetowego „Typerkowo” dostępnego pod adresem https://typerkowo.pl (dalej: „Serwis”) oraz konkursu opisanego w tym regulaminie (dalej: „Konkurs”) jest Patryk Rajdukowski, osoba fizyczna (dalej: „Organizator”). Kontakt: <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>.</li>
+<li>Konkurs polega na typowaniu wyników meczów piłkarskich i zbieraniu punktów w rankingu. O wyniku decyduje wiedza i umiejętność przewidywania wyników przez uczestnika.</li>
+<li>Udział w Konkursie jest <b>całkowicie bezpłatny</b>. Organizator nie pobiera od uczestników żadnych opłat, wpisowego ani stawek, a nagrody są finansowane wyłącznie przez Organizatora.</li>
+<li>Konkurs nie jest grą hazardową, loterią ani zakładem wzajemnym w rozumieniu ustawy o grach hazardowych.</li>
+<li>Serwis i Konkurs nie są powiązane z żadną ligą, klubem piłkarskim ani bukmacherem.</li></ol>
+<h3>2. Uczestnictwo</h3><ol>
+<li>Uczestnikiem może być osoba fizyczna, która ukończyła 18 lat i ma pełną zdolność do czynności prawnych.</li>
+<li>Aby wziąć udział, należy założyć konto w Serwisie, podając adres e-mail, hasło i nick, oraz potwierdzić adres e-mail.</li>
+<li>Każdy uczestnik może mieć tylko jedno konto. Zabronione jest zakładanie wielu kont, używanie automatów (botów) oraz inne działania zakłócające rzetelność rankingu.</li>
+<li>Nick nie może naruszać prawa, dóbr osobistych innych osób ani zasad współżycia społecznego. Organizator może zmienić lub usunąć nick niezgodny z regulaminem.</li>
+<li>Organizator może wykluczyć uczestnika, który narusza regulamin, i usunąć jego konto.</li></ol>
+<h3>3. Zasady typowania</h3><ol>
+<li>Typować można mecze wprowadzone do Serwisu przez Organizatora: Premier League, La Liga, Serie A, Ligue 1 i Ekstraklasa.</li>
+<li>Typ polega na wskazaniu liczby goli obu drużyn. Typ można dodać i zmieniać <b>do momentu rozpoczęcia meczu</b> wskazanego w Serwisie. Po rozpoczęciu meczu typ jest zablokowany.</li>
+<li>Typuje się wynik po regulaminowym czasie gry (90 minut z doliczonym czasem), bez dogrywki i rzutów karnych.</li>
+<li>Typy innych uczestników są widoczne dopiero po rozpoczęciu danego meczu.</li>
+<li>Wyniki meczów wprowadza ręcznie Organizator na podstawie oficjalnych wyników rozgrywek. Organizator może poprawić wynik, jeśli zostanie wpisany błędnie. Punkty przeliczają się wtedy automatycznie.</li>
+<li>Jeśli mecz zostanie przełożony, Organizator zmienia termin w Serwisie, a typy pozostają ważne do nowego terminu. Jeśli mecz zostanie odwołany lub przerwany bez rozstrzygnięcia, jest anulowany i nie liczy się do rankingu.</li></ol>
+<h3>4. Punktacja i ranking</h3><ol>
+<li>Za każdy mecz uczestnik otrzymuje:<ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis,</li><li><b>+1 punkt</b> dodatkowo za dokładnie trafiony wynik (razem 4 punkty),</li><li><b>0 punktów</b> w pozostałych przypadkach oraz za mecz niewytypowany. Przykład: typ 3:0 przy wyniku 3:0 daje 4 punkty (3 + 1), a typ 4:0 przy wyniku 3:0 daje 3 punkty.</li></ul></li>
+<li>Serwis prezentuje ranking tygodniowy, miesięczny i sezonowy oraz osobne rankingi dla poszczególnych lig. Nagroda (pkt 5) dotyczy wyłącznie rankingu miesięcznego ze wszystkich lig łącznie. Pozostałe rankingi służą zabawie i nie dają prawa do nagrody.</li>
+<li>W przypadku takiej samej liczby punktów o kolejności decyduje: (a) większa liczba dokładnie trafionych wyników, (b) wcześniejsza data założenia konta.</li></ol>
+<h3>5. Nagroda</h3><ol>
+<li>Co miesiąc kalendarzowy Organizator przyznaje jedną nagrodę: <b>kartę podarunkową o wartości 50 zł</b>. Rodzaj karty (sklep lub usługodawcę) wybiera Organizator.</li>
+<li>Nagrodę otrzymuje uczestnik z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig łącznie, obejmującym mecze rozpoczęte w danym miesiącu, według zasad z pkt 4.3. Rankingi tygodniowy, sezonowy i rankingi poszczególnych lig nie dają prawa do nagrody.</li>
+<li>Zwycięzca zostanie wskazany w Serwisie lub powiadomiony wiadomością e-mail w ciągu 7 dni od zakończenia miesiąca.</li>
+<li>Zwycięzca powinien zgłosić się do Organizatora na adres e-mail z konta w ciągu 7 dni od powiadomienia. Brak zgłoszenia w tym terminie oznacza utratę prawa do nagrody, a nagroda nie przechodzi na kolejną osobę.</li>
+<li>Nagroda zostanie przekazana w formie kodu karty na adres e-mail zwycięzcy. Nagroda nie podlega wymianie na gotówkę ani na inną nagrodę.</li>
+<li>Nagroda może podlegać opodatkowaniu zgodnie z obowiązującymi przepisami. Organizator wypełnia ciążące na nim obowiązki podatkowe i może w tym celu poprosić zwycięzcę o dane niezbędne do ich realizacji.</li></ol>
+<h3>6. Reklamacje</h3><ol>
+<li>Reklamacje dotyczące Konkursu można zgłaszać e-mailem na adres <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a> w ciągu 14 dni od zdarzenia, którego dotyczą.</li>
+<li>Organizator rozpatruje reklamację w ciągu 14 dni od jej otrzymania i informuje zgłaszającego o decyzji. Decyzja Organizatora jest ostateczna w zakresie przyznania punktów i nagrody, z zachowaniem praw wynikających z przepisów prawa.</li></ol>
+<h3>7. Czat i profile graczy</h3><ol>
+<li>Serwis udostępnia zalogowanym uczestnikom ogólny czat. Wiadomość może mieć do 300 znaków i jest widoczna dla wszystkich zalogowanych uczestników.</li>
+<li>Na czacie zabronione są: wulgaryzmy i treści obraźliwe, hejt i groźby, treści dyskryminujące, spam i reklamy, linki oraz adresy stron internetowych, treści naruszające prawo lub prawa osób trzecich oraz ujawnianie danych osobowych (własnych i cudzych).</li>
+<li>Uczestnik może zgłosić wiadomość przyciskiem „Zgłoś”. Zgłoszenia rozpatruje Organizator oraz osoby z rangą „Administrator”, czyli moderatorzy wyznaczeni przez Organizatora.</li>
+<li>Moderatorzy mogą usuwać wiadomości naruszające regulamin. Organizator może czasowo wyciszyć uczestnika (na 1, 6, 12 lub 24 godziny), w czasie którego uczestnik nie może pisać na czacie. Za kolejne naruszenia wyciszenia mogą być dłuższe. W przypadku poważnych lub powtarzających się naruszeń Organizator może wykluczyć uczestnika zgodnie z pkt 2.5.</li>
+<li>Nick, statystyki (m.in. punkty, skuteczność i miejsce w rankingu) oraz typy z rozpoczętych meczów są widoczne w Serwisie dla innych uczestników, także w profilu gracza. Adres e-mail nie jest widoczny dla innych uczestników.</li>
+<li>W zakładce „Konto” uczestnik może zmienić nick (raz na 30 dni), adres e-mail i hasło oraz samodzielnie usunąć konto.</li></ol>
+<h3>8. Dane osobowe</h3><p>Zasady przetwarzania danych osobowych opisuje <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>
+<h3>9. Postanowienia końcowe</h3><ol>
+<li>Organizator nie odpowiada za przerwy w działaniu Serwisu wynikające z przyczyn technicznych niezależnych od niego ani za błędy w danych o meczach spowodowane pomyłką, o ile niezwłocznie je poprawi.</li>
+<li>Organizator może zmienić regulamin z ważnych przyczyn (np. zmiana przepisów, zakresu rozgrywek lub nagród). O zmianach poinformuje w Serwisie. Zmiany nie dotyczą już rozegranych meczów.</li>
+<li>Organizator może zakończyć Konkurs, informując o tym w Serwisie z co najmniej 14-dniowym wyprzedzeniem. Nagroda za zakończone miesiące zostanie przyznana.</li>
+<li>W sprawach nieuregulowanych stosuje się prawo polskie.</li>
+<li>Regulamin wchodzi w życie z dniem 1 grudnia 2026 r.</li></ol>`,
+polityka:`<h2>Polityka prywatności</h2><p class="upd">Obowiązuje od 1 grudnia 2026 r.</p>
+<h3>1. Administrator danych</h3><p>Administratorem Twoich danych osobowych jest Patryk Rajdukowski. Kontakt we wszystkich sprawach dotyczących danych: <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>.</p>
+<h3>2. Jakie dane zbieramy i po co</h3>
+<div style="overflow-x:auto"><table><thead><tr><th>Dane</th><th>Cel</th><th>Podstawa prawna (RODO)</th></tr></thead><tbody>
+<tr><td>Adres e-mail, hasło (zapisywane w postaci zaszyfrowanej), nick</td><td>Założenie i obsługa konta, logowanie</td><td>Art. 6 ust. 1 lit. b (umowa, czyli korzystanie z Serwisu na zasadach regulaminu)</td></tr>
+<tr><td>Typy, punkty, pozycja w rankingu</td><td>Prowadzenie Konkursu i rankingów</td><td>Art. 6 ust. 1 lit. b</td></tr>
+<tr><td>Adres e-mail zwycięzcy</td><td>Przekazanie nagrody, kontakt</td><td>Art. 6 ust. 1 lit. b</td></tr>
+<tr><td>Dane techniczne (np. adres IP, dziennik zdarzeń)</td><td>Bezpieczeństwo Serwisu i zapobieganie nadużyciom</td><td>Art. 6 ust. 1 lit. f (prawnie uzasadniony interes)</td></tr>
+<tr><td>Treść korespondencji i reklamacji</td><td>Obsługa zgłoszeń</td><td>Art. 6 ust. 1 lit. f</td></tr>
+<tr><td>Wiadomości na czacie, zgłoszenia wiadomości, informacje o wyciszeniach</td><td>Prowadzenie czatu, moderacja, ochrona uczestników</td><td>Art. 6 ust. 1 lit. f</td></tr>
+<tr><td>Statystyki profilu (np. skuteczność typów, miejsce w rankingu)</td><td>Wyświetlanie profilu gracza w Serwisie</td><td>Art. 6 ust. 1 lit. b</td></tr>
+</tbody></table></div>
+<p>Podanie e-maila, hasła i nicku jest dobrowolne, ale niezbędne do założenia konta. Nick jest <b>publicznie widoczny</b> w rankingu, na czacie i w profilu gracza, wraz ze statystykami (punkty, skuteczność, miejsce w rankingu) oraz typami z rozpoczętych meczów. Nie używaj w nicku danych, których nie chcesz ujawniać. Adres e-mail nie jest widoczny dla innych uczestników.</p>
+<h3>3. Komu przekazujemy dane</h3><p>Dane są przetwarzane przy pomocy dostawców usług technicznych:</p>
+<ul><li><b>Supabase</b> (baza danych i logowanie),</li><li><b>Vercel</b> (hosting strony),</li><li><b>Resend</b> (wysyłka e-maili, np. potwierdzenia konta i resetu hasła),</li><li><b>Cloudflare</b> (zabezpieczenie formularzy przed botami, usługa Turnstile),</li><li><b>OVHcloud</b> (domena oraz skrzynka e-mail kontakt@typerkowo.pl).</li></ul>
+<p>Część tych dostawców może przetwarzać dane poza Europejskim Obszarem Gospodarczym, w tym w USA. Wtedy odbywa się to na podstawie mechanizmów przewidzianych w RODO (np. standardowe klauzule umowne lub decyzja o odpowiednim stopniu ochrony). Nie sprzedajemy danych i nie wykorzystujemy ich do reklam.</p>
+<h3>4. Jak długo przechowujemy dane</h3><p>Dane konta i typy przechowujemy do czasu usunięcia konta. Konto możesz usunąć samodzielnie w zakładce „Konto”, a wraz z nim znikają Twój profil, typy, punkty i wiadomości z czatu. Kopie zapasowe u dostawców mogą istnieć jeszcze przez krótki czas. Dane dotyczące przyznanej nagrody mogą być przechowywane dłużej, jeśli jest to potrzebne do obrony przed roszczeniami lub wynika z przepisów. Dzienniki techniczne są przechowywane przez dostawców przez krótki okres zgodnie z ich zasadami.</p>
+<h3>5. Twoje prawa</h3><p>Masz prawo do: dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie. Nick, adres e-mail i hasło możesz zmienić, a konto usunąć samodzielnie w zakładce „Konto”. W pozostałych sprawach napisz na <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>. Masz też prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (<a href="https://uodo.gov.pl" target="_blank" rel="noopener">uodo.gov.pl</a>).</p>
+<h3>6. Pliki cookies i pamięć przeglądarki</h3><p>Serwis korzysta z pamięci przeglądarki (np. localStorage lub ciasteczek) wyłącznie w celach niezbędnych do działania: utrzymania sesji po zalogowaniu. Nie używamy cookies reklamowych ani analitycznych. Formularze logowania i rejestracji korzystają z zabezpieczenia Cloudflare Turnstile, które służy wyłącznie do sprawdzenia, że formularz wypełnia człowiek, i może w tym celu zapisywać dane techniczne w przeglądarce. Serwis korzysta z czcionek Google Fonts, przy czym zapytania o czcionki trafiają do serwerów Google.</p>
+<h3>7. Zmiany polityki</h3><p>Polityka może być aktualizowana. O istotnych zmianach poinformujemy w Serwisie. Obowiązuje od 1 grudnia 2026 r.</p>`};
+function legalView(k){return`<div class="legal"><div class="lnav"><button class="chip" data-tab="regulamin" aria-pressed="${k=="regulamin"}">Regulamin</button><button class="chip" data-tab="polityka" aria-pressed="${k=="polityka"}">Polityka prywatności</button><button class="ghost" data-tab="mecze">Wróć do serwisu</button></div>${LEGAL[k]}</div>`}
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -297,7 +373,7 @@ function leagueSel(id,val,all){return`<select id="${id}" aria-label="Liga">${all
 function prizebar(c){const n=new Date(),d=Math.ceil((new Date(n.getFullYear(),n.getMonth()+1,1)-n)/864e5);return`<div class="prizebar ${c||""}"><div class="pbadge">${esc(PRIZE_BADGE)}</div><div><b>Nagroda miesiąca</b><br><span>${esc(PRIZE_LINE)} Do końca miesiąca: ${d} ${d==1?"dzień":"dni"}.</span></div></div>`}
 
 function aside(){
-  if(S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto")return"";
+  if(S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="regulamin"||S.tab=="polityka")return"";
   const top=S.side.filter(r=>r.total_points>0).slice(0,5);
   const list=S.tab=="ranking"?"":`<div class="acard"><h3>Najlepsi w tym miesiącu</h3>${top.length?`<ol class="mini">${top.map((r,i)=>`<li class="${r.nick==S.me?.nick?"you":""}"><span class="mp">${i+1}</span><span class="mn"><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}" title="Zobacz profil">${esc(r.nick)}</button></span><b>${r.total_points}</b></li>`).join("")}</ol><button class="ghost" data-tab="ranking">Cały ranking</button>`:`<p class="sub">Nikt jeszcze nie zdobył punktów. Zacznij pierwszy.</p>`}</div>`;
   return`<aside class="aside" style="padding-top:16px">${list}<div class="acard"><h3>Punktacja</h3><p class="sub">3 pkt za trafionego zwycięzcę lub remis.<br>+1 pkt za dokładny wynik, razem 4 pkt.</p></div></aside>`}
@@ -370,7 +446,7 @@ function view(){
    <label for="em">E-mail</label><input id="em" name="email" type="email" required autocomplete="email">
    ${up?`<label for="nk">Nick (3–20 znaków, widoczny w rankingu)</label><input id="nk" name="nick" minlength="3" maxlength="20" required>`:""}
    <label for="pw">Hasło</label><input id="pw" name="pw" type="password" minlength="6" required autocomplete="${up?"new-password":"current-password"}">
-   ${up?`<label class="chk"><input type="checkbox" name="ok"> Mam ukończone 18 lat i akceptuję regulamin.</label>`:""}
+   ${up?`<label class="chk"><input type="checkbox" name="ok"><span>Mam ukończone 18 lat, akceptuję <a href="#regulamin" target="_blank" rel="noopener">regulamin</a> i zapoznałem(-am) się z <a href="#polityka" target="_blank" rel="noopener">polityką prywatności</a>.</span></label>`:""}
    <div id="ts" class="ts"></div><p id="am" class="err"></p><button type="submit">${up?"Załóż konto":"Zaloguj"}</button> <button type="button" class="ghost" data-act="${up?"login":"reg"}">${up?"Mam już konto":"Nie mam konta"}</button>${up?"":` <button type="button" class="ghost" data-act="forgot">Nie pamiętam hasła</button>`}</form>`}
   if(S.tab=="mecze"){
     const f=S.matches.filter(m=>!S.league||m.leagues?.code==S.league),up=f.filter(m=>new Date(m.kickoff)>Date.now()),past=f.filter(m=>new Date(m.kickoff)<=Date.now());
@@ -384,8 +460,9 @@ function view(){
     (rest.length?`<div style="overflow-x:auto"><table><thead><tr><th>Miejsce</th><th>Gracz</th><th class="n">Punkty</th><th class="n">Dokładne</th><th class="n">Typy</th></tr></thead><tbody>${rest.map((r,i)=>`<tr class="${r.nick==S.me?.nick?"you":""}"><td class="pos">${k+i+1}</td><td><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}" title="Zobacz profil">${esc(r.nick)}</button></td><td class="n">${r.total_points}</td><td class="n">${r.exact_hits}</td><td class="n">${r.tips_count}</td></tr>`).join("")}</tbody></table></div>`:(b.length?"":`<p class="sub">Brak graczy.</p>`))}
   if(S.tab=="profil")return profView();
   if(S.tab=="konto")return kontoView();
+  if(S.tab=="regulamin"||S.tab=="polityka")return legalView(S.tab);
   if(S.tab=="nagrody")return`<h2 class="sec" style="margin-top:18px">Do wygrania</h2>${PRIZES.map(p=>`<div class="prize"><div class="medal">${esc(p[0])}</div><div><h3>${esc(p[1])}</h3><p>${esc(p[2])}</p></div></div>`).join("")}`;
-  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig kartą podarunkową 50 zł, a nagrodę funduje organizator. Pozostałe rankingi (tygodniowy, sezonowy i dla poszczególnych lig) są tylko dla zabawy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Tu wstawimy link do regulaminu i polityki prywatności.</p>`;
+  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig kartą podarunkową 50 zł, a nagrodę funduje organizator. Pozostałe rankingi (tygodniowy, sezonowy i dla poszczególnych lig) są tylko dla zabawy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Pełne zasady znajdziesz w dokumentach: <button class="lnk" data-tab="regulamin">Regulamin</button> i <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>`;
   if(S.tab=="admin"&&S.me?.is_admin)return`<h2 class="sec" style="margin-top:18px">Dodaj mecz</h2><form id="mf"><div class="grid">${leagueSel("ml",S.ml||S.leagues[0]?.id,0).replace('id="ml"','id="ml" name="league"')}<input name="round" type="number" min="1" placeholder="Kolejka" value="${esc(S.mr)}"><input name="home" placeholder="Gospodarz" required><input name="away" placeholder="Gość" required><input name="kickoff" type="datetime-local" required aria-label="Start meczu" value="${esc(S.mk)}"></div><button type="submit">Dodaj mecz</button> <span id="mm"></span></form>
    <p class="sub">Mecze są automatycznie grupowane według ligi i sortowane według godziny, więc kolejność wpisywania nie ma znaczenia. Liga, kolejka i data zostają w formularzu po dodaniu meczu.</p>
    <h2 class="sec">Wyniki i mecze</h2>${section(S.matches,false,admRow)||`<p class="sub">Brak meczów.</p>`}`;
@@ -411,13 +488,13 @@ function render(){
   $("#app").innerHTML=`<aside class="side">${brand}<nav aria-label="Menu główne">${items}</nav><div class="sideme">${meBox}</div></aside>
   <div class="top"><div class="in"><div class="brandrow">${brand}<div class="me">${meBox}</div></div></div></div>
   <nav class="bnav" aria-label="Menu główne">${items}</nav>
-  <div class="wrap">${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"?" one":""}"><main>${view()}</main>${aside()}</div></div>`;
+  <div class="wrap">${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="regulamin"||S.tab=="polityka"?" one":""}"><main>${view()}</main>${aside()}</div><footer class="foot"><span>© ${esc(CFG.name)}</span><button class="lnk" data-tab="regulamin">Regulamin</button><button class="lnk" data-tab="polityka">Polityka prywatności</button><a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a></footer></div>`;
   chatSync(kept);tsSync()}
 
 document.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;const a=b.dataset.act,id=+b.dataset.id;
   if(b.dataset.lg!==undefined){S.league=b.dataset.lg;return render()}
-  if(b.dataset.tab){S.tab=b.dataset.tab;if(S.tab=="ranking")await loadBoard();if(S.tab=="profil"){S.viewNick=null;S.pq="";S.pres=null;S.prof=null;render();await loadProfile()}return render()}
+  if(b.dataset.tab){S.tab=b.dataset.tab;{const lg=S.tab=="regulamin"||S.tab=="polityka";if(lg){history.replaceState(null,"","#"+S.tab);window.scrollTo(0,0)}else if(/^#(regulamin|polityka)$/.test(location.hash))history.replaceState(null,"",location.pathname)}if(S.tab=="ranking")await loadBoard();if(S.tab=="profil"){S.viewNick=null;S.pq="";S.pres=null;S.prof=null;render();await loadProfile()}return render()}
   if(a=="login"||a=="reg"){S.tab="auth";S.mode=a=="reg"?"up":"in";return render()}
   if(a=="forgot"){S.tab="auth";S.mode="reset";return render()}
   if(a=="pview")return openProfile(b.dataset.nick);
@@ -466,7 +543,7 @@ document.addEventListener("submit",async e=>{
     const {error}=await sb.rpc("delete_my_account");if(error)return say(m,plErr(error.message),1);
     S.prof=null;S.tab="mecze";await sb.auth.signOut();alert("Konto zostało usunięte.");return}
   if(e.target.id=="af"){const am=$("#am"),email=f.get("email").trim(),pw=f.get("pw");
-    if(S.mode=="up"){const nick=(f.get("nick")||"").trim();if(!f.get("ok"))return say(am,"Zaznacz zgodę: 18+ i regulamin.",1);
+    if(S.mode=="up"){const nick=(f.get("nick")||"").trim();if(!f.get("ok"))return say(am,"Zaznacz zgodę: 18+, regulamin i polityka prywatności.",1);
       if(CFG.turnstile&&!tsTok)return say(am,"Potwierdź, że nie jesteś robotem.",1);
       const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:{nick},captchaToken:tsTake()||undefined}});if(error)return say(am,plErr(error.message),1);
       if(!data.session){say(am,"Sprawdź skrzynkę i kliknij link potwierdzający. Potem możesz się zalogować.");return}}
@@ -491,6 +568,7 @@ document.addEventListener("submit",async e=>{
     if(error)return say(mm,"Nie udało się dodać meczu.",1);await load();say($("#mm"),"Dodano.")}});
 
 sb.auth.onAuthStateChange((ev,s)=>{S.user=s?.user||null;if(ev=="PASSWORD_RECOVERY"){S.tab="auth";S.mode="newpw"}setTimeout(load,0)});
+if(/^#(regulamin|polityka)$/.test(location.hash))S.tab=location.hash.slice(1);
 render();
 </script>
 </body>
