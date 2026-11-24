@@ -121,6 +121,23 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .adm .score input{width:42px;height:40px;font-size:18px;border-radius:8px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}
 
+
+/* komentarze do meczów */
+.cbar{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.cbtn{font-size:14px;font-weight:600;color:var(--mute);text-decoration:none}
+.cbtn:hover{color:var(--text,inherit);text-decoration:underline}
+.cpanel{margin-top:8px}
+.cform{display:flex;gap:8px;margin:6px 0 10px}.cform input{flex:1;min-width:0}
+.cform.rf{margin:6px 0 6px 0}
+.cmt{padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--line) 35%,transparent);margin-bottom:6px}
+.cmt.mine{background:color-mix(in srgb,var(--gold) 18%,transparent)}
+.cmt.rep{outline:2px solid var(--bad)}
+.cmt .mb{white-space:pre-wrap}
+.cmt .at{font-weight:700}
+.crepl{margin:0 0 8px 18px;padding-left:10px;border-left:3px solid var(--line)}
+.cmore{font-size:13px;color:var(--mute);margin:4px 0}
+.crl{margin-top:14px}.crl .cmt{margin-bottom:8px}
+
 /* czat */
 .chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:12px}
 .cl{height:min(60vh,520px);overflow-y:auto;padding:4px 4px 8px}
@@ -234,10 +251,10 @@ regulamin:`<h2>Regulamin konkursu „Typerkowo”</h2><p class="upd">Obowiązuje
 <li>Reklamacje dotyczące Konkursu można zgłaszać e-mailem na adres <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a> w ciągu 14 dni od zdarzenia, którego dotyczą.</li>
 <li>Organizator rozpatruje reklamację w ciągu 14 dni od jej otrzymania i informuje zgłaszającego o decyzji. Decyzja Organizatora jest ostateczna w zakresie przyznania punktów i nagrody, z zachowaniem praw wynikających z przepisów prawa.</li></ol>
 <h3>7. Czat i profile graczy</h3><ol>
-<li>Serwis udostępnia zalogowanym uczestnikom ogólny czat. Wiadomość może mieć do 300 znaków i jest widoczna dla wszystkich zalogowanych uczestników.</li>
-<li>Na czacie zabronione są: wulgaryzmy i treści obraźliwe, hejt i groźby, treści dyskryminujące, spam i reklamy, linki oraz adresy stron internetowych, treści naruszające prawo lub prawa osób trzecich oraz ujawnianie danych osobowych (własnych i cudzych).</li>
-<li>Uczestnik może zgłosić wiadomość przyciskiem „Zgłoś”. Zgłoszenia rozpatruje Organizator oraz osoby z rangą „Administrator”, czyli moderatorzy wyznaczeni przez Organizatora.</li>
-<li>Moderatorzy mogą usuwać wiadomości naruszające regulamin. Organizator może czasowo wyciszyć uczestnika (na 1, 6, 12 lub 24 godziny), w czasie którego uczestnik nie może pisać na czacie. Za kolejne naruszenia wyciszenia mogą być dłuższe. W przypadku poważnych lub powtarzających się naruszeń Organizator może wykluczyć uczestnika zgodnie z pkt 2.5.</li>
+<li>Serwis udostępnia zalogowanym uczestnikom ogólny czat oraz możliwość komentowania meczów (komentarz główny i odpowiedzi pod nim). Wiadomość na czacie może mieć do 300 znaków, a komentarz do 500 znaków. Wiadomości i komentarze są widoczne dla wszystkich zalogowanych uczestników.</li>
+<li>Na czacie i w komentarzach do meczów zabronione są: wulgaryzmy i treści obraźliwe, hejt i groźby, treści dyskryminujące, spam i reklamy, linki oraz adresy stron internetowych, treści naruszające prawo lub prawa osób trzecich oraz ujawnianie danych osobowych (własnych i cudzych).</li>
+<li>Uczestnik może zgłosić wiadomość lub komentarz przyciskiem „Zgłoś”. Zgłoszenia rozpatruje Organizator oraz osoby z rangą „Administrator”, czyli moderatorzy wyznaczeni przez Organizatora.</li>
+<li>Moderatorzy mogą usuwać wiadomości i komentarze naruszające regulamin (usunięcie komentarza głównego usuwa także odpowiedzi pod nim), a autor może usunąć własny komentarz. Organizator może czasowo wyciszyć uczestnika (na 1, 6, 12 lub 24 godziny), w czasie którego uczestnik nie może pisać na czacie ani komentować meczów. Za kolejne naruszenia wyciszenia mogą być dłuższe. W przypadku poważnych lub powtarzających się naruszeń Organizator może wykluczyć uczestnika zgodnie z pkt 2.5.</li>
 <li>Nick, statystyki (m.in. punkty, skuteczność i miejsce w rankingu) oraz typy z rozpoczętych meczów są widoczne w Serwisie dla innych uczestników, także w profilu gracza. Adres e-mail nie jest widoczny dla innych uczestników.</li>
 <li>W zakładce „Konto” uczestnik może zmienić nick (raz na 30 dni), adres e-mail i hasło oraz samodzielnie usunąć konto.</li></ol>
 <h3>8. Dane osobowe</h3><p>Zasady przetwarzania danych osobowych opisuje <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>
@@ -256,14 +273,14 @@ polityka:`<h2>Polityka prywatności</h2><p class="upd">Obowiązuje od 1 grudnia 
 <tr><td>Adres e-mail zwycięzcy</td><td>Przekazanie nagrody, kontakt</td><td>Art. 6 ust. 1 lit. b</td></tr>
 <tr><td>Dane techniczne (np. adres IP, dziennik zdarzeń)</td><td>Bezpieczeństwo Serwisu i zapobieganie nadużyciom</td><td>Art. 6 ust. 1 lit. f (prawnie uzasadniony interes)</td></tr>
 <tr><td>Treść korespondencji i reklamacji</td><td>Obsługa zgłoszeń</td><td>Art. 6 ust. 1 lit. f</td></tr>
-<tr><td>Wiadomości na czacie, zgłoszenia wiadomości, informacje o wyciszeniach</td><td>Prowadzenie czatu, moderacja, ochrona uczestników</td><td>Art. 6 ust. 1 lit. f</td></tr>
+<tr><td>Wiadomości na czacie, komentarze do meczów, zgłoszenia, informacje o wyciszeniach</td><td>Prowadzenie czatu i komentarzy, moderacja, ochrona uczestników</td><td>Art. 6 ust. 1 lit. f</td></tr>
 <tr><td>Statystyki profilu (np. skuteczność typów, miejsce w rankingu)</td><td>Wyświetlanie profilu gracza w Serwisie</td><td>Art. 6 ust. 1 lit. b</td></tr>
 </tbody></table></div>
 <p>Podanie e-maila, hasła i nicku jest dobrowolne, ale niezbędne do założenia konta. Nick jest <b>publicznie widoczny</b> w rankingu, na czacie i w profilu gracza, wraz ze statystykami (punkty, skuteczność, miejsce w rankingu) oraz typami z rozpoczętych meczów. Nie używaj w nicku danych, których nie chcesz ujawniać. Adres e-mail nie jest widoczny dla innych uczestników.</p>
 <h3>3. Komu przekazujemy dane</h3><p>Dane są przetwarzane przy pomocy dostawców usług technicznych:</p>
 <ul><li><b>Supabase</b> (baza danych i logowanie),</li><li><b>Vercel</b> (hosting strony),</li><li><b>Resend</b> (wysyłka e-maili, np. potwierdzenia konta i resetu hasła),</li><li><b>Cloudflare</b> (zabezpieczenie formularzy przed botami, usługa Turnstile),</li><li><b>OVHcloud</b> (domena oraz skrzynka e-mail kontakt@typerkowo.pl).</li></ul>
 <p>Część tych dostawców może przetwarzać dane poza Europejskim Obszarem Gospodarczym, w tym w USA. Wtedy odbywa się to na podstawie mechanizmów przewidzianych w RODO (np. standardowe klauzule umowne lub decyzja o odpowiednim stopniu ochrony). Nie sprzedajemy danych i nie wykorzystujemy ich do reklam.</p>
-<h3>4. Jak długo przechowujemy dane</h3><p>Dane konta i typy przechowujemy do czasu usunięcia konta. Konto możesz usunąć samodzielnie w zakładce „Konto”, a wraz z nim znikają Twój profil, typy, punkty i wiadomości z czatu. Kopie zapasowe u dostawców mogą istnieć jeszcze przez krótki czas. Dane dotyczące przyznanej nagrody mogą być przechowywane dłużej, jeśli jest to potrzebne do obrony przed roszczeniami lub wynika z przepisów. Dzienniki techniczne są przechowywane przez dostawców przez krótki okres zgodnie z ich zasadami.</p>
+<h3>4. Jak długo przechowujemy dane</h3><p>Dane konta i typy przechowujemy do czasu usunięcia konta. Konto możesz usunąć samodzielnie w zakładce „Konto”, a wraz z nim znikają Twój profil, typy, punkty, wiadomości z czatu i komentarze. Kopie zapasowe u dostawców mogą istnieć jeszcze przez krótki czas. Dane dotyczące przyznanej nagrody mogą być przechowywane dłużej, jeśli jest to potrzebne do obrony przed roszczeniami lub wynika z przepisów. Dzienniki techniczne są przechowywane przez dostawców przez krótki okres zgodnie z ich zasadami.</p>
 <h3>5. Twoje prawa</h3><p>Masz prawo do: dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie. Nick, adres e-mail i hasło możesz zmienić, a konto usunąć samodzielnie w zakładce „Konto”. W pozostałych sprawach napisz na <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>. Masz też prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (<a href="https://uodo.gov.pl" target="_blank" rel="noopener">uodo.gov.pl</a>).</p>
 <h3>6. Pliki cookies i pamięć przeglądarki</h3><p>Serwis korzysta z pamięci przeglądarki (np. localStorage lub ciasteczek) wyłącznie w celach niezbędnych do działania: utrzymania sesji po zalogowaniu. Nie używamy cookies reklamowych ani analitycznych. Formularze logowania i rejestracji korzystają z zabezpieczenia Cloudflare Turnstile, które służy wyłącznie do sprawdzenia, że formularz wypełnia człowiek, i może w tym celu zapisywać dane techniczne w przeglądarce. Serwis korzysta z czcionek Google Fonts, przy czym zapytania o czcionki trafiają do serwerów Google.</p>
 <h3>7. Zmiany polityki</h3><p>Polityka może być aktualizowana. O istotnych zmianach poinformujemy w Serwisie. Obowiązuje od 1 grudnia 2026 r.</p>`};
@@ -290,7 +307,7 @@ const flagName=n=>flag((S.leagues.find(l=>l.name==n)||{}).code);
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:""};
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:"",cOpen:new Set(),cData:{},cCount:{},cRep:{},cRepd:new Set(),cReply:{},cDraft:{},cRepList:[]};
 let tsTok=null,tsId=null;
 function tsSync(){tsTok=null;tsId=null;if(!$("#ts")||!CFG.turnstile)return;
   const go=()=>{if(!$("#ts")||tsId!==null)return;tsId=turnstile.render("#ts",{sitekey:CFG.turnstile,language:"pl",callback:t=>{tsTok=t},"expired-callback":()=>{tsTok=null},"error-callback":()=>{tsTok=null}})};
@@ -313,7 +330,9 @@ async function load(){
   if(S.user){const [p,t]=await Promise.all([sb.from("profiles").select("*").eq("id",S.user.id).single(),sb.from("predictions").select("*").eq("user_id",S.user.id)]);S.me=p.data;(t.data||[]).forEach(x=>S.tips[x.match_id]=x)}
   if(S.tab=="ranking")await loadBoard();
   if(S.tab=="profil")await loadProfile();
-  render()}
+  await loadCounts();
+  render();
+  S.cOpen.forEach(id=>loadComments(id));cPoll()}
 
 async function loadProfile(){
   if(!S.user){S.prof=null;return}
@@ -355,7 +374,7 @@ function kontoView(){
   <form id="pwf" class="kbox"><h3>Zmień hasło</h3>
    <label for="kp">Nowe hasło (min. 6 znaków)</label><input id="kp" name="pw" type="password" minlength="6" required autocomplete="new-password">
    <label for="kp2">Powtórz nowe hasło</label><input id="kp2" name="pw2" type="password" minlength="6" required autocomplete="new-password"><p id="mp" class="err" role="status"></p><button type="submit">Zmień hasło</button></form>
-  <form id="dlf" class="kbox danger"><h3>Usuń konto</h3><p>Usunięcie jest <b>nieodwracalne</b>. Znikną Twój profil, wszystkie typy, punkty, statystyki i wiadomości z czatu.</p>
+  <form id="dlf" class="kbox danger"><h3>Usuń konto</h3><p>Usunięcie jest <b>nieodwracalne</b>. Znikną Twój profil, wszystkie typy, punkty, statystyki, wiadomości z czatu i komentarze.</p>
    <label for="kd">Aby potwierdzić, wpisz swój nick: <b>${esc(me.nick||"")}</b></label><input id="kd" name="confirm" autocomplete="off" required><p id="md" class="err" role="status"></p><button type="submit" class="del">Usuń moje konto na stałe</button></form>`}
 function profView(){
   if(!S.user)return`<div class="box"><h2>Profil</h2><p class="sub">Zaloguj się, aby zobaczyć swój profil i statystyki.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
@@ -395,7 +414,81 @@ function card(m){
   else if(open){mid=`<div class="fin none">– : –</div>`;bot=`<span class="sub">Zaloguj się, aby typować.</span><button data-act="login">Zaloguj</button>`}
   else{mid=`<div class="fin none">– : –</div>`;bot=`<span>${tt}</span><span class="pill">Czeka na wynik</span>`}
   const s=open?soon(m.kickoff):"",tag=s?`<span class="soon">${s}</span>`:"";
-  return`<div class="match${fin?" p"+p:""}"><div class="meta"><span><span class="time">${hm(m.kickoff)}</span>${m.round?"kolejka "+m.round:""}</span>${tag}</div><div class="row"><div class="team r">${esc(m.home)}</div>${mid}<div class="team">${esc(m.away)}</div></div><div class="res">${bot}</div></div>`}
+  return`<div class="match${fin?" p"+p:""}"><div class="meta"><span><span class="time">${hm(m.kickoff)}</span>${m.round?"kolejka "+m.round:""}</span>${tag}</div><div class="row"><div class="team r">${esc(m.home)}</div>${mid}<div class="team">${esc(m.away)}</div></div><div class="res">${bot}</div>${cbar(m)}</div>`}
+
+/* ===== komentarze do meczów ===== */
+function cbar(m){
+  if(!S.user)return`<div class="cbar"><button class="lnk cbtn" data-act="login">💬 Zaloguj się, aby czytać i dodawać komentarze</button></div>`;
+  const n=S.cCount[m.id]||0,op=S.cOpen.has(m.id);
+  return`<div class="cbar"><button class="lnk cbtn" data-act="ctog" data-id="${m.id}" aria-expanded="${op}">💬 Komentarze (${n})${op?" – ukryj":""}</button>${op?`<div class="cpanel"><form class="cform" data-mid="${m.id}"><input data-key="m${m.id}" maxlength="500" autocomplete="off" placeholder="Napisz komentarz do tego meczu…" aria-label="Komentarz" value="${esc(S.cDraft["m"+m.id]||"")}"><button type="submit">Wyślij</button></form><p class="err cerr" id="ce${m.id}"></p><div id="cli${m.id}">${cList(m.id)}</div></div>`:""}</div>`}
+async function loadCounts(){
+  if(!S.user||!S.matches.length)return;
+  const {data}=await sb.rpc("comment_counts",{ids:S.matches.map(m=>m.id)});
+  if(data){S.cCount={};data.forEach(r=>S.cCount[r.match_id]=+r.n)}}
+async function loadComments(mid){
+  const {data,error}=await sb.from("match_comments").select("id,user_id,parent_id,body,created_at,profiles(nick,is_admin,is_moderator)").eq("match_id",mid).order("created_at").limit(300);
+  if(error)return;
+  S.cData[mid]=data||[];S.cCount[mid]=(data||[]).length;
+  const ids=(data||[]).map(c=>c.id);
+  if(ids.length){const rp=await sb.from("comment_reports").select("comment_id,reporter_id").in("comment_id",ids);
+    (rp.data||[]).forEach(r=>{if(r.reporter_id==S.user.id)S.cRepd.add(r.comment_id)});
+    S.cRep={...S.cRep};ids.forEach(i=>delete S.cRep[i]);(rp.data||[]).forEach(r=>S.cRep[r.comment_id]=(S.cRep[r.comment_id]||0)+1)}
+  if(isStaff()){const mu=await sb.from("chat_mutes").select("user_id,until");S.mutes=mu.data||[]}
+  drawComments(mid)}
+function drawComments(mid){
+  const el=$("#cli"+mid);if(!el)return;
+  const ae=document.activeElement;
+  if(ae&&ae.tagName=="SELECT"&&el.contains(ae))return;
+  let foc=null;if(ae&&ae.tagName=="INPUT"&&el.contains(ae))foc={key:ae.dataset.key,pos:ae.selectionStart};
+  el.innerHTML=cList(mid);
+  if(foc){const i=el.querySelector(`input[data-key="${foc.key}"]`);if(i){i.focus();try{i.setSelectionRange(foc.pos,foc.pos)}catch(_){}}}
+  const b=document.querySelector(`[data-act="ctog"][data-id="${mid}"]`);if(b)b.textContent=`💬 Komentarze (${S.cCount[mid]||0}) – ukryj`}
+function cForm(mid,pid,key){return`<form class="cform rf" data-mid="${mid}" data-pid="${pid}"><input data-key="${key}" maxlength="500" autocomplete="off" placeholder="Napisz odpowiedź…" aria-label="Odpowiedź" value="${esc(S.cDraft[key]||"")}"><button type="submit">Wyślij</button><button type="button" class="ghost" data-act="crcancel" data-id="${mid}">Anuluj</button></form>`}
+function cItem(mid,c,top){
+  const p=c.profiles||{},mine=c.user_id==S.user.id,isS=p.is_admin||p.is_moderator,rc=S.cRep[c.id]||0;
+  const badge=p.is_admin?`<span class="bdg o">Organizator</span>`:p.is_moderator?`<span class="bdg a">Administrator</span>`:"";
+  const t=new Date(c.created_at),ts=t.toDateString()==new Date().toDateString()?hm(c.created_at):t.toLocaleString("pl-PL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+  const body=esc(c.body).replace(/^(@\S+)/,'<span class="at">$1</span>');
+  let acts=`<button class="lnk" data-act="crep" data-id="${c.id}" data-mid="${mid}" data-top="${top||c.id}" data-nick="${esc(p.nick||"")}">Odpowiedz</button>`;
+  if(!mine&&!isS)acts+=S.cRepd.has(c.id)?`<span>Zgłoszono</span>`:`<button class="lnk" data-act="crpt" data-id="${c.id}" data-mid="${mid}">Zgłoś</button>`;
+  if(mine||isStaff())acts+=`<button class="lnk bad" data-act="cdel2" data-id="${c.id}" data-mid="${mid}">Usuń</button>`;
+  if(isStaff()&&rc)acts+=`<b style="color:var(--bad)">Zgłoszenia: ${rc}</b>`;
+  if(S.me?.is_admin&&!mine&&!isS){
+    const n=muteCount(c.user_id),next=[1,6,12,24][Math.min(n,3)],am=activeMute(c.user_id);
+    acts+=am?`<span>Wyciszony do ${esc(fmtT(am.until))}</span><button class="lnk" data-act="cunmute" data-uid="${c.user_id}" data-mid="${mid}">Zdejmij</button>`
+      :`<select id="cmt${c.id}" aria-label="Czas wyciszenia">${[1,6,12,24].map(h=>`<option value="${h}" ${h==next?"selected":""}>${h} h</option>`).join("")}</select><button class="lnk bad" data-act="cmute" data-id="${c.id}" data-mid="${mid}" data-uid="${c.user_id}" data-nick="${esc(p.nick||"")}">Wycisz</button><span>wyciszany wcześniej: ${n}×</span>`}
+  return`<div class="cmt${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${badge}<time>${esc(ts)}</time></div><div class="mb">${body}</div><div class="ma">${acts}</div></div>`}
+function cList(mid){
+  const all=S.cData[mid];
+  if(!all)return`<p class="sub">Ładowanie komentarzy…</p>`;
+  const tops=all.filter(c=>!c.parent_id).reverse();
+  if(!tops.length)return`<p class="sub">Brak komentarzy. Napisz pierwszy.</p>`;
+  const rp=S.cReply[mid],muted=!!S.myMute&&new Date(S.myMute)>Date.now();
+  return(muted?`<p class="err">Jesteś wyciszony do ${esc(fmtT(S.myMute))}. Możesz czytać komentarze, ale nie możesz pisać.</p>`:"")+tops.map(c=>{
+    const rs=all.filter(r=>r.parent_id==c.id);
+    return cItem(mid,c)+`<div class="crepl">${rs.map(r=>cItem(mid,r,c.id)).join("")}${rp&&rp.pid==c.id?cForm(mid,c.id,"r"+mid):""}</div>`}).join("")}
+async function toggleComments(mid){
+  if(S.cOpen.has(mid))S.cOpen.delete(mid);else S.cOpen.add(mid);
+  render();
+  if(S.cOpen.has(mid)){await loadMyMute();await loadComments(mid)}
+  cPoll()}
+async function loadMyMute(){
+  if(!S.user)return;
+  const r=await sb.from("chat_mutes").select("until").eq("user_id",S.user.id).gt("until",new Date().toISOString()).order("until",{ascending:false}).limit(1);
+  S.myMute=r.data?.[0]?.until||null}
+let cTimer=null;
+function cPoll(){
+  if(S.cOpen.size&&!cTimer)cTimer=setInterval(()=>{if(document.visibilityState!="visible"||S.tab!="mecze"||!S.cOpen.size)return;S.cOpen.forEach(id=>loadComments(id))},20000);
+  if(!S.cOpen.size&&cTimer){clearInterval(cTimer);cTimer=null}}
+async function loadCRepList(){
+  if(!isStaff()){S.cRepList=[];return}
+  const {data}=await sb.from("comment_reports").select("comment_id,match_comments(id,body,created_at,user_id,profiles(nick),matches(home,away))");
+  const g={};(data||[]).forEach(r=>{const c=r.match_comments;if(!c)return;(g[c.id]=g[c.id]||{c,n:0}).n++});
+  S.cRepList=Object.values(g).sort((a,b)=>b.n-a.n)}
+function drawCRep(){
+  const el=$("#crl");if(!el)return;
+  if(!isStaff()||!S.cRepList.length){el.innerHTML="";return}
+  el.innerHTML=`<h3 class="sec">Zgłoszone komentarze do meczów (${S.cRepList.length})</h3>`+S.cRepList.map(({c,n})=>`<div class="cmt rep"><div class="mh"><b>${esc(c.profiles?.nick||"?")}</b><time>${esc(c.matches?`${c.matches.home} – ${c.matches.away}`:"")}</time></div><div class="mb">${esc(c.body)}</div><div class="ma"><b style="color:var(--bad)">Zgłoszenia: ${n}</b><button class="lnk bad" data-act="ccdel" data-id="${c.id}">Usuń komentarz</button><button class="lnk" data-act="ccdis" data-id="${c.id}">Odrzuć zgłoszenia</button></div></div>`).join("")}
 
 function admRow(m){
   const fin=m.home_goals!=null,ed=S.editing.has(m.id),lock=fin&&!ed,dis=lock?" disabled":"";
@@ -435,6 +528,7 @@ async function loadChat(light){
     (rp.data||[]).forEach(r=>{S.reports[r.message_id]=(S.reports[r.message_id]||0)+1;if(r.reporter_id==S.user.id)S.reported.add(r.message_id)});
     if(isStaff()){const mu=await sb.from("chat_mutes").select("user_id,until");S.mutes=mu.data||[]}
   }
+  if(!light&&isStaff()){await loadCRepList()}
   drawChat()}
 function startChat(){stopChat();if(!S.user)return;loadChat();
   chTimer=setInterval(()=>{if(document.visibilityState=="visible")loadChat()},20000);
@@ -465,7 +559,7 @@ function drawChat(force,toBottom){
   if(near||toBottom)el.scrollTop=el.scrollHeight;
   const muted=!!S.myMute&&new Date(S.myMute)>Date.now();
   $("#cstat").innerHTML=muted?`<p class="err">Jesteś wyciszony do ${esc(fmtT(S.myMute))}. Możesz czytać czat, ale nie możesz pisać.</p>`:"";
-  $("#ci").disabled=muted;$("#cs").disabled=muted}
+  $("#ci").disabled=muted;$("#cs").disabled=muted;drawCRep()}
 function chatSync(kept){
   if(S.tab=="chat"&&S.user){const i=$("#ci");if(i&&kept!=null)i.value=kept;drawChat(true,true);if(!chTimer)startChat()}else stopChat()}
 
@@ -474,7 +568,7 @@ function view(){
     if(!S.user)return`<div class="box"><h2>Czat graczy</h2><p class="sub">Czat jest dostępny dla zalogowanych graczy.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
     return`<h2 class="sec" style="margin-top:18px">Czat graczy</h2><p class="sub">Bądź miły. Bez wulgaryzmów, linków i reklam. Za łamanie zasad możesz zostać wyciszony.</p>
     ${isStaff()?`<div class="bar"><button class="chip" data-act="onlyrep" aria-pressed="${S.onlyRep}">Tylko zgłoszone</button></div>`:""}
-    <div class="chat"><div id="cl" class="cl" aria-live="polite"></div><div id="cstat"></div><form id="cf" class="cf"><input id="ci" maxlength="300" autocomplete="off" placeholder="Napisz wiadomość" aria-label="Wiadomość"><button type="submit" id="cs">Wyślij</button></form><p id="cm" class="err"></p></div>`}
+    <div class="chat"><div id="cl" class="cl" aria-live="polite"></div><div id="cstat"></div><form id="cf" class="cf"><input id="ci" maxlength="300" autocomplete="off" placeholder="Napisz wiadomość" aria-label="Wiadomość"><button type="submit" id="cs">Wyślij</button></form><p id="cm" class="err"></p></div>${isStaff()?`<div id="crl" class="crl"></div>`:""}`}
   if(S.tab=="auth"&&S.mode=="reset")return`<form id="rf" class="box"><h2>Reset hasła</h2><p class="sub">Podaj e-mail konta. Wyślemy link do ustawienia nowego hasła.</p><label for="em">E-mail</label><input id="em" name="email" type="email" required autocomplete="email"><div id="ts" class="ts"></div><p id="am" class="err"></p><button type="submit">Wyślij link</button> <button type="button" class="ghost" data-act="login">Wróć</button></form>`;
   if(S.tab=="auth"&&S.mode=="newpw")return`<form id="nf" class="box"><h2>Nowe hasło</h2><label for="pw">Nowe hasło (min. 6 znaków)</label><input id="pw" name="pw" type="password" minlength="6" required autocomplete="new-password"><p id="am" class="err"></p><button type="submit">Zapisz hasło</button></form>`;
   if(S.tab=="auth"){const up=S.mode=="up";return`<form id="af" class="box"><h2>${up?"Załóż konto":"Zaloguj się"}</h2>
@@ -539,6 +633,22 @@ document.addEventListener("click",async e=>{
   if(a=="out"){S.prof=null;await sb.auth.signOut();return}
   if(a=="goprize"){S.scope="month";S.bleague="";await loadBoard();return render()}
   if(a=="onlyrep"){S.onlyRep=!S.onlyRep;return render()}
+  if(a=="ctog")return toggleComments(id);
+  if(a=="crep"){S.cReply[+b.dataset.mid]={pid:+b.dataset.top,nick:b.dataset.nick};
+    const mid=+b.dataset.mid,top=+b.dataset.top;
+    if(+b.dataset.id!=top&&!S.cDraft["r"+mid])S.cDraft["r"+mid]="@"+b.dataset.nick+" ";
+    drawComments(mid);const i=document.querySelector(`#cli${mid} input[data-key="r${mid}"]`);if(i){i.focus();const l=i.value.length;i.setSelectionRange(l,l)}return}
+  if(a=="crcancel"){delete S.cReply[id];delete S.cDraft["r"+id];return drawComments(id)}
+  if(a=="crpt"){const {error}=await sb.from("comment_reports").insert({comment_id:id,reporter_id:S.user.id});
+    if(!error||/duplicate/i.test(error.message)){S.cRepd.add(id);drawComments(+b.dataset.mid)}return}
+  if(a=="cdel2"){if(!confirm("Usunąć ten komentarz? Razem z nim znikną odpowiedzi do niego."))return;
+    await sb.from("match_comments").delete().eq("id",id);await loadComments(+b.dataset.mid);return}
+  if(a=="cmute"){const hrs=+$("#cmt"+id).value;if(!confirm(`Wyciszyć ${b.dataset.nick} na ${hrs} h?`))return;
+    const {error}=await sb.from("chat_mutes").insert({user_id:b.dataset.uid,until:new Date(Date.now()+hrs*36e5).toISOString(),hours:hrs,created_by:S.user.id});
+    if(error)return alert("Nie udało się wyciszyć.");return loadComments(+b.dataset.mid)}
+  if(a=="cunmute"){await sb.from("chat_mutes").update({until:new Date().toISOString()}).eq("user_id",b.dataset.uid).gt("until",new Date().toISOString());return loadComments(+b.dataset.mid)}
+  if(a=="ccdel"){if(!confirm("Usunąć ten komentarz?"))return;await sb.from("match_comments").delete().eq("id",id);await loadCRepList();return drawCRep()}
+  if(a=="ccdis"){await sb.from("comment_reports").delete().eq("comment_id",id);await loadCRepList();return drawCRep()}
   if(a=="rep"){const {error}=await sb.from("chat_reports").insert({message_id:id,reporter_id:S.user.id});
     if(!error||/duplicate/i.test(error.message)){S.reported.add(id);drawChat(true)}return}
   if(a=="cdel"){if(!confirm("Usunąć tę wiadomość?"))return;await sb.from("chat_messages").delete().eq("id",id);return loadChat()}
@@ -562,8 +672,16 @@ document.addEventListener("click",async e=>{
 document.addEventListener("change",async e=>{
   if(e.target.id=="ml")S.ml=e.target.value;
   if(e.target.id=="sc"||e.target.id=="lb"){S.scope=$("#sc").value;S.bleague=$("#lb").value;await loadBoard();render()}});
+document.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.key;if(k)S.cDraft[k]=e.target.value});
 document.addEventListener("submit",async e=>{
   e.preventDefault();const f=new FormData(e.target);
+  if(e.target.classList.contains("cform")){const fm=e.target,mid=+fm.dataset.mid,pid=fm.dataset.pid?+fm.dataset.pid:null,inp=fm.querySelector("input"),body=inp.value.trim(),er=$("#ce"+mid);
+    if(!body)return;
+    if(LINK_RE.test(body)){if(er)say(er,"Linki i adresy stron są niedozwolone.",1);return}
+    const {error}=await sb.from("match_comments").insert({match_id:mid,user_id:S.user.id,parent_id:pid,body});
+    if(error){if(er)say(er,"Nie udało się wysłać. Odczekaj kilka sekund między komentarzami albo sprawdź, czy nie jesteś wyciszony.",1);return}
+    inp.value="";delete S.cDraft[inp.dataset.key];if(pid)delete S.cReply[mid];if(er)say(er,"");
+    await loadComments(mid);return}
   if(e.target.id=="pf")return searchPlayers(f.get("q")||"");
   if(e.target.id=="nkf"){const m=$("#mn"),n=(f.get("nick")||"").trim();
     const {error}=await sb.rpc("change_nick",{new_nick:n});if(error)return say(m,plErr(error.message),1);
