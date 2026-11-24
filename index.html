@@ -605,11 +605,11 @@ const ago=t=>{const d=(Date.now()-new Date(t))/1000;if(d<60)return"przed chwilą
 const NTXT={friend_request:"wysłał(a) Ci zaproszenie do znajomych",friend_accept:"zaakceptował(a) Twoje zaproszenie do znajomych",dm:"wysłał(a) Ci wiadomość",comment_reply:"odpowiedział(a) na Twój komentarz"};
 function bellInner(){
   const n=unreadN();
-  return`<button class="bellbtn${S.bell?" on":""}" data-act="bell" aria-label="Powiadomienia${n?` (${n} nowych)`:""}" aria-expanded="${S.bell}">${icon("bell")}${n?`<i class="nbadge">${n>9?"9+":n}</i>`:""}</button>`+(S.bell?`<div class="bellp" role="dialog" aria-label="Powiadomienia"><div class="bellh"><span>Powiadomienia</span>${n?`<button class="lnk" data-act="nread">Oznacz jako przeczytane</button>`:""}</div>${S.notifs.length?S.notifs.map(x=>`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="${x.type}" data-uid="${x.actor_id||""}" data-ref="${x.ref||""}" data-nick="${esc(x.actor?.nick||"")}"><b>${esc(x.actor?.nick||"Gracz")}</b> ${NTXT[x.type]||""}<small>${esc(ago(x.created_at))}</small></button>`).join(""):`<p class="nempty">Brak powiadomień.</p>`}</div>`:"")}
+  return`<button class="bellbtn${S.bell?" on":""}" data-act="bell" aria-label="Powiadomienia${n?` (${n} nowych)`:""}" aria-expanded="${S.bell}">${icon("bell")}${n?`<i class="nbadge">${n>9?"9+":n}</i>`:""}</button>`+(S.bell?`<div class="bellp" role="dialog" aria-label="Powiadomienia"><div class="bellh"><span>Powiadomienia</span>${n?`<button class="lnk" data-act="nread">Oznacz jako przeczytane</button>`:""}</div>${S.notifs.length?S.notifs.map(x=>x.type=="exact_hit"?`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="exact_hit" data-ref="${x.ref||""}"><b>🎯 Trafiłeś dokładny wynik! +4 pkt</b> ${x.match?`${esc(x.match.home)} ${x.match.home_goals}:${x.match.away_goals} ${esc(x.match.away)}`:""}<small>${esc(ago(x.created_at))}</small></button>`:`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="${x.type}" data-uid="${x.actor_id||""}" data-ref="${x.ref||""}" data-nick="${esc(x.actor?.nick||"")}"><b>${esc(x.actor?.nick||"Gracz")}</b> ${NTXT[x.type]||""}<small>${esc(ago(x.created_at))}</small></button>`).join(""):`<p class="nempty">Brak powiadomień.</p>`}</div>`:"")}
 function drawBell(){document.querySelectorAll(".bellwrap").forEach(el=>el.innerHTML=bellInner())}
 async function loadNotifs(){
   if(!S.user){S.notifs=[];return}
-  const {data,error}=await sb.from("notifications").select("id,type,actor_id,ref,created_at,read_at,actor:profiles!notifications_actor_id_fkey(nick)").order("created_at",{ascending:false}).limit(30);
+  const {data,error}=await sb.from("notifications").select("id,type,actor_id,ref,created_at,read_at,actor:profiles!notifications_actor_id_fkey(nick),match:matches!notifications_ref_fkey(home,away,home_goals,away_goals)").order("created_at",{ascending:false}).limit(30);
   if(error)return;
   S.notifs=data||[];drawBell()}
 
@@ -767,6 +767,7 @@ document.addEventListener("click",async e=>{
     S.bell=false;const n=S.notifs.find(x=>x.id==id);if(n&&!n.read_at){n.read_at=new Date().toISOString();sb.from("notifications").update({read_at:n.read_at}).eq("id",id).then(()=>{})}
     if(t=="dm"&&uid){S.cDraft.dm=S.dm&&S.dm.id==uid?S.cDraft.dm:"";S.dm={id:uid,nick};S.dmMsgs=[];S.tab="znajomi";render();await loadDM();drawDM(true);window.scrollTo(0,0);return}
     if(t=="comment_reply"&&ref){S.tab="mecze";S.cOpen.add(ref);render();await loadComments(ref);cPoll();const c=document.querySelector(`[data-act="ctog"][data-id="${ref}"]`);if(c)c.scrollIntoView({block:"center"});return}
+    if(t=="exact_hit"){S.tab="mecze";render();window.scrollTo(0,0);return}
     S.tab="znajomi";render();window.scrollTo(0,0);return}
   if(a=="fadd"){const {error}=await sb.from("friendships").insert({requester_id:S.user.id,addressee_id:b.dataset.uid,status:"pending"});
     if(error&&!/duplicate/i.test(error.message))alert("Nie udało się wysłać zaproszenia (możliwy limit 30 oczekujących zaproszeń).");
