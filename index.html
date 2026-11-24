@@ -207,6 +207,9 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 
 
 /* prognoza społeczności */
+.match.feat{border-color:var(--gold);box-shadow:0 0 0 2px color-mix(in srgb,var(--gold) 55%,transparent);background:color-mix(in srgb,var(--gold) 7%,var(--card))}
+.featb{background:var(--gold);color:var(--goldi);border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;margin-right:6px;white-space:nowrap}
+.featn{margin:10px 0 0;text-align:center;font-size:13px;color:var(--mute)}
 .fc{margin-top:10px}
 .fc .fh{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute);margin-bottom:4px;font-weight:600}
 .fbar{display:flex;height:22px;border-radius:99px;overflow:hidden;background:var(--line)}
@@ -316,6 +319,7 @@ regulamin:`<h2>Regulamin konkursu „Typerkowo”</h2><p class="upd">Obowiązuje
 <li>Jeśli mecz zostanie przełożony, Organizator zmienia termin w Serwisie, a typy pozostają ważne do nowego terminu. Jeśli mecz zostanie odwołany lub przerwany bez rozstrzygnięcia, jest anulowany i nie liczy się do rankingu.</li></ol>
 <h3>4. Punktacja i ranking</h3><ol>
 <li>Za każdy mecz uczestnik otrzymuje:<ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis,</li><li><b>+1 punkt</b> dodatkowo za dokładnie trafiony wynik (razem 4 punkty),</li><li><b>0 punktów</b> w pozostałych przypadkach oraz za mecz niewytypowany. Przykład: typ 3:0 przy wyniku 3:0 daje 4 punkty (3 + 1), a typ 4:0 przy wyniku 3:0 daje 3 punkty.</li></ul></li>
+<li>Organizator może wyznaczyć jeden mecz dziennie jako „Mecz dnia”. W takim meczu punkty są podwojone: <b>6 punktów</b> za trafionego zwycięzcę lub remis i <b>8 punktów</b> za dokładnie trafiony wynik. Oznaczenie jest widoczne przy meczu przed jego rozpoczęciem.</li>
 <li>Serwis prezentuje ranking tygodniowy, miesięczny i sezonowy oraz osobne rankingi dla poszczególnych lig. Nagroda (pkt 5) dotyczy wyłącznie rankingu miesięcznego ze wszystkich lig łącznie. Pozostałe rankingi służą zabawie i nie dają prawa do nagrody.</li>
 <li>W przypadku takiej samej liczby punktów o kolejności decyduje: (a) większa liczba dokładnie trafionych wyników, (b) wcześniejsza data założenia konta.</li></ol>
 <h3>5. Nagroda</h3><ol>
@@ -396,7 +400,8 @@ const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const dayOf=t=>cap(new Date(t).toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"}));
 const hm=t=>new Date(t).toLocaleTimeString("pl-PL",{hour:"2-digit",minute:"2-digit"});
 function soon(t){const d=new Date(t)-Date.now();if(d<=0||d>864e5)return"";const h=Math.floor(d/36e5);return h<1?"Start za "+Math.max(1,Math.round(d/6e4))+" min":"Start za "+h+" godz."}
-function pts(t,m){if(!t||m.home_goals==null)return null;if(t.home_goals==m.home_goals&&t.away_goals==m.away_goals)return 4;return Math.sign(t.home_goals-t.away_goals)==Math.sign(m.home_goals-m.away_goals)?3:0}
+function base(t,m){if(!t||m.home_goals==null)return null;if(t.home_goals==m.home_goals&&t.away_goals==m.away_goals)return 4;return Math.sign(t.home_goals-t.away_goals)==Math.sign(m.home_goals-m.away_goals)?3:0}
+function pts(t,m){const b=base(t,m);return b==null?null:b*(m.featured?2:1)}
 function plErr(m){if(/nick_taken/.test(m))return"Ten nick jest zajęty.";if(/nick_cooldown/.test(m))return"Nick możesz zmienić raz na 30 dni.";if(/nick_length/.test(m))return"Nick musi mieć od 3 do 20 znaków.";if(/admin_no_delete/.test(m))return"Konta Organizatora nie można usunąć z poziomu strony.";if(/same.*password/i.test(m))return"Nowe hasło musi być inne niż obecne.";if(/reauth|recent/i.test(m))return"Ze względów bezpieczeństwa wyloguj się, zaloguj ponownie i spróbuj jeszcze raz.";if(/invalid login/i.test(m))return"Zły e-mail lub hasło.";if(/already registered/i.test(m))return"Konto z tym adresem już istnieje.";if(/captcha/i.test(m))return"Weryfikacja nie powiodła się. Odśwież stronę i spróbuj ponownie.";if(/rate limit|too many|seconds/i.test(m))return"Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.";if(/password/i.test(m))return"Hasło musi mieć co najmniej 6 znaków.";if(/database/i.test(m))return"Ten nick jest zajęty.";if(/confirm/i.test(m))return"Potwierdź adres e-mail linkiem z wiadomości.";return"Coś poszło nie tak. Spróbuj ponownie."}
 
 async function load(){
@@ -434,10 +439,10 @@ async function searchPlayers(q){
 const pc=(a,b)=>b?Math.round(a/b*100):null;
 function profStats(){
   const rows=(S.prof?.rows||[]).filter(x=>x.matches&&x.matches.home_goals!=null).sort((a,b)=>new Date(a.matches.kickoff)-new Date(b.matches.kickoff));
-  const calc=rows.map(x=>({...x,p:pts({home_goals:x.home_goals,away_goals:x.away_goals},x.matches)??0}));
-  const n=calc.length,total=calc.reduce((s,x)=>s+x.p,0),hit=calc.filter(x=>x.p>=3).length,exact=calc.filter(x=>x.p==4).length;
-  let best=0,cur=0;calc.forEach(x=>{if(x.p>=3){cur++;best=Math.max(best,cur)}else cur=0});
-  const lg={};calc.forEach(x=>{const k=x.matches.leagues?.name||"Inne";const o=lg[k]=lg[k]||{n:0,p:0,h:0,e:0};o.n++;o.p+=x.p;if(x.p>=3)o.h++;if(x.p==4)o.e++});
+  const calc=rows.map(x=>{const t={home_goals:x.home_goals,away_goals:x.away_goals};return{...x,p:pts(t,x.matches)??0,b:base(t,x.matches)??0}});
+  const n=calc.length,total=calc.reduce((s,x)=>s+x.p,0),hit=calc.filter(x=>x.b>=3).length,exact=calc.filter(x=>x.b==4).length;
+  let best=0,cur=0;calc.forEach(x=>{if(x.b>=3){cur++;best=Math.max(best,cur)}else cur=0});
+  const lg={};calc.forEach(x=>{const k=x.matches.leagues?.name||"Inne";const o=lg[k]=lg[k]||{n:0,p:0,h:0,e:0};o.n++;o.p+=x.p;if(x.b>=3)o.h++;if(x.b==4)o.e++});
   const days=S.prof?.srv?S.prof.srv.days:new Set((S.prof?.rows||[]).filter(x=>x.created_at).map(x=>new Date(x.created_at).toLocaleDateString("sv-SE"))).size;
   const sv=S.prof?.srv,friends=sv?sv.friends:(S.prof?.own?S.fr.filter(f=>f.status=="accepted").length:0),chats=sv?sv.chats:0;
   return{calc,n,total,hit,exact,best,cur,lg,days,friends,chats,pending:(S.prof?.rows||[]).length-n}}
@@ -517,7 +522,7 @@ function profView(){
   const tiles=`<div class="tiles">${tile(st.total,"Zdobyte punkty")}${tile(sk+"<small>%</small>","Skuteczność (trafiony zwycięzca lub remis)",sk)}${tile(dk+"<small>%</small>","Dokładne wyniki",dk)}${tile((st.total/st.n).toFixed(2).replace(".",","),"Średnio punktów na typ")}${tile(st.n,"Rozliczone typy"+(own&&st.pending?` (czeka na wynik: ${st.pending})`:""))}${tile(st.best,"Najlepsza seria trafień"+(st.cur?` (teraz: ${st.cur})`:""))}</div>`;
   const lgRows=Object.entries(st.lg).sort((a,b)=>b[1].p-a[1].p).map(([k,o])=>`<tr><td>${flagName(k)}${esc(k)}</td><td class="n">${o.n}</td><td class="n">${o.p}</td><td class="n">${pc(o.h,o.n)}%</td><td class="n">${o.e}</td></tr>`).join("");
   const lgT=`<h2 class="sec">Według lig</h2><div style="overflow-x:auto"><table><thead><tr><th>Liga</th><th class="n">Typy</th><th class="n">Pkt</th><th class="n">Skut.</th><th class="n">Dokł.</th></tr></thead><tbody>${lgRows}</tbody></table></div>`;
-  const last=st.calc.slice(-8).reverse().map(x=>{const m=x.matches;return`<div class="lt"><div><b>${esc(m.home)} – ${esc(m.away)}</b><p class="sub">${flagName(m.leagues?.name)}${esc(m.leagues?.name||"")}<span class="mo"> · typ ${x.home_goals}:${x.away_goals} · wynik ${m.home_goals}:${m.away_goals}</span></p></div><span class="hide">typ ${x.home_goals}:${x.away_goals}</span><span class="hide">wynik ${m.home_goals}:${m.away_goals}</span><span class="pill p${x.p}">+${x.p} pkt</span></div>`}).join("");
+  const last=st.calc.slice(-8).reverse().map(x=>{const m=x.matches;return`<div class="lt"><div><b>${esc(m.home)} – ${esc(m.away)}</b><p class="sub">${flagName(m.leagues?.name)}${esc(m.leagues?.name||"")}<span class="mo"> · typ ${x.home_goals}:${x.away_goals} · wynik ${m.home_goals}:${m.away_goals}</span></p></div><span class="hide">typ ${x.home_goals}:${x.away_goals}</span><span class="hide">wynik ${m.home_goals}:${m.away_goals}</span><span class="pill p${x.b}">+${x.p} pkt${x.matches.featured?" ⭐":""}</span></div>`}).join("");
   return sch+backBtn+head+rank+badgesHTML(st)+`<h2 class="sec">Statystyki</h2>`+tiles+`<p class="sub">Statystyki liczą się z rozegranych meczów, w których wpisano wynik.</p>`+lgT+`<h2 class="sec">${own?"Ostatnie typy":"Ostatnie typy gracza"}</h2>`+last}
 
 async function loadBoard(){
@@ -532,15 +537,16 @@ function groups(list,desc){return S.leagues.map(l=>({l,items:list.filter(m=>m.le
 function section(list,desc,fn){return groups(list,desc).map(g=>{let last="";return`<h3 class="lg">${flag(g.l.code)}${esc(g.l.name)}</h3>`+g.items.map(m=>{const d=dayOf(m.kickoff),h=d!=last?`<div class="day">${esc(d)}</div>`:"";last=d;return h+fn(m)}).join("")}).join("")}
 
 function card(m){
-  const open=new Date(m.kickoff)>Date.now(),t=S.tips[m.id],fin=m.home_goals!=null,p=fin?(pts(t,m)??0):0,tt=t?`Twój typ: ${t.home_goals} : ${t.away_goals}`:"Nie typowałeś";
+  const open=new Date(m.kickoff)>Date.now(),t=S.tips[m.id],fin=m.home_goals!=null,p=fin?(pts(t,m)??0):0,b=fin?(base(t,m)??0):0,tt=t?`Twój typ: ${t.home_goals} : ${t.away_goals}`:"Nie typowałeś";
   let mid,bot;
-  if(fin){mid=`<div class="fin">${m.home_goals} : ${m.away_goals}</div>`;bot=`<span>${tt}</span><span class="pill p${p}">+${p} pkt</span>`}
+  if(fin){mid=`<div class="fin">${m.home_goals} : ${m.away_goals}</div>`;bot=`<span>${tt}</span><span class="pill p${b}">+${p} pkt${m.featured?" ⭐":""}</span>`}
   else if(open&&S.user){mid=`<div class="score"><input type="number" min="0" max="20" inputmode="numeric" id="h${m.id}" value="${t?t.home_goals:""}" aria-label="Gole ${esc(m.home)}"><span>:</span><input type="number" min="0" max="20" inputmode="numeric" id="a${m.id}" value="${t?t.away_goals:""}" aria-label="Gole ${esc(m.away)}"></div>`;
     bot=`<span id="ok${m.id}" class="ok">${t?"Zapisano. Możesz zmienić typ do startu meczu.":""}</span><button data-act="tip" data-id="${m.id}">Zapisz typ</button>`}
   else if(open){mid=`<div class="fin none">– : –</div>`;bot=`<span class="sub">Zaloguj się, aby typować.</span><button data-act="login">Zaloguj</button>`}
   else{mid=`<div class="fin none">– : –</div>`;bot=`<span>${tt}</span><span class="pill">Czeka na wynik</span>`}
   const s=open?soon(m.kickoff):"",tag=s?`<span class="soon">${s}</span>`:"";
-  return`<div class="match${fin?" p"+p:""}"><div class="meta"><span><span class="time">${hm(m.kickoff)}</span>${m.round?"kolejka "+m.round:""}</span>${tag}</div><div class="row"><div class="team r">${esc(m.home)}</div>${mid}<div class="team">${esc(m.away)}</div></div><div class="res">${bot}</div><div id="fc${m.id}">${fcHTML(m)}</div>${cbar(m)}</div>`}
+  const feat=m.featured?`<span class="featb">⭐ Mecz dnia · podwójne punkty</span>`:"";
+  return`<div class="match${fin?" p"+b:""}${m.featured?" feat":""}"><div class="meta"><span><span class="time">${hm(m.kickoff)}</span>${m.round?"kolejka "+m.round:""}</span><span>${feat}${tag}</span></div><div class="row"><div class="team r">${esc(m.home)}</div>${mid}<div class="team">${esc(m.away)}</div></div>${m.featured&&!fin?`<p class="featn">Za dokładny wynik <b>8 pkt</b>, za trafionego zwycięzcę lub remis <b>6 pkt</b>.</p>`:""}<div class="res">${bot}</div><div id="fc${m.id}">${fcHTML(m)}</div>${cbar(m)}</div>`}
 
 /* ===== komentarze do meczów ===== */
 function cbar(m){
@@ -688,11 +694,11 @@ const ago=t=>{const d=(Date.now()-new Date(t))/1000;if(d<60)return"przed chwilą
 const NTXT={friend_request:"wysłał(a) Ci zaproszenie do znajomych",friend_accept:"zaakceptował(a) Twoje zaproszenie do znajomych",dm:"wysłał(a) Ci wiadomość",comment_reply:"odpowiedział(a) na Twój komentarz"};
 function bellInner(){
   const n=unreadN();
-  return`<button class="bellbtn${S.bell?" on":""}" data-act="bell" aria-label="Powiadomienia${n?` (${n} nowych)`:""}" aria-expanded="${S.bell}">${icon("bell")}${n?`<i class="nbadge">${n>9?"9+":n}</i>`:""}</button>`+(S.bell?`<div class="bellp" role="dialog" aria-label="Powiadomienia"><div class="bellh"><span>Powiadomienia</span>${n?`<button class="lnk" data-act="nread">Oznacz jako przeczytane</button>`:""}</div>${S.notifs.length?S.notifs.map(x=>x.type=="exact_hit"?`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="exact_hit" data-ref="${x.ref||""}"><b>🎯 Trafiłeś dokładny wynik! +4 pkt</b> ${x.match?`${esc(x.match.home)} ${x.match.home_goals}:${x.match.away_goals} ${esc(x.match.away)}`:""}<small>${esc(ago(x.created_at))}</small></button>`:`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="${x.type}" data-uid="${x.actor_id||""}" data-ref="${x.ref||""}" data-nick="${esc(x.actor?.nick||"")}"><b>${esc(x.actor?.nick||"Gracz")}</b> ${NTXT[x.type]||""}<small>${esc(ago(x.created_at))}</small></button>`).join(""):`<p class="nempty">Brak powiadomień.</p>`}</div>`:"")}
+  return`<button class="bellbtn${S.bell?" on":""}" data-act="bell" aria-label="Powiadomienia${n?` (${n} nowych)`:""}" aria-expanded="${S.bell}">${icon("bell")}${n?`<i class="nbadge">${n>9?"9+":n}</i>`:""}</button>`+(S.bell?`<div class="bellp" role="dialog" aria-label="Powiadomienia"><div class="bellh"><span>Powiadomienia</span>${n?`<button class="lnk" data-act="nread">Oznacz jako przeczytane</button>`:""}</div>${S.notifs.length?S.notifs.map(x=>x.type=="exact_hit"?`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="exact_hit" data-ref="${x.ref||""}"><b>🎯 Trafiłeś dokładny wynik! +${x.match&&x.match.featured?8:4} pkt</b> ${x.match?`${esc(x.match.home)} ${x.match.home_goals}:${x.match.away_goals} ${esc(x.match.away)}`:""}<small>${esc(ago(x.created_at))}</small></button>`:`<button class="nitem${x.read_at?"":" un"}" data-act="nopen" data-id="${x.id}" data-type="${x.type}" data-uid="${x.actor_id||""}" data-ref="${x.ref||""}" data-nick="${esc(x.actor?.nick||"")}"><b>${esc(x.actor?.nick||"Gracz")}</b> ${NTXT[x.type]||""}<small>${esc(ago(x.created_at))}</small></button>`).join(""):`<p class="nempty">Brak powiadomień.</p>`}</div>`:"")}
 function drawBell(){document.querySelectorAll(".bellwrap").forEach(el=>el.innerHTML=bellInner())}
 async function loadNotifs(){
   if(!S.user){S.notifs=[];return}
-  const {data,error}=await sb.from("notifications").select("id,type,actor_id,ref,created_at,read_at,actor:profiles!notifications_actor_id_fkey(nick),match:matches!notifications_ref_fkey(home,away,home_goals,away_goals)").order("created_at",{ascending:false}).limit(30);
+  const {data,error}=await sb.from("notifications").select("id,type,actor_id,ref,created_at,read_at,actor:profiles!notifications_actor_id_fkey(nick),match:matches!notifications_ref_fkey(home,away,home_goals,away_goals,featured)").order("created_at",{ascending:false}).limit(30);
   if(error)return;
   S.notifs=data||[];drawBell()}
 
@@ -715,7 +721,7 @@ function admRow(m){
   const fin=m.home_goals!=null,ed=S.editing.has(m.id),lock=fin&&!ed,dis=lock?" disabled":"";
   const btns=lock?`<span class="okb">✓ Zatwierdzone</span> <button class="ghost" data-act="redit" data-id="${m.id}">Edytuj</button>`
     :`<button data-act="res" data-id="${m.id}">${ed?"Zapisz zmianę":"Zatwierdź"}</button>${ed?` <button class="ghost" data-act="rcancel" data-id="${m.id}">Anuluj</button>`:""}`;
-  return`<div class="adm${lock?" done":""}"><div><b>${esc(m.home)} – ${esc(m.away)}</b><br><span class="sub">${hm(m.kickoff)}${m.round?", kolejka "+m.round:""}</span></div><div class="score"><input type="number" min="0" id="rh${m.id}" value="${m.home_goals??""}"${dis} aria-label="Gole gospodarza"><span>:</span><input type="number" min="0" id="ra${m.id}" value="${m.away_goals??""}"${dis} aria-label="Gole gościa"></div><div class="ab">${btns} <button class="del" data-act="del" data-id="${m.id}" aria-label="Usuń mecz">Usuń</button></div></div>`}
+  return`<div class="adm${lock?" done":""}"><div><b>${esc(m.home)} – ${esc(m.away)}</b><br><span class="sub">${hm(m.kickoff)}${m.round?", kolejka "+m.round:""}</span></div><div class="score"><input type="number" min="0" id="rh${m.id}" value="${m.home_goals??""}"${dis} aria-label="Gole gospodarza"><span>:</span><input type="number" min="0" id="ra${m.id}" value="${m.away_goals??""}"${dis} aria-label="Gole gościa"></div><div class="ab">${btns} <button class="ghost" data-act="feat" data-id="${m.id}" title="Podwójne punkty">${m.featured?"⭐ Mecz dnia (zdejmij)":"☆ Mecz dnia"}</button> <button class="del" data-act="del" data-id="${m.id}" aria-label="Usuń mecz">Usuń</button></div></div>`}
 
 function leagueSel(id,val,all){return`<select id="${id}" aria-label="Liga">${all?`<option value="">Wszystkie ligi</option>`:""}${S.leagues.map(l=>`<option value="${all?l.code:l.id}" ${val==(all?l.code:l.id)?"selected":""}>${esc(l.name)}</option>`).join("")}</select>`}
 
@@ -815,7 +821,7 @@ function view(){
   if(S.tab=="konto")return kontoView();
   if(S.tab=="regulamin"||S.tab=="polityka")return legalView(S.tab);
   if(S.tab=="nagrody")return`<h2 class="sec" style="margin-top:18px">Do wygrania</h2>${PRIZES.map(p=>`<div class="prize"><div class="medal">${esc(p[0])}</div><div><h3>${esc(p[1])}</h3><p>${esc(p[2])}</p></div></div>`).join("")}`;
-  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig kartą podarunkową 50 zł, a nagrodę funduje organizator. Pozostałe rankingi (tygodniowy, sezonowy i dla poszczególnych lig) są tylko dla zabawy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Pełne zasady znajdziesz w dokumentach: <button class="lnk" data-tab="regulamin">Regulamin</button> i <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>`;
+  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li><b>Mecz dnia ⭐</b>: jeden wybrany mecz dziennie ma <b>podwójne punkty</b>, czyli <b>6 pkt</b> za trafionego zwycięzcę lub remis i <b>8 pkt</b> za dokładny wynik.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig kartą podarunkową 50 zł, a nagrodę funduje organizator. Pozostałe rankingi (tygodniowy, sezonowy i dla poszczególnych lig) są tylko dla zabawy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Pełne zasady znajdziesz w dokumentach: <button class="lnk" data-tab="regulamin">Regulamin</button> i <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>`;
   if(S.tab=="admin"&&S.me?.is_admin)return`<h2 class="sec" style="margin-top:18px">Dodaj mecz</h2><form id="mf"><div class="grid">${leagueSel("ml",S.ml||S.leagues[0]?.id,0).replace('id="ml"','id="ml" name="league"')}<input name="round" type="number" min="1" placeholder="Kolejka" value="${esc(S.mr)}"><input name="home" placeholder="Gospodarz" required><input name="away" placeholder="Gość" required><input name="kickoff" type="datetime-local" required aria-label="Start meczu" value="${esc(S.mk)}"></div><button type="submit">Dodaj mecz</button> <span id="mm"></span></form>
    <p class="sub">Mecze są automatycznie grupowane według ligi i sortowane według godziny, więc kolejność wpisywania nie ma znaczenia. Liga, kolejka i data zostają w formularzu po dodaniu meczu.</p>
    <h2 class="sec">Wyniki i mecze</h2>${section(S.matches,false,admRow)||`<p class="sub">Brak meczów.</p>`}`;
@@ -913,6 +919,7 @@ document.addEventListener("click",async e=>{
     if(error)return alert("Nie udało się zapisać wyniku.");S.editing.delete(id);return load()}
   if(a=="redit"){if(!confirm("Czy na pewno chcesz edytować zatwierdzony wynik tego meczu? Po zapisaniu zmiany punkty graczy zostaną przeliczone."))return;S.editing.add(id);return render()}
   if(a=="rcancel"){S.editing.delete(id);return render()}
+  if(a=="feat"){const m=S.matches.find(x=>x.id==id);if(!m)return;const {error}=await sb.from("matches").update({featured:!m.featured}).eq("id",id);if(error)return alert("Nie udało się zmienić. Czy uruchomiono SQL „Mecz dnia”?");return load()}
   if(a=="del"){if(!confirm("Usunąć ten mecz razem z typami?"))return;await sb.from("matches").delete().eq("id",id);return load()}
 });
 document.addEventListener("change",async e=>{
