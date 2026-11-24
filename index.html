@@ -222,6 +222,17 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 
 /* awatary i personalizacja profilu */
 .avs{display:inline-flex;align-items:center;justify-content:center;text-align:center;flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--goldi);font:800 13px "Bricolage Grotesque",sans-serif;line-height:1;vertical-align:middle;padding:0;margin:0;border:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--green) 70%,transparent);overflow:hidden}
+.dsov{position:fixed;inset:0;z-index:60;background:rgba(10,20,15,.55);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 12px}
+.dsc{background:var(--card);color:var(--ink);border-radius:18px;max-width:460px;width:100%;margin:auto;padding:20px 18px 18px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.dsc h2{margin:0 0 2px;font-size:22px}.dsc .dsd{margin:0 0 14px;color:var(--mute)}
+.dsg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.dst{background:var(--bg);border-radius:12px;padding:12px;text-align:center}
+.dst b{display:block;font-size:30px;line-height:1.1;font-family:"Bricolage Grotesque",sans-serif}.dst span{font-size:13px;color:var(--mute)}
+.dst.wide{grid-column:1/-1}.dsup{color:var(--green)}.dsdn{color:var(--bad)}
+.dsl{list-style:none;margin:10px 0 14px;padding:0;border-top:1px solid var(--line)}
+.dsl li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.dsl small{display:block;color:var(--mute)}.dsl .p{font-weight:700;white-space:nowrap}
+.dsb{display:flex;gap:8px;flex-wrap:wrap}
 .avs img{width:58%;height:58%;display:block;pointer-events:none;user-select:none}
 .avs.em{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;font-weight:400}
 .avs.xl{width:64px;height:64px;font-size:32px;box-shadow:inset 0 0 0 4px var(--green)}
@@ -438,7 +449,7 @@ async function load(){
   if(S.tab=="profil")await loadProfile();
   if(S.user)await Promise.all([loadFriends(),loadUnread(),loadNotifs()]);else{S.fr=[];S.unread={};S.notifs=[];S.dm=null;S.bell=false}
   await Promise.all([loadCounts(),loadForecast(),loadNews()]);
-  render();startSocial();
+  render();startSocial();if(S.user)daySummary().catch(()=>{});
   S.cOpen.forEach(id=>loadComments(id));cPoll()}
 
 async function loadProfile(){
@@ -931,6 +942,38 @@ async function loadNews(){const {data}=await sb.from("news").select("id,title,bo
 function newsView(){
   const adm=!!S.me?.is_admin,list=S.news||[];
   return`<h2 class="sec" style="margin-top:18px">Nowości</h2><p class="sub">Co zmieniliśmy i dodaliśmy w Typerkowie.</p>${adm?`<form id="nwf" class="box" style="max-width:none;margin-bottom:14px"><label for="nwt">Tytuł (do 120 znaków)</label><input id="nwt" name="title" maxlength="120" required autocomplete="off" placeholder="np. Nowość: profile i awatary"><label for="nwb">Opis (do 2000 znaków, enter = nowa linia)</label><textarea id="nwb" name="body" maxlength="2000" rows="4" style="width:100%"></textarea><p id="nwm" class="err"></p><button type="submit">Opublikuj</button></form>`:""}${list.length?list.map(n=>`<article class="prize" style="display:block"><h3>${esc(n.title)}</h3><p class="sub" style="margin:2px 0 8px">${esc(new Date(n.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}))}</p>${n.body?`<p style="white-space:pre-wrap;margin:0">${esc(n.body)}</p>`:""}${adm?`<p style="margin:8px 0 0"><button class="lnk bad" data-act="newsdel" data-id="${n.id}">Usuń wpis</button></p>`:""}</article>`).join(""):`<p class="sub">Na razie brak wpisów.</p>`}`}
+/* ---- podsumowanie dnia ---- */
+const dkey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const dsSeen=()=>{try{return localStorage.getItem("typerkowo_dsum_"+S.user.id)||""}catch(e){return""}};
+const dsMark=k=>{try{localStorage.setItem("typerkowo_dsum_"+S.user.id,k)}catch(e){}};
+async function daySummary(){
+  if(!S.user||!S.me||S.dsFor==S.user.id)return;S.dsFor=S.user.id;
+  const by={};S.matches.forEach(m=>{const k=dkey(new Date(m.kickoff));(by[k]=by[k]||[]).push(m)});
+  const days=Object.keys(by).filter(k=>k<=dkey(new Date())&&by[k].every(m=>m.home_goals!=null)&&by[k].some(m=>S.tips[m.id])).sort();
+  const k=days[days.length-1];if(!k||k<=dsSeen())return;
+  const [Y,M,D]=k.split("-").map(Number),d0=new Date(Y,M-1,D);
+  if(Date.now()-d0>4*864e5)return;
+  const ms=by[k].slice().sort((a,b)=>new Date(a.kickoff)-new Date(b.kickoff)),rows=[];let total=0,exact=0,right=0,wrong=0,skipped=0,feat=false;
+  ms.forEach(m=>{const t=S.tips[m.id];if(!t){skipped++;return}const b=base(t,m)||0,p=pts(t,m)||0;total+=p;if(b==4)exact++;else if(b==3)right++;else wrong++;if(m.featured)feat=true;rows.push({m,t,p})});
+  const from=new Date(Y,M-1,1),d1=new Date(Y,M-1,D+1);
+  const [a,bf]=await Promise.all([sb.rpc("get_leaderboard",{p_league:null,p_from:from.toISOString(),p_to:d1.toISOString()}),sb.rpc("get_leaderboard",{p_league:null,p_from:from.toISOString(),p_to:d0.toISOString()})]);
+  const pos=(r)=>{const L=r.data||[],i=L.findIndex(x=>x.nick==S.me.nick);return i<0?null:{r:i+1,pts:+L[i].total_points,n:L.length,any:L.length&&+L[0].total_points>0}};
+  const A=a.error?null:pos(a),B=bf.error?null:pos(bf);
+  S.dsum={k,label:d0.toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"}).replace(/^./,c=>c.toUpperCase()),total,exact,right,wrong,skipped,feat,rows,ra:A&&A.r,rn:A&&A.n,mp:A&&A.pts,rb:B&&B.any?B.r:null};
+  render()}
+function dsClose(go){if(!S.dsum)return;dsMark(S.dsum.k);S.dsum=null;render();if(go){S.tab="ranking";S.scope="month";loadBoard().then(render)}}
+function dsumHTML(){const d=S.dsum;if(!d)return"";
+  const dl=d.rb!=null&&d.ra!=null?d.rb-d.ra:null;
+  const mv=dl==null?"":dl>0?`<span class="dsup">▲ awans o ${dl}</span>`:dl<0?`<span class="dsdn">▼ spadek o ${-dl}</span>`:`<span>bez zmian</span>`;
+  const rank=d.ra!=null?`<div class="dst"><b>${d.ra}.</b><span>miejsce w miesiącu z ${d.rn}</span><br>${mv||`<span>pierwsze punkty miesiąca</span>`}</div>`:`<div class="dst"><b>–</b><span>miejsce w miesiącu</span></div>`;
+  const head=d.total>=10?"Świetny dzień! 🔥":d.total>0?"Podsumowanie dnia":"Dziś bez punktów";
+  return`<div class="dsov" role="dialog" aria-modal="true" aria-label="Podsumowanie dnia"><div class="dsc"><h2>${head}</h2><p class="dsd">${esc(d.label)}</p>
+  <div class="dsg"><div class="dst"><b>+${d.total}</b><span>punktów dziś${d.feat?" (z ⭐ Meczem dnia)":""}</span></div>${rank}
+  <div class="dst wide"><span>Dokładne wyniki: <b style="display:inline;font-size:16px">${d.exact}</b> · Trafiony zwycięzca/remis: <b style="display:inline;font-size:16px">${d.right}</b> · Pudła: <b style="display:inline;font-size:16px">${d.wrong}</b>${d.skipped?` · Nietypowane: <b style="display:inline;font-size:16px">${d.skipped}</b>`:""}</span>${d.mp!=null?`<br><span>Razem w tym miesiącu: <b style="display:inline;font-size:16px">${d.mp} pkt</b></span>`:""}</div></div>
+  <ul class="dsl">${d.rows.map(r=>`<li><div>${r.m.featured?"⭐ ":""}${esc(r.m.home)} – ${esc(r.m.away)}<small>Wynik ${r.m.home_goals}:${r.m.away_goals} · Twój typ ${r.t.home_goals}:${r.t.away_goals}</small></div><span class="p">+${r.p} pkt</span></li>`).join("")}</ul>
+  <div class="dsb"><button data-act="dsrank">Zobacz ranking</button><button class="ghost" data-act="dsclose">Zamknij</button></div></div></div>`}
+document.addEventListener("keydown",e=>{if(e.key=="Escape"&&S.dsum)dsClose(false)});
+document.addEventListener("click",e=>{if(e.target.classList&&e.target.classList.contains("dsov"))dsClose(false)});
 function render(){
   const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],["nagrody","Nagrody"],["nowosci","Nowości"],["zasady","Zasady"]];if(S.user){tabs.push(["konto","Konto"]);tabs.splice(3,0,["znajomi","Znajomi"])}if(isStaff())tabs.push(["admin","Admin"]);
   const kept=S.tab=="chat"&&$("#ci")?$("#ci").value:null;
@@ -941,7 +984,7 @@ function render(){
   $("#app").innerHTML=`<aside class="side">${brand}<nav aria-label="Menu główne">${items}</nav><div class="sideme">${meBox}</div>${socials("sbar")}</aside>
   <div class="top"><div class="in"><div class="brandrow">${brand}<div class="me">${bell}${meBox}</div></div></div></div>
   <nav class="bnav" aria-label="Menu główne">${items}</nav>
-  <div class="wrap">${S.user?`<div class="dtop"><span class="bellwrap">${bellInner()}</span></div>`:""}${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="znajomi"||S.tab=="regulamin"||S.tab=="polityka"?" one":""}"><main>${view()}</main>${aside()}</div><footer class="foot"><span>© ${esc(CFG.name)}</span><button class="lnk" data-tab="regulamin">Regulamin</button><button class="lnk" data-tab="polityka">Polityka prywatności</button><a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>${socials("ftr")}<span class="sub" style="font-size:12px">Emoji: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener">Twemoji</a> (CC-BY 4.0)</span></footer></div>`;
+  <div class="wrap">${S.user?`<div class="dtop"><span class="bellwrap">${bellInner()}</span></div>`:""}${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="znajomi"||S.tab=="regulamin"||S.tab=="polityka"?" one":""}"><main>${view()}</main>${aside()}</div><footer class="foot"><span>© ${esc(CFG.name)}</span><button class="lnk" data-tab="regulamin">Regulamin</button><button class="lnk" data-tab="polityka">Polityka prywatności</button><a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>${socials("ftr")}<span class="sub" style="font-size:12px">Emoji: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener">Twemoji</a> (CC-BY 4.0)</span></footer></div>${dsumHTML()}`;
   chatSync(kept);dmSync();tsSync()}
 
 document.addEventListener("click",async e=>{
@@ -953,6 +996,8 @@ document.addEventListener("click",async e=>{
   if(b.dataset.per!==undefined){S.scope=b.dataset.per;await loadBoard();return render()}
   if(b.dataset.rl!==undefined){S.bleague=b.dataset.rl;await loadBoard();return render()}
   if(b.dataset.tab){S.tab=b.dataset.tab;if(S.tab=="nowosci")markNewsSeen();{const lg=S.tab=="regulamin"||S.tab=="polityka";if(lg){history.replaceState(null,"","#"+S.tab);window.scrollTo(0,0)}else if(/^#(regulamin|polityka)$/.test(location.hash))history.replaceState(null,"",location.pathname)}if(S.tab=="ranking")await loadBoard();if(S.tab=="profil"){S.viewNick=null;S.pq="";S.pres=null;S.prof=null;render();await loadProfile()}return render()}
+  if(a=="dsclose")return dsClose(false);
+  if(a=="dsrank")return dsClose(true);
   if(a=="newsdel"){if(!confirm("Usunąć ten wpis?"))return;const {error}=await sb.from("news").delete().eq("id",+b.dataset.id);if(error)return alert("Nie udało się usunąć.");await loadNews();return render()}
   if(a=="login"||a=="reg"){S.tab="auth";S.mode=a=="reg"?"up":"in";return render()}
   if(a=="forgot"){S.tab="auth";S.mode="reset";return render()}
