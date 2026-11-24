@@ -428,7 +428,7 @@ async function loadProfile(){
     sb.from("predictions").select("home_goals,away_goals,created_at,matches(home,away,kickoff,home_goals,away_goals,round,league_id,leagues(name))").eq("user_id",who.id),
     sb.rpc("get_leaderboard",{p_league:null,p_from:null,p_to:null})]);
   await ensureLevels([who.id],true);const sv=S.lv[who.id];
-  S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error,srv:sv&&(sv.tips||sv.friends||sv.chats)?{tips:sv.tips,days:sv.days,friends:sv.friends,chats:sv.chats,bestDay:sv.bestDay,perfect:sv.perfect}:null}}
+  S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error,srv:sv&&(sv.tips||sv.friends||sv.chats)?{tips:sv.tips,days:sv.days,friends:sv.friends,chats:sv.chats,bestDay:sv.bestDay,perfect:sv.perfect,bestExact:sv.bestExact}:null}}
 async function openProfile(nick){S.viewNick=nick&&nick!=S.me?.nick?nick:null;S.tab="profil";S.prof=null;render();await loadProfile();render();window.scrollTo(0,0)}
 async function searchPlayers(q){
   const t=q.trim().replace(/[%_\\,()]/g," ").trim();S.pq=q;
@@ -444,10 +444,10 @@ function profStats(){
   let best=0,cur=0;calc.forEach(x=>{if(x.b>=3){cur++;best=Math.max(best,cur)}else cur=0});
   const lg={};calc.forEach(x=>{const k=x.matches.leagues?.name||"Inne";const o=lg[k]=lg[k]||{n:0,p:0,h:0,e:0};o.n++;o.p+=x.p;if(x.b>=3)o.h++;if(x.b==4)o.e++});
   const days=S.prof?.srv?S.prof.srv.days:new Set((S.prof?.rows||[]).filter(x=>x.created_at).map(x=>new Date(x.created_at).toLocaleDateString("sv-SE"))).size;
-  const dayMap={};calc.forEach(x=>{const k=new Date(x.matches.kickoff).toLocaleDateString("sv-SE");const o=dayMap[k]=dayMap[k]||{p:0,n:0,ok:0};o.p+=x.p;o.n++;if(x.b>=3)o.ok++});
-  const dv=Object.values(dayMap),bestDayL=dv.reduce((m,o)=>Math.max(m,o.p),0),perfectL=dv.filter(o=>o.n>=3&&o.ok==o.n).length;
-  const sv=S.prof?.srv,bestDay=sv&&sv.bestDay!=null?sv.bestDay:bestDayL,perfect=sv&&sv.perfect!=null?sv.perfect:perfectL,friends=sv?sv.friends:(S.prof?.own?S.fr.filter(f=>f.status=="accepted").length:0),chats=sv?sv.chats:0;
-  return{calc,n,total,hit,exact,best,cur,lg,days,friends,chats,bestDay,perfect,pending:(S.prof?.rows||[]).length-n}}
+  const dayMap={};calc.forEach(x=>{const k=new Date(x.matches.kickoff).toLocaleDateString("sv-SE");const o=dayMap[k]=dayMap[k]||{p:0,n:0,ok:0,e:0};o.p+=x.p;o.n++;if(x.b>=3)o.ok++;if(x.b==4)o.e++});
+  const dv=Object.values(dayMap),bestDayL=dv.reduce((m,o)=>Math.max(m,o.p),0),perfectL=dv.filter(o=>o.n>=3&&o.ok==o.n).length,bestExL=dv.reduce((m,o)=>Math.max(m,o.e),0);
+  const sv=S.prof?.srv,bestDay=sv&&sv.bestDay!=null?sv.bestDay:bestDayL,perfect=sv&&sv.perfect!=null?sv.perfect:perfectL,bestExact=sv&&sv.bestExact!=null?sv.bestExact:bestExL,friends=sv?sv.friends:(S.prof?.own?S.fr.filter(f=>f.status=="accepted").length:0),chats=sv?sv.chats:0;
+  return{calc,n,total,hit,exact,best,cur,lg,days,friends,chats,bestDay,perfect,bestExact,pending:(S.prof?.rows||[]).length-n}}
 /* ===== poziomy (XP) i osiągnięcia: wszystko do ustawienia w tym bloku ===== */
 const XP_TIP=10;                                        // XP za każdy wytypowany mecz
 const XP_DIFF={e:{n:"Łatwa",xp:50},m:{n:"Średnia",xp:200},h:{n:"Trudna",xp:750},l:{n:"Legendarna",xp:2000},x:{n:"Mistrzowska",xp:1500}};
@@ -477,8 +477,10 @@ const ACH_GROUPS=[
   {ic:"🗣️",name:"Gaduła",desc:"200 wiadomości na czacie",d:"h",goal:200,f:st=>st.chats},
   {ic:"📻",name:"Król czatu",desc:"300 wiadomości na czacie",d:"h",goal:300,f:st=>st.chats}]},
  {name:"Specjalne",meta:{ic:"💎",name:"Kolekcjoner rekordów",desc:"Zdobądź wszystkie odznaki specjalne"},items:[
+  {ic:"🎲",name:"Półsetka",desc:"Zdobycie 50 punktów w jednym dniu",d:"h",goal:50,f:st=>st.bestDay},
   {ic:"💯",name:"Setka",desc:"Zdobycie 100 punktów w jednym dniu",d:"l",goal:100,f:st=>st.bestDay},
-  {ic:"🧠",name:"Piłkarski ekspert",desc:"Wszystkie typy z jednego dnia poprawne (min. 3 typy w tym dniu)",d:"h",goal:1,f:st=>st.perfect}]}
+  {ic:"🧠",name:"Piłkarski ekspert",desc:"Wszystkie typy z jednego dnia poprawne (min. 3 typy w tym dniu)",d:"h",goal:1,f:st=>st.perfect},
+  {ic:"✨",name:"Perfekcja",desc:"5 dokładnych wyników w jednym dniu",d:"l",goal:5,f:st=>st.bestExact}]}
 ];
 // odznaka kategorii: zdobywasz ją, gdy masz wszystkie pozostałe odznaki z tej kategorii
 ACH_GROUPS.forEach(g=>{const base=g.items.slice();g.items.push({...g.meta,d:"x",meta:true,base})});
@@ -492,11 +494,11 @@ function xpInfo(st){return calcXp(st,S.prof?.srv?S.prof.srv.tips:(S.prof?.rows||
 async function ensureLevels(ids,force){
   const need=[...new Set(ids.filter(Boolean))].filter(i=>force||!S.lv[i]);if(!need.length)return;
   const {data,error}=await sb.rpc("player_levels",{uids:need});if(error)return;
-  need.forEach(i=>{if(!S.lv[i])S.lv[i]={tips:0,hits:0,exacts:0,days:0,friends:0,chats:0,bestDay:0,perfect:0}});
-  (data||[]).forEach(r=>S.lv[r.user_id]={tips:+r.tips,hits:+r.hits,exacts:+r.exacts,days:+r.days,friends:+r.friends,chats:+r.chats,bestDay:+r.best_day||0,perfect:+r.perfect||0})}
+  need.forEach(i=>{if(!S.lv[i])S.lv[i]={tips:0,hits:0,exacts:0,days:0,friends:0,chats:0,bestDay:0,perfect:0,bestExact:0}});
+  (data||[]).forEach(r=>S.lv[r.user_id]={tips:+r.tips,hits:+r.hits,exacts:+r.exacts,days:+r.days,friends:+r.friends,chats:+r.chats,bestDay:+r.best_day||0,perfect:+r.perfect||0,bestExact:+r.best_exact||0})}
 function lvTag(uid){
   const r=S.lv[uid];if(!r)return"";
-  const x=calcXp({hit:r.hits,exact:r.exacts,days:r.days,friends:r.friends,chats:r.chats,bestDay:r.bestDay,perfect:r.perfect},r.tips);
+  const x=calcXp({hit:r.hits,exact:r.exacts,days:r.days,friends:r.friends,chats:r.chats,bestDay:r.bestDay,perfect:r.perfect,bestExact:r.bestExact},r.tips);
   return`<span class="lvchip sm" title="Poziom ${x.L}">poz. ${x.L}</span>`}
 function badgesHTML(st){
   const x=xpInfo(st),pctL=Math.round((x.xp-x.from)/(x.to-x.from)*100);
