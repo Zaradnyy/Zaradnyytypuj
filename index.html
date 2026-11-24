@@ -409,7 +409,7 @@ async function loadProfile(){
     const r=await sb.from("profiles").select("id,nick,created_at,is_admin,is_moderator").eq("nick",S.viewNick).maybeSingle();
     who=r.data;if(!who){S.prof={user:null,rows:[],all:[],notfound:true};return}}
   const [t,al]=await Promise.all([
-    sb.from("predictions").select("home_goals,away_goals,matches(home,away,kickoff,home_goals,away_goals,round,league_id,leagues(name))").eq("user_id",who.id),
+    sb.from("predictions").select("home_goals,away_goals,created_at,matches(home,away,kickoff,home_goals,away_goals,round,league_id,leagues(name))").eq("user_id",who.id),
     sb.rpc("get_leaderboard",{p_league:null,p_from:null,p_to:null})]);
   S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error}}
 async function openProfile(nick){S.viewNick=nick&&nick!=S.me?.nick?nick:null;S.tab="profil";S.prof=null;render();await loadProfile();render();window.scrollTo(0,0)}
@@ -426,7 +426,8 @@ function profStats(){
   const n=calc.length,total=calc.reduce((s,x)=>s+x.p,0),hit=calc.filter(x=>x.p>=3).length,exact=calc.filter(x=>x.p==4).length;
   let best=0,cur=0;calc.forEach(x=>{if(x.p>=3){cur++;best=Math.max(best,cur)}else cur=0});
   const lg={};calc.forEach(x=>{const k=x.matches.leagues?.name||"Inne";const o=lg[k]=lg[k]||{n:0,p:0,h:0,e:0};o.n++;o.p+=x.p;if(x.p>=3)o.h++;if(x.p==4)o.e++});
-  return{calc,n,total,hit,exact,best,cur,lg,pending:(S.prof?.rows||[]).length-n}}
+  const days=new Set((S.prof?.rows||[]).filter(x=>x.created_at).map(x=>new Date(x.created_at).toLocaleDateString("sv-SE"))).size;
+  return{calc,n,total,hit,exact,best,cur,lg,days,pending:(S.prof?.rows||[]).length-n}}
 /* ===== poziomy (XP) i osiągnięcia: wszystko do ustawienia w tym bloku ===== */
 const XP_TIP=10;                                        // XP za każdy wytypowany mecz
 const XP_DIFF={e:{n:"Łatwa",xp:50},m:{n:"Średnia",xp:200},h:{n:"Trudna",xp:750},l:{n:"Legendarna",xp:2000}};
@@ -436,7 +437,13 @@ const ACH_GROUPS=[
   {ic:"🥅",name:"Pierwszy strzał",desc:"Pierwszy poprawny typ (trafiony zwycięzca lub remis)",d:"e",goal:1,f:st=>st.hit},
   {ic:"🎯",name:"Snajper",desc:"10 dokładnych wyników",d:"m",goal:10,f:st=>st.exact},
   {ic:"🏅",name:"Mistrz wyniku",desc:"50 dokładnych wyników",d:"h",goal:50,f:st=>st.exact},
-  {ic:"👑",name:"Król typowania",desc:"100 dokładnych wyników",d:"l",goal:100,f:st=>st.exact}]}
+  {ic:"👑",name:"Król typowania",desc:"100 dokładnych wyników",d:"l",goal:100,f:st=>st.exact}]},
+ {name:"Aktywność",items:[
+  {ic:"🌱",name:"Początkujący",desc:"Typowanie w pierwszym dniu",d:"e",goal:1,f:st=>st.days},
+  {ic:"📅",name:"Regularny",desc:"Typowanie przez 7 różnych dni",d:"m",goal:7,f:st=>st.days},
+  {ic:"💪",name:"Wytrwały",desc:"Typowanie przez 30 różnych dni",d:"h",goal:30,f:st=>st.days},
+  {ic:"🏃",name:"Maratończyk",desc:"Typowanie przez 90 różnych dni",d:"h",goal:90,f:st=>st.days},
+  {ic:"🏆",name:"Weteran",desc:"Typowanie przez 365 różnych dni",d:"l",goal:365,f:st=>st.days}]}
 ];
 function xpInfo(st){
   const tips=(S.prof?.rows||[]).length,tipXp=tips*XP_TIP;let achXp=0,got=0,all=0;
