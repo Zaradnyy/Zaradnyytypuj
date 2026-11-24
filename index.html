@@ -138,6 +138,29 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .cmore{font-size:13px;color:var(--mute);margin:4px 0}
 .crl{margin-top:14px}.crl .cmt{margin-bottom:8px}
 
+
+/* znajomi i wiadomości prywatne */
+.nbadge{background:var(--bad);color:#fff;border-radius:99px;font-size:11px;font-style:normal;font-weight:700;min-width:18px;height:18px;padding:0 5px;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.bnav button{position:relative}.bnav .nbadge{position:absolute;top:3px;left:calc(50% + 6px)}
+.side nav .nbadge{margin-left:auto}
+.frwrap{display:grid;grid-template-columns:300px 1fr;gap:14px;margin-top:12px;align-items:start}
+.frcol,.dmcol{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}
+.frcol h3{font-size:14px;margin:14px 0 6px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}.frcol h3:first-child{margin-top:0}
+.fitem{display:flex;align-items:center;gap:8px;width:100%;background:none;color:inherit;text-align:left;padding:9px 10px;border-radius:10px;font-weight:600}
+.fitem:hover,.fitem[aria-current="true"]{background:color-mix(in srgb,var(--green) 12%,transparent)}
+.fitem .nbadge{margin-left:auto}
+.frreq{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 4px;flex-wrap:wrap}
+.frreq .ab{display:flex;gap:6px}.frreq button{padding:6px 10px;font-size:13px}
+.dmhead{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:6px}
+.dml{height:min(50vh,440px);overflow-y:auto;padding:4px}
+.dmm{max-width:82%;padding:7px 11px;border-radius:14px;margin-bottom:6px;background:color-mix(in srgb,var(--line) 45%,transparent);overflow-wrap:anywhere;width:fit-content;white-space:pre-wrap}
+.dmm.mine{margin-left:auto;background:color-mix(in srgb,var(--gold) 28%,transparent)}
+.dmm time,.dmm .rd{display:block;font-size:11px;color:var(--mute);white-space:normal}
+.dmm .lnk{font-size:11px}
+.dmback{display:none}
+.pact{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media(max-width:720px){.frwrap{grid-template-columns:1fr}.frwrap.open .frcol{display:none}.frwrap:not(.open) .dmcol{display:none}.dmback{display:inline-block}.pact{margin-left:0;width:100%}}
+
 /* czat */
 .chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:12px}
 .cl{height:min(60vh,520px);overflow-y:auto;padding:4px 4px 8px}
@@ -250,8 +273,8 @@ regulamin:`<h2>Regulamin konkursu „Typerkowo”</h2><p class="upd">Obowiązuje
 <h3>6. Reklamacje</h3><ol>
 <li>Reklamacje dotyczące Konkursu można zgłaszać e-mailem na adres <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a> w ciągu 14 dni od zdarzenia, którego dotyczą.</li>
 <li>Organizator rozpatruje reklamację w ciągu 14 dni od jej otrzymania i informuje zgłaszającego o decyzji. Decyzja Organizatora jest ostateczna w zakresie przyznania punktów i nagrody, z zachowaniem praw wynikających z przepisów prawa.</li></ol>
-<h3>7. Czat i profile graczy</h3><ol>
-<li>Serwis udostępnia zalogowanym uczestnikom ogólny czat oraz możliwość komentowania meczów (komentarz główny i odpowiedzi pod nim). Wiadomość na czacie może mieć do 300 znaków, a komentarz do 500 znaków. Wiadomości i komentarze są widoczne dla wszystkich zalogowanych uczestników.</li>
+<h3>7. Czat, znajomi i profile graczy</h3><ol>
+<li>Serwis udostępnia zalogowanym uczestnikom ogólny czat oraz możliwość komentowania meczów (komentarz główny i odpowiedzi pod nim). Wiadomość na czacie może mieć do 300 znaków, a komentarz do 500 znaków. Wiadomości i komentarze są widoczne dla wszystkich zalogowanych uczestników. Uczestnicy mogą ponadto zapraszać się nawzajem do grona znajomych i wymieniać wiadomości prywatne (do 500 znaków) wyłącznie ze znajomymi, którzy zaakceptowali zaproszenie. Wiadomości prywatne są widoczne tylko dla nadawcy i odbiorcy, a zasady z pkt 7.2 obowiązują także w nich.</li>
 <li>Na czacie i w komentarzach do meczów zabronione są: wulgaryzmy i treści obraźliwe, hejt i groźby, treści dyskryminujące, spam i reklamy, linki oraz adresy stron internetowych, treści naruszające prawo lub prawa osób trzecich oraz ujawnianie danych osobowych (własnych i cudzych).</li>
 <li>Uczestnik może zgłosić wiadomość lub komentarz przyciskiem „Zgłoś”. Zgłoszenia rozpatruje Organizator oraz osoby z rangą „Administrator”, czyli moderatorzy wyznaczeni przez Organizatora.</li>
 <li>Moderatorzy mogą usuwać wiadomości i komentarze naruszające regulamin (usunięcie komentarza głównego usuwa także odpowiedzi pod nim), a autor może usunąć własny komentarz. Organizator może czasowo wyciszyć uczestnika (na 1, 6, 12 lub 24 godziny), w czasie którego uczestnik nie może pisać na czacie ani komentować meczów. Za kolejne naruszenia wyciszenia mogą być dłuższe. W przypadku poważnych lub powtarzających się naruszeń Organizator może wykluczyć uczestnika zgodnie z pkt 2.5.</li>
@@ -273,14 +296,14 @@ polityka:`<h2>Polityka prywatności</h2><p class="upd">Obowiązuje od 1 grudnia 
 <tr><td>Adres e-mail zwycięzcy</td><td>Przekazanie nagrody, kontakt</td><td>Art. 6 ust. 1 lit. b</td></tr>
 <tr><td>Dane techniczne (np. adres IP, dziennik zdarzeń)</td><td>Bezpieczeństwo Serwisu i zapobieganie nadużyciom</td><td>Art. 6 ust. 1 lit. f (prawnie uzasadniony interes)</td></tr>
 <tr><td>Treść korespondencji i reklamacji</td><td>Obsługa zgłoszeń</td><td>Art. 6 ust. 1 lit. f</td></tr>
-<tr><td>Wiadomości na czacie, komentarze do meczów, zgłoszenia, informacje o wyciszeniach</td><td>Prowadzenie czatu i komentarzy, moderacja, ochrona uczestników</td><td>Art. 6 ust. 1 lit. f</td></tr>
+<tr><td>Wiadomości na czacie, komentarze do meczów, lista znajomych, wiadomości prywatne, zgłoszenia, informacje o wyciszeniach</td><td>Prowadzenie czatu i komentarzy, moderacja, ochrona uczestników</td><td>Art. 6 ust. 1 lit. f</td></tr>
 <tr><td>Statystyki profilu (np. skuteczność typów, miejsce w rankingu)</td><td>Wyświetlanie profilu gracza w Serwisie</td><td>Art. 6 ust. 1 lit. b</td></tr>
 </tbody></table></div>
 <p>Podanie e-maila, hasła i nicku jest dobrowolne, ale niezbędne do założenia konta. Nick jest <b>publicznie widoczny</b> w rankingu, na czacie i w profilu gracza, wraz ze statystykami (punkty, skuteczność, miejsce w rankingu) oraz typami z rozpoczętych meczów. Nie używaj w nicku danych, których nie chcesz ujawniać. Adres e-mail nie jest widoczny dla innych uczestników.</p>
 <h3>3. Komu przekazujemy dane</h3><p>Dane są przetwarzane przy pomocy dostawców usług technicznych:</p>
 <ul><li><b>Supabase</b> (baza danych i logowanie),</li><li><b>Vercel</b> (hosting strony),</li><li><b>Resend</b> (wysyłka e-maili, np. potwierdzenia konta i resetu hasła),</li><li><b>Cloudflare</b> (zabezpieczenie formularzy przed botami, usługa Turnstile),</li><li><b>OVHcloud</b> (domena oraz skrzynka e-mail kontakt@typerkowo.pl).</li></ul>
 <p>Część tych dostawców może przetwarzać dane poza Europejskim Obszarem Gospodarczym, w tym w USA. Wtedy odbywa się to na podstawie mechanizmów przewidzianych w RODO (np. standardowe klauzule umowne lub decyzja o odpowiednim stopniu ochrony). Nie sprzedajemy danych i nie wykorzystujemy ich do reklam.</p>
-<h3>4. Jak długo przechowujemy dane</h3><p>Dane konta i typy przechowujemy do czasu usunięcia konta. Konto możesz usunąć samodzielnie w zakładce „Konto”, a wraz z nim znikają Twój profil, typy, punkty, wiadomości z czatu i komentarze. Kopie zapasowe u dostawców mogą istnieć jeszcze przez krótki czas. Dane dotyczące przyznanej nagrody mogą być przechowywane dłużej, jeśli jest to potrzebne do obrony przed roszczeniami lub wynika z przepisów. Dzienniki techniczne są przechowywane przez dostawców przez krótki okres zgodnie z ich zasadami.</p>
+<h3>4. Jak długo przechowujemy dane</h3><p>Dane konta i typy przechowujemy do czasu usunięcia konta. Konto możesz usunąć samodzielnie w zakładce „Konto”, a wraz z nim znikają Twój profil, typy, punkty, wiadomości z czatu, komentarze, znajomi i wiadomości prywatne. Kopie zapasowe u dostawców mogą istnieć jeszcze przez krótki czas. Dane dotyczące przyznanej nagrody mogą być przechowywane dłużej, jeśli jest to potrzebne do obrony przed roszczeniami lub wynika z przepisów. Dzienniki techniczne są przechowywane przez dostawców przez krótki okres zgodnie z ich zasadami.</p>
 <h3>5. Twoje prawa</h3><p>Masz prawo do: dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie. Nick, adres e-mail i hasło możesz zmienić, a konto usunąć samodzielnie w zakładce „Konto”. W pozostałych sprawach napisz na <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>. Masz też prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (<a href="https://uodo.gov.pl" target="_blank" rel="noopener">uodo.gov.pl</a>).</p>
 <h3>6. Pliki cookies i pamięć przeglądarki</h3><p>Serwis korzysta z pamięci przeglądarki (np. localStorage lub ciasteczek) wyłącznie w celach niezbędnych do działania: utrzymania sesji po zalogowaniu. Nie używamy cookies reklamowych ani analitycznych. Formularze logowania i rejestracji korzystają z zabezpieczenia Cloudflare Turnstile, które służy wyłącznie do sprawdzenia, że formularz wypełnia człowiek, i może w tym celu zapisywać dane techniczne w przeglądarce. Serwis korzysta z czcionek Google Fonts, przy czym zapytania o czcionki trafiają do serwerów Google.</p>
 <h3>7. Zmiany polityki</h3><p>Polityka może być aktualizowana. O istotnych zmianach poinformujemy w Serwisie. Obowiązuje od 1 grudnia 2026 r.</p>`};
@@ -307,7 +330,7 @@ const flagName=n=>flag((S.leagues.find(l=>l.name==n)||{}).code);
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:"",cOpen:new Set(),cData:{},cCount:{},cRep:{},cRepd:new Set(),cReply:{},cDraft:{},cRepList:[]};
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:"",cOpen:new Set(),cData:{},cCount:{},cRep:{},cRepd:new Set(),cReply:{},cDraft:{},cRepList:[],fr:[],unread:{},dm:null,dmMsgs:[]};
 let tsTok=null,tsId=null;
 function tsSync(){tsTok=null;tsId=null;if(!$("#ts")||!CFG.turnstile)return;
   const go=()=>{if(!$("#ts")||tsId!==null)return;tsId=turnstile.render("#ts",{sitekey:CFG.turnstile,language:"pl",callback:t=>{tsTok=t},"expired-callback":()=>{tsTok=null},"error-callback":()=>{tsTok=null}})};
@@ -330,8 +353,9 @@ async function load(){
   if(S.user){const [p,t]=await Promise.all([sb.from("profiles").select("*").eq("id",S.user.id).single(),sb.from("predictions").select("*").eq("user_id",S.user.id)]);S.me=p.data;(t.data||[]).forEach(x=>S.tips[x.match_id]=x)}
   if(S.tab=="ranking")await loadBoard();
   if(S.tab=="profil")await loadProfile();
+  if(S.user)await Promise.all([loadFriends(),loadUnread()]);else{S.fr=[];S.unread={};S.dm=null}
   await loadCounts();
-  render();
+  render();startSocial();
   S.cOpen.forEach(id=>loadComments(id));cPoll()}
 
 async function loadProfile(){
@@ -374,7 +398,7 @@ function kontoView(){
   <form id="pwf" class="kbox"><h3>Zmień hasło</h3>
    <label for="kp">Nowe hasło (min. 6 znaków)</label><input id="kp" name="pw" type="password" minlength="6" required autocomplete="new-password">
    <label for="kp2">Powtórz nowe hasło</label><input id="kp2" name="pw2" type="password" minlength="6" required autocomplete="new-password"><p id="mp" class="err" role="status"></p><button type="submit">Zmień hasło</button></form>
-  <form id="dlf" class="kbox danger"><h3>Usuń konto</h3><p>Usunięcie jest <b>nieodwracalne</b>. Znikną Twój profil, wszystkie typy, punkty, statystyki, wiadomości z czatu i komentarze.</p>
+  <form id="dlf" class="kbox danger"><h3>Usuń konto</h3><p>Usunięcie jest <b>nieodwracalne</b>. Znikną Twój profil, wszystkie typy, punkty, statystyki, wiadomości z czatu, komentarze, znajomi i wiadomości prywatne.</p>
    <label for="kd">Aby potwierdzić, wpisz swój nick: <b>${esc(me.nick||"")}</b></label><input id="kd" name="confirm" autocomplete="off" required><p id="md" class="err" role="status"></p><button type="submit" class="del">Usuń moje konto na stałe</button></form>`}
 function profView(){
   if(!S.user)return`<div class="box"><h2>Profil</h2><p class="sub">Zaloguj się, aby zobaczyć swój profil i statystyki.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
@@ -383,7 +407,7 @@ function profView(){
   if(!S.prof)return sch+`<p class="sub" style="margin-top:18px">Wczytuję profil…</p>`;
   if(S.prof.notfound)return sch+`<p class="note" style="margin-top:18px">Nie ma takiego gracza.</p><button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
   const own=S.prof.own,st=profStats(),me=S.prof.user||{},since=me.created_at?new Date(me.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"",role=me.is_admin?`<span class="bdg o">Organizator</span>`:me.is_moderator?`<span class="bdg a">Administrator</span>`:"";
-  const head=`<div class="phead"><div class="av" aria-hidden="true">${esc((me.nick||"?").charAt(0).toUpperCase())}</div><div><h2>${esc(me.nick||"")}</h2><p class="sub">${since?"Gracz od "+esc(since)+" ":""}${role}</p></div></div>`;
+  const head=`<div class="phead"><div class="av" aria-hidden="true">${esc((me.nick||"?").charAt(0).toUpperCase())}</div><div><h2>${esc(me.nick||"")}</h2><p class="sub">${since?"Gracz od "+esc(since)+" ":""}${role}</p></div>${own?"":`<div class="pact">${friendBtn(me.id,me.nick)}</div>`}</div>`;
   const backBtn=own?"":`<button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
   const rank=`<h2 class="sec">Miejsce w rankingu</h2><div class="tiles"><div class="tile"><div>${rankOf(S.side,me.nick)}</div><div class="tl">Ten miesiąc, ranking nagrodowy (wszystkie ligi)</div></div><div class="tile"><div>${rankOf(S.prof.all,me.nick)}</div><div class="tl">Cały sezon</div></div></div>`;
   if(!st.n)return sch+backBtn+head+rank+`<h2 class="sec">Statystyki</h2><p class="note">${own?"Nie masz jeszcze rozliczonych typów. Statystyki pojawią się po pierwszych zakończonych meczach.":"Ten gracz nie ma jeszcze rozliczonych typów."}${own&&st.pending?` Czeka na wynik: ${st.pending}.`:""}</p>`;
@@ -490,6 +514,72 @@ function drawCRep(){
   if(!isStaff()||!S.cRepList.length){el.innerHTML="";return}
   el.innerHTML=`<h3 class="sec">Zgłoszone komentarze do meczów (${S.cRepList.length})</h3>`+S.cRepList.map(({c,n})=>`<div class="cmt rep"><div class="mh"><b>${esc(c.profiles?.nick||"?")}</b><time>${esc(c.matches?`${c.matches.home} – ${c.matches.away}`:"")}</time></div><div class="mb">${esc(c.body)}</div><div class="ma"><b style="color:var(--bad)">Zgłoszenia: ${n}</b><button class="lnk bad" data-act="ccdel" data-id="${c.id}">Usuń komentarz</button><button class="lnk" data-act="ccdis" data-id="${c.id}">Odrzuć zgłoszenia</button></div></div>`).join("")}
 
+/* ===== znajomi i wiadomości prywatne ===== */
+let soTimer=null,soCh=null,dmShown=false;
+async function loadFriends(){
+  if(!S.user){S.fr=[];return}
+  const {data,error}=await sb.from("friendships").select("id,requester_id,addressee_id,status,requester:profiles!friendships_requester_id_fkey(id,nick),addressee:profiles!friendships_addressee_id_fkey(id,nick)");
+  if(error)return;
+  S.fr=(data||[]).map(r=>{const rq=r.requester_id==S.user.id,o=rq?r.addressee:r.requester;return{id:r.id,status:r.status,incoming:!rq,uid:rq?r.addressee_id:r.requester_id,nick:o?.nick||"?"}})}
+const frOf=uid=>S.fr.find(f=>f.uid==uid);
+async function loadUnread(){
+  if(!S.user){S.unread={};return}
+  const {data,error}=await sb.from("direct_messages").select("sender_id").eq("recipient_id",S.user.id).is("read_at",null);
+  if(error)return;
+  S.unread={};(data||[]).forEach(r=>S.unread[r.sender_id]=(S.unread[r.sender_id]||0)+1)}
+const badgeN=()=>Object.values(S.unread).reduce((a,b)=>a+b,0)+S.fr.filter(f=>f.status=="pending"&&f.incoming).length;
+function updBadge(){
+  const n=badgeN();
+  document.querySelectorAll('[data-tab="znajomi"]').forEach(bt=>{const o=bt.querySelector(".nbadge");if(o)o.remove();if(n){const i=document.createElement("i");i.className="nbadge";i.textContent=n;bt.appendChild(i)}})}
+async function socialTick(){
+  if(!S.user)return;
+  await Promise.all([loadFriends(),loadUnread()]);updBadge();
+  if(S.tab=="znajomi"){drawFriendsList();if(S.dm){if(!frOf(S.dm.id)||frOf(S.dm.id).status!="accepted"){S.dm=null;return render()}await loadDM()}}}
+function startSocial(){
+  if(!S.user)return stopSocial();
+  if(soTimer)return;
+  soTimer=setInterval(()=>{if(document.visibilityState=="visible")socialTick()},12000);
+  soCh=sb.channel("social").on("postgres_changes",{event:"*",schema:"public",table:"direct_messages"},()=>socialTick()).on("postgres_changes",{event:"*",schema:"public",table:"friendships"},()=>socialTick()).subscribe()}
+function stopSocial(){if(soTimer){clearInterval(soTimer);soTimer=null}if(soCh){sb.removeChannel(soCh);soCh=null}}
+function dmSync(){
+  if(S.tab=="znajomi"&&S.user){drawDM();if(!dmShown){dmShown=true;socialTick()}}else dmShown=false}
+function friendBtn(uid,nick){
+  const f=frOf(uid),n=esc(nick);
+  if(!f)return`<button data-act="fadd" data-uid="${uid}">Dodaj do znajomych</button>`;
+  if(f.status=="accepted")return`<button data-act="dmopen" data-uid="${uid}" data-nick="${n}">Napisz wiadomość</button><button class="ghost" data-act="funf" data-id="${f.id}" data-uid="${uid}" data-nick="${n}">Usuń ze znajomych</button>`;
+  if(f.incoming)return`<button data-act="facc" data-id="${f.id}">Akceptuj zaproszenie</button><button class="ghost" data-act="fdec" data-id="${f.id}">Odrzuć</button>`;
+  return`<span class="sub">Zaproszenie wysłane</span><button class="ghost" data-act="fdec" data-id="${f.id}">Anuluj</button>`}
+function friendsListHTML(){
+  const acc=S.fr.filter(f=>f.status=="accepted").sort((a,b)=>(S.unread[b.uid]||0)-(S.unread[a.uid]||0)||a.nick.localeCompare(b.nick,"pl")),
+    inc=S.fr.filter(f=>f.status=="pending"&&f.incoming),out=S.fr.filter(f=>f.status=="pending"&&!f.incoming);
+  let h="";
+  if(inc.length)h+=`<h3>Zaproszenia (${inc.length})</h3>`+inc.map(f=>`<div class="frreq"><button class="nickb" data-act="pview" data-nick="${esc(f.nick)}">${esc(f.nick)}</button><span class="ab"><button data-act="facc" data-id="${f.id}">Akceptuj</button><button class="ghost" data-act="fdec" data-id="${f.id}">Odrzuć</button></span></div>`).join("");
+  h+=`<h3>Znajomi (${acc.length})</h3>`+(acc.length?acc.map(f=>`<button class="fitem" data-act="dmopen" data-uid="${f.uid}" data-nick="${esc(f.nick)}" aria-current="${S.dm&&S.dm.id==f.uid}">${esc(f.nick)}${S.unread[f.uid]?`<i class="nbadge">${S.unread[f.uid]}</i>`:""}</button>`).join(""):`<p class="sub">Nie masz jeszcze znajomych.</p>`);
+  if(out.length)h+=`<h3>Wysłane zaproszenia</h3>`+out.map(f=>`<div class="frreq"><button class="nickb" data-act="pview" data-nick="${esc(f.nick)}">${esc(f.nick)}</button><button class="ghost" data-act="fdec" data-id="${f.id}">Anuluj</button></div>`).join("");
+  h+=`<p style="margin-top:14px"><button class="ghost" data-tab="profil">${icon("lupa")} Znajdź graczy</button></p>`;
+  return h}
+function drawFriendsList(){const el=$("#frl");if(el)el.innerHTML=friendsListHTML()}
+function dmHTML(){
+  if(!S.dm)return`<p class="sub" style="padding:8px">Wybierz znajomego z listy, aby napisać wiadomość. Nowych znajomych dodasz z poziomu ich profilu (zakładka Profil → wyszukaj gracza, albo kliknij nick na czacie lub w rankingu).</p>`;
+  return`<div class="dmhead"><span><button class="ghost dmback" data-act="dmback">← Lista</button> <button class="nickb" data-act="pview" data-nick="${esc(S.dm.nick)}" style="font-size:18px">${esc(S.dm.nick)}</button></span><button class="lnk bad" data-act="funf" data-id="${(frOf(S.dm.id)||{}).id}" data-uid="${S.dm.id}" data-nick="${esc(S.dm.nick)}">Usuń ze znajomych</button></div>
+  <div id="dl" class="dml" aria-live="polite"></div><form id="df" class="cf"><input id="di" data-key="dm" maxlength="500" autocomplete="off" placeholder="Napisz wiadomość do ${esc(S.dm.nick)}" aria-label="Wiadomość prywatna" value="${esc(S.cDraft.dm||"")}"><button type="submit">Wyślij</button></form><p id="dme" class="err"></p>`}
+function friendsView(){
+  if(!S.user)return`<div class="box"><h2>Znajomi</h2><p class="sub">Zaloguj się, aby dodawać znajomych i pisać z nimi.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
+  return`<h2 class="sec" style="margin-top:18px">Znajomi</h2><p class="sub">Wiadomości prywatne możesz wymieniać tylko ze znajomymi. Zaproszenie musi zostać zaakceptowane. Bez linków, wulgaryzmów i reklam.</p><div class="frwrap${S.dm?" open":""}"><div class="frcol" id="frl">${friendsListHTML()}</div><div class="dmcol" id="dmc">${dmHTML()}</div></div>`}
+async function loadDM(){
+  if(!S.dm||!S.user)return;
+  const a=S.user.id,b=S.dm.id;
+  const {data}=await sb.from("direct_messages").select("id,sender_id,body,created_at,read_at").or(`and(sender_id.eq.${a},recipient_id.eq.${b}),and(sender_id.eq.${b},recipient_id.eq.${a})`).order("created_at",{ascending:false}).limit(100);
+  S.dmMsgs=(data||[]).reverse();
+  if(S.unread[b]){await sb.from("direct_messages").update({read_at:new Date().toISOString()}).eq("recipient_id",a).eq("sender_id",b).is("read_at",null);delete S.unread[b];updBadge();drawFriendsList()}
+  drawDM()}
+function drawDM(toBottom){
+  const el=$("#dl");if(!el||!S.dm)return;
+  const near=el.scrollHeight-el.scrollTop-el.clientHeight<80,msgs=S.dmMsgs,lastMine=[...msgs].reverse().find(m=>m.sender_id==S.user.id);
+  el.innerHTML=msgs.length?msgs.map(m=>{const mine=m.sender_id==S.user.id,t=new Date(m.created_at),ts=t.toDateString()==new Date().toDateString()?hm(m.created_at):t.toLocaleString("pl-PL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    return`<div class="dmm${mine?" mine":""}">${esc(m.body)}<time>${esc(ts)}${mine?` <button class="lnk" data-act="dmdel" data-id="${m.id}">Usuń</button>`:""}</time>${mine&&lastMine&&lastMine.id==m.id&&m.read_at?`<span class="rd">Przeczytano</span>`:""}</div>`}).join(""):`<p class="sub" style="padding:8px">Brak wiadomości. Napisz pierwszą.</p>`;
+  if(near||toBottom||!el.dataset.init){el.scrollTop=el.scrollHeight;el.dataset.init=1}}
+
 function admRow(m){
   const fin=m.home_goals!=null,ed=S.editing.has(m.id),lock=fin&&!ed,dis=lock?" disabled":"";
   const btns=lock?`<span class="okb">✓ Zatwierdzone</span> <button class="ghost" data-act="redit" data-id="${m.id}">Edytuj</button>`
@@ -501,7 +591,7 @@ function leagueSel(id,val,all){return`<select id="${id}" aria-label="Liga">${all
 function prizebar(c){const n=new Date(),d=Math.ceil((new Date(n.getFullYear(),n.getMonth()+1,1)-n)/864e5);return`<div class="prizebar ${c||""}"><div class="pbadge">${esc(PRIZE_BADGE)}</div><div><b>Nagroda miesiąca</b><br><span>${esc(PRIZE_LINE)} Do końca miesiąca: ${d} ${d==1?"dzień":"dni"}.</span></div></div>`}
 
 function aside(){
-  if(S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="regulamin"||S.tab=="polityka")return"";
+  if(S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="znajomi"||S.tab=="regulamin"||S.tab=="polityka")return"";
   const top=S.side.filter(r=>r.total_points>0).slice(0,5);
   const list=S.tab=="ranking"?"":`<div class="acard"><h3>Najlepsi w tym miesiącu</h3>${top.length?`<ol class="mini">${top.map((r,i)=>`<li class="${r.nick==S.me?.nick?"you":""}"><span class="mp">${i+1}</span><span class="mn"><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}" title="Zobacz profil">${esc(r.nick)}</button></span><b>${r.total_points}</b></li>`).join("")}</ol><button class="ghost" data-tab="ranking">Cały ranking</button>`:`<p class="sub">Nikt jeszcze nie zdobył punktów. Zacznij pierwszy.</p>`}</div>`;
   return`<aside class="aside" style="padding-top:16px">${list}<div class="acard"><h3>Punktacja</h3><p class="sub">3 pkt za trafionego zwycięzcę lub remis.<br>+1 pkt za dokładny wynik, razem 4 pkt.</p></div></aside>`}
@@ -564,6 +654,7 @@ function chatSync(kept){
   if(S.tab=="chat"&&S.user){const i=$("#ci");if(i&&kept!=null)i.value=kept;drawChat(true,true);if(!chTimer)startChat()}else stopChat()}
 
 function view(){
+  if(S.tab=="znajomi")return friendsView();
   if(S.tab=="chat"){
     if(!S.user)return`<div class="box"><h2>Czat graczy</h2><p class="sub">Czat jest dostępny dla zalogowanych graczy.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
     return`<h2 class="sec" style="margin-top:18px">Czat graczy</h2><p class="sub">Bądź miły. Bez wulgaryzmów, linków i reklam. Za łamanie zasad możesz zostać wyciszony.</p>
@@ -610,16 +701,16 @@ profil:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21c.4-4.2 3.5-6.5 7.5-6.5s7.
  admin:'<path d="M12 3l8 3v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>'};
 const icon=k=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[k]||""}</svg>`;
 function render(){
-  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.user)tabs.push(["konto","Konto"]);if(S.me?.is_admin)tabs.push(["admin","Admin"]);
+  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.user){tabs.push(["konto","Konto"]);tabs.splice(3,0,["znajomi","Znajomi"])}if(S.me?.is_admin)tabs.push(["admin","Admin"]);
   const kept=S.tab=="chat"&&$("#ci")?$("#ci").value:null;
   const meBox=S.user?`<span class="nick">${esc(S.me?.nick||"")}</span><button class="ghost" data-act="out">Wyloguj</button>`:`<button data-act="login">Zaloguj</button><button class="ghost" data-act="reg">Załóż konto</button>`;
   const brand=`<h1 class="brand"><button class="brandbtn" data-tab="mecze"><span class="logo" aria-hidden="true"></span>${esc(CFG.name)}</button></h1>`;
-  const items=tabs.map(t=>`<button data-tab="${t[0]}"${S.tab==t[0]?' aria-current="page"':""}>${icon(t[0])}<span>${t[1]}</span></button>`).join("");
+  const items=tabs.map(t=>`<button data-tab="${t[0]}"${S.tab==t[0]?' aria-current="page"':""}>${icon(t[0])}<span>${t[1]}</span>${t[0]=="znajomi"&&badgeN()?`<i class="nbadge">${badgeN()}</i>`:""}</button>`).join("");
   $("#app").innerHTML=`<aside class="side">${brand}<nav aria-label="Menu główne">${items}</nav><div class="sideme">${meBox}</div>${socials("sbar")}</aside>
   <div class="top"><div class="in"><div class="brandrow">${brand}<div class="me">${meBox}</div></div></div></div>
   <nav class="bnav" aria-label="Menu główne">${items}</nav>
-  <div class="wrap">${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="regulamin"||S.tab=="polityka"?" one":""}"><main>${view()}</main>${aside()}</div><footer class="foot"><span>© ${esc(CFG.name)}</span><button class="lnk" data-tab="regulamin">Regulamin</button><button class="lnk" data-tab="polityka">Polityka prywatności</button><a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>${socials("ftr")}</footer></div>`;
-  chatSync(kept);tsSync()}
+  <div class="wrap">${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="znajomi"||S.tab=="regulamin"||S.tab=="polityka"?" one":""}"><main>${view()}</main>${aside()}</div><footer class="foot"><span>© ${esc(CFG.name)}</span><button class="lnk" data-tab="regulamin">Regulamin</button><button class="lnk" data-tab="polityka">Polityka prywatności</button><a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>${socials("ftr")}</footer></div>`;
+  chatSync(kept);dmSync();tsSync()}
 
 document.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;const a=b.dataset.act,id=+b.dataset.id;
@@ -633,6 +724,16 @@ document.addEventListener("click",async e=>{
   if(a=="out"){S.prof=null;await sb.auth.signOut();return}
   if(a=="goprize"){S.scope="month";S.bleague="";await loadBoard();return render()}
   if(a=="onlyrep"){S.onlyRep=!S.onlyRep;return render()}
+  if(a=="fadd"){const {error}=await sb.from("friendships").insert({requester_id:S.user.id,addressee_id:b.dataset.uid,status:"pending"});
+    if(error&&!/duplicate/i.test(error.message))alert("Nie udało się wysłać zaproszenia (możliwy limit 30 oczekujących zaproszeń).");
+    await loadFriends();return render()}
+  if(a=="facc"){await sb.from("friendships").update({status:"accepted"}).eq("id",id);await loadFriends();updBadge();return render()}
+  if(a=="fdec"){await sb.from("friendships").delete().eq("id",id);await loadFriends();updBadge();return render()}
+  if(a=="funf"){if(!confirm(`Usunąć ${b.dataset.nick} ze znajomych? Nie będziecie mogli do siebie pisać.`))return;
+    await sb.from("friendships").delete().eq("id",id);if(S.dm&&S.dm.id==b.dataset.uid)S.dm=null;await loadFriends();return render()}
+  if(a=="dmopen"){if(!S.dm||S.dm.id!=b.dataset.uid){S.cDraft.dm=""}S.dm={id:b.dataset.uid,nick:b.dataset.nick};S.dmMsgs=[];S.tab="znajomi";render();await loadDM();drawDM(true);window.scrollTo(0,0);return}
+  if(a=="dmback"){S.dm=null;return render()}
+  if(a=="dmdel"){await sb.from("direct_messages").delete().eq("id",id);return loadDM()}
   if(a=="ctog")return toggleComments(id);
   if(a=="crep"){S.cReply[+b.dataset.mid]={pid:+b.dataset.top,nick:b.dataset.nick};
     const mid=+b.dataset.mid,top=+b.dataset.top;
@@ -675,6 +776,12 @@ document.addEventListener("change",async e=>{
 document.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.key;if(k)S.cDraft[k]=e.target.value});
 document.addEventListener("submit",async e=>{
   e.preventDefault();const f=new FormData(e.target);
+  if(e.target.id=="df"){const inp=$("#di"),er=$("#dme"),body=inp.value.trim();
+    if(!body||!S.dm)return;
+    if(LINK_RE.test(body))return say(er,"Linki i adresy stron są niedozwolone.",1);
+    const {error}=await sb.from("direct_messages").insert({sender_id:S.user.id,recipient_id:S.dm.id,body});
+    if(error)return say(er,"Nie udało się wysłać. Piszesz tylko do znajomych, odczekaj chwilę i sprawdź, czy nie jesteś wyciszony.",1);
+    inp.value="";S.cDraft.dm="";say(er,"");await loadDM();drawDM(true);return}
   if(e.target.classList.contains("cform")){const fm=e.target,mid=+fm.dataset.mid,pid=fm.dataset.pid?+fm.dataset.pid:null,inp=fm.querySelector("input"),body=inp.value.trim(),er=$("#ce"+mid);
     if(!body)return;
     if(LINK_RE.test(body)){if(er)say(er,"Linki i adresy stron są niedozwolone.",1);return}
