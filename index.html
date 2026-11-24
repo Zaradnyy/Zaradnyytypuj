@@ -16,7 +16,7 @@ h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-he
 .layout{display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
 .layout.one{max-width:760px}
 .aside{display:none}
-@media (min-width:960px){.layout:not(.one){grid-template-columns:minmax(0,1fr) 320px}.aside{display:block;position:sticky;top:120px;align-self:start}.inl{display:none}}
+@media (min-width:960px){.layout:not(.one){grid-template-columns:minmax(0,1fr) 320px}.aside{display:block;position:sticky;top:120px;align-self:start}}
 .aside .prizebar{margin:16px 0 14px;flex-direction:column;align-items:flex-start}
 .acard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px}
 .acard h3{font-size:18px;margin-bottom:8px}
@@ -163,7 +163,7 @@ function aside(){
   if(S.tab=="auth"||S.tab=="admin")return"";
   const top=S.side.filter(r=>r.total_points>0).slice(0,5);
   const list=S.tab=="ranking"?"":`<div class="acard"><h3>Najlepsi w tym miesiącu</h3>${top.length?`<ol class="mini">${top.map((r,i)=>`<li class="${r.nick==S.me?.nick?"you":""}"><span class="mp">${i+1}</span><span class="mn">${esc(r.nick)}</span><b>${r.total_points}</b></li>`).join("")}</ol><button class="ghost" data-tab="ranking">Cały ranking</button>`:`<p class="sub">Nikt jeszcze nie zdobył punktów. Zacznij pierwszy.</p>`}</div>`;
-  return`<aside class="aside">${prizebar("side")}${list}<div class="acard"><h3>Punktacja</h3><p class="sub">3 pkt za trafionego zwycięzcę lub remis.<br>+1 pkt za dokładny wynik, razem 4 pkt.</p></div></aside>`}
+  return`<aside class="aside" style="padding-top:16px">${list}<div class="acard"><h3>Punktacja</h3><p class="sub">3 pkt za trafionego zwycięzcę lub remis.<br>+1 pkt za dokładny wynik, razem 4 pkt.</p></div></aside>`}
 
 function podium(top){
   if(!top.length)return"";
