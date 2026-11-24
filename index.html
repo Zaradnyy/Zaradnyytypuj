@@ -98,6 +98,23 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .adm{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 .adm .score input{width:42px;height:40px;font-size:18px;border-radius:8px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+
+/* czat */
+.chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:12px}
+.cl{height:min(60vh,520px);overflow-y:auto;padding:4px 4px 8px}
+.msg{padding:8px 10px;border-radius:10px;margin-bottom:6px}
+.msg.mine{background:color-mix(in srgb,var(--gold) 20%,transparent)}
+.msg.rep{outline:2px solid var(--bad)}
+.mh{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.mh b{font-weight:700}.mh time{color:var(--mute);font-size:13px}
+.mb{overflow-wrap:anywhere;margin:2px 0}
+.ma{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.ma select{padding:2px 6px;font-size:13px}
+.lnk{background:none;color:var(--mute);padding:0;font-size:13px;text-decoration:underline;border-radius:4px}
+.lnk.bad{color:var(--bad)}
+.bdg{border-radius:99px;padding:0 8px;font-size:12px;font-weight:700}
+.bdg.o{background:var(--gold);color:var(--goldi)}.bdg.a{background:var(--green);color:var(--gi)}
+.cf{display:flex;gap:8px;margin-top:6px}.cf input{flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -113,7 +130,7 @@ const PRIZES=[["1","Zwycięzca miesiąca","Karta podarunkowa 50 zł dla gracza z
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],scope:"all",bleague:"",err:"",ml:"",mr:"",mk:""};
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,scope:"all",bleague:"",err:"",ml:"",mr:"",mk:""};
 const say=(el,t,bad)=>{if(el){el.textContent=t;el.className=bad?"err":"ok"}};
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const dayOf=t=>cap(new Date(t).toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"}));
@@ -169,7 +186,64 @@ function podium(top){
   if(!top.length)return"";
   return`<div class="podium">${[1,0,2].filter(i=>top[i]).map(i=>{const r=top[i];return`<div class="pod r${i+1}${r.nick==S.me?.nick?" you":""}"><div class="info"><div class="md">${i+1}</div><div class="pn">${esc(r.nick)}</div><div class="pp">${r.total_points} pkt</div><div class="ps">dokładne: ${r.exact_hits}</div></div><div class="step"></div></div>`}).join("")}</div>`}
 
+/* ===== CZAT ===== */
+const LINK_RE=/(https?:\/\/|www\.|[a-z0-9]\.(pl|com|net|org|eu|ru|io|tv|me|ly|cc|xyz)(\/|\s|$))/i;
+let chTimer=null,chCh=null;
+const isStaff=()=>!!(S.me?.is_admin||S.me?.is_moderator);
+const fmtT=t=>new Date(t).toLocaleString("pl-PL",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"});
+async function loadChat(light){
+  if(!S.user)return;
+  const {data}=await sb.from("chat_messages").select("id,body,created_at,user_id,profiles(nick,is_admin,is_moderator)").order("created_at",{ascending:false}).limit(60);
+  S.chat=(data||[]).reverse();
+  if(!light){
+    const now=new Date().toISOString();
+    const mine=await sb.from("chat_mutes").select("until").eq("user_id",S.user.id).gt("until",now).order("until",{ascending:false}).limit(1);
+    S.myMute=mine.data?.[0]?.until||null;
+    const rp=await sb.from("chat_reports").select("message_id,reporter_id");
+    S.reports={};S.reported=new Set();
+    (rp.data||[]).forEach(r=>{S.reports[r.message_id]=(S.reports[r.message_id]||0)+1;if(r.reporter_id==S.user.id)S.reported.add(r.message_id)});
+    if(isStaff()){const mu=await sb.from("chat_mutes").select("user_id,until");S.mutes=mu.data||[]}
+  }
+  drawChat()}
+function startChat(){stopChat();if(!S.user)return;loadChat();
+  chTimer=setInterval(()=>{if(document.visibilityState=="visible")loadChat()},20000);
+  chCh=sb.channel("chat").on("postgres_changes",{event:"*",schema:"public",table:"chat_messages"},()=>loadChat(true)).subscribe()}
+function stopChat(){if(chTimer){clearInterval(chTimer);chTimer=null}if(chCh){sb.removeChannel(chCh);chCh=null}}
+const muteCount=uid=>S.mutes.filter(x=>x.user_id==uid).length;
+const activeMute=uid=>S.mutes.find(x=>x.user_id==uid&&new Date(x.until)>Date.now());
+function chatMsg(m){
+  const p=m.profiles||{},mine=m.user_id==S.user.id,rc=S.reports[m.id]||0,isS=p.is_admin||p.is_moderator;
+  const badge=p.is_admin?`<span class="bdg o">Organizator</span>`:p.is_moderator?`<span class="bdg a">Administrator</span>`:"";
+  const t=new Date(m.created_at),ts=t.toDateString()==new Date().toDateString()?hm(m.created_at):t.toLocaleString("pl-PL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+  let acts="";
+  if(!mine&&!isS)acts+=S.reported.has(m.id)?`<span>Zgłoszono</span>`:`<button class="lnk" data-act="rep" data-id="${m.id}">Zgłoś</button>`;
+  if(isStaff()){
+    if(rc)acts+=`<b style="color:var(--bad)">Zgłoszenia: ${rc}</b>`;
+    acts+=`<button class="lnk bad" data-act="cdel" data-id="${m.id}">Usuń</button>`;
+    if(S.me.is_admin&&!mine&&!isS){
+      const n=muteCount(m.user_id),next=[1,6,12,24][Math.min(n,3)],am=activeMute(m.user_id);
+      acts+=am?`<span>Wyciszony do ${esc(fmtT(am.until))}</span><button class="lnk" data-act="unmute" data-uid="${m.user_id}">Zdejmij</button>`
+        :`<select id="mt${m.id}" aria-label="Czas wyciszenia">${[1,6,12,24].map(h=>`<option value="${h}" ${h==next?"selected":""}>${h} h</option>`).join("")}</select><button class="lnk bad" data-act="mute" data-id="${m.id}" data-uid="${m.user_id}" data-nick="${esc(p.nick)}">Wycisz</button><span>wyciszany wcześniej: ${n}×</span>`}}
+  return`<div class="msg${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><b>${esc(p.nick||"?")}</b>${badge}<time>${esc(ts)}</time></div><div class="mb">${esc(m.body)}</div>${acts?`<div class="ma">${acts}</div>`:""}</div>`}
+function drawChat(force,toBottom){
+  const el=$("#cl");if(!el)return;
+  const ae=document.activeElement;
+  if(!force&&ae&&ae.tagName=="SELECT"&&el.contains(ae))return;
+  const near=el.scrollHeight-el.scrollTop-el.clientHeight<80,list=S.onlyRep?S.chat.filter(m=>S.reports[m.id]):S.chat;
+  el.innerHTML=list.length?list.map(chatMsg).join(""):`<p class="sub" style="padding:12px">${S.onlyRep?"Brak zgłoszonych wiadomości.":"Cisza na czacie. Napisz pierwszy."}</p>`;
+  if(near||toBottom)el.scrollTop=el.scrollHeight;
+  const muted=!!S.myMute&&new Date(S.myMute)>Date.now();
+  $("#cstat").innerHTML=muted?`<p class="err">Jesteś wyciszony do ${esc(fmtT(S.myMute))}. Możesz czytać czat, ale nie możesz pisać.</p>`:"";
+  $("#ci").disabled=muted;$("#cs").disabled=muted}
+function chatSync(kept){
+  if(S.tab=="chat"&&S.user){const i=$("#ci");if(i&&kept!=null)i.value=kept;drawChat(true,true);if(!chTimer)startChat()}else stopChat()}
+
 function view(){
+  if(S.tab=="chat"){
+    if(!S.user)return`<div class="box"><h2>Czat graczy</h2><p class="sub">Czat jest dostępny dla zalogowanych graczy.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
+    return`<h2 class="sec" style="margin-top:18px">Czat graczy</h2><p class="sub">Bądź miły. Bez wulgaryzmów, linków i reklam. Za łamanie zasad możesz zostać wyciszony.</p>
+    ${isStaff()?`<div class="bar"><button class="chip" data-act="onlyrep" aria-pressed="${S.onlyRep}">Tylko zgłoszone</button></div>`:""}
+    <div class="chat"><div id="cl" class="cl" aria-live="polite"></div><div id="cstat"></div><form id="cf" class="cf"><input id="ci" maxlength="300" autocomplete="off" placeholder="Napisz wiadomość" aria-label="Wiadomość"><button type="submit" id="cs">Wyślij</button></form><p id="cm" class="err"></p></div>`}
   if(S.tab=="auth"&&S.mode=="reset")return`<form id="rf" class="box"><h2>Reset hasła</h2><p class="sub">Podaj e-mail konta. Wyślemy link do ustawienia nowego hasła.</p><label for="em">E-mail</label><input id="em" name="email" type="email" required autocomplete="email"><p id="am" class="err"></p><button type="submit">Wyślij link</button> <button type="button" class="ghost" data-act="login">Wróć</button></form>`;
   if(S.tab=="auth"&&S.mode=="newpw")return`<form id="nf" class="box"><h2>Nowe hasło</h2><label for="pw">Nowe hasło (min. 6 znaków)</label><input id="pw" name="pw" type="password" minlength="6" required autocomplete="new-password"><p id="am" class="err"></p><button type="submit">Zapisz hasło</button></form>`;
   if(S.tab=="auth"){const up=S.mode=="up";return`<form id="af" class="box"><h2>${up?"Załóż konto":"Zaloguj się"}</h2>
@@ -194,10 +268,12 @@ function view(){
   return""}
 
 function render(){
-  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.me?.is_admin)tabs.push(["admin","Admin"]);
+  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["nagrody","Nagrody"],["zasady","Zasady"]];if(S.me?.is_admin)tabs.push(["admin","Admin"]);
+  const kept=S.tab=="chat"&&$("#ci")?$("#ci").value:null;
   $("#app").innerHTML=`<div class="top"><div class="in"><div class="brandrow"><h1 class="brand"><button class="brandbtn" data-tab="mecze"><span class="logo" aria-hidden="true"></span>${esc(CFG.name)}</button></h1><div class="me">${S.user?`<span class="nick">${esc(S.me?.nick||"")}</span><button class="ghost" data-act="out">Wyloguj</button>`:`<button data-act="login">Zaloguj</button><button class="ghost" data-act="reg">Załóż konto</button>`}</div></div>
   <nav role="tablist">${tabs.map(t=>`<button role="tab" data-tab="${t[0]}" aria-selected="${S.tab==t[0]}">${t[1]}</button>`).join("")}</nav></div></div>
-  <div class="wrap">${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"?" one":""}"><main>${view()}</main>${aside()}</div></div>`}
+  <div class="wrap">${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"?" one":""}"><main>${view()}</main>${aside()}</div></div>`;
+  chatSync(kept)}
 
 document.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;const a=b.dataset.act,id=+b.dataset.id;
@@ -206,6 +282,14 @@ document.addEventListener("click",async e=>{
   if(a=="login"||a=="reg"){S.tab="auth";S.mode=a=="reg"?"up":"in";return render()}
   if(a=="forgot"){S.tab="auth";S.mode="reset";return render()}
   if(a=="out"){await sb.auth.signOut();return}
+  if(a=="onlyrep"){S.onlyRep=!S.onlyRep;return render()}
+  if(a=="rep"){const {error}=await sb.from("chat_reports").insert({message_id:id,reporter_id:S.user.id});
+    if(!error||/duplicate/i.test(error.message)){S.reported.add(id);drawChat(true)}return}
+  if(a=="cdel"){if(!confirm("Usunąć tę wiadomość?"))return;await sb.from("chat_messages").delete().eq("id",id);return loadChat()}
+  if(a=="mute"){const hrs=+$("#mt"+id).value;if(!confirm(`Wyciszyć ${b.dataset.nick} na ${hrs} h?`))return;
+    const {error}=await sb.from("chat_mutes").insert({user_id:b.dataset.uid,until:new Date(Date.now()+hrs*36e5).toISOString(),hours:hrs,created_by:S.user.id});
+    if(error)return alert("Nie udało się wyciszyć.");return loadChat()}
+  if(a=="unmute"){await sb.from("chat_mutes").update({until:new Date().toISOString()}).eq("user_id",b.dataset.uid).gt("until",new Date().toISOString());return loadChat()}
   if(a=="tip"){const h=$("#h"+id).value,aw=$("#a"+id).value,ok=$("#ok"+id);
     if(h===""||aw===""||h<0||aw<0||h>20||aw>20)return say(ok,"Wpisz gole od 0 do 20 dla obu drużyn.",1);
     const {error}=await sb.from("predictions").upsert({user_id:S.user.id,match_id:id,home_goals:+h,away_goals:+aw,updated_at:new Date().toISOString()},{onConflict:"user_id,match_id"});
@@ -233,6 +317,12 @@ document.addEventListener("submit",async e=>{
   if(e.target.id=="nf"){const am=$("#am"),{error}=await sb.auth.updateUser({password:f.get("pw")});
     if(error)return say(am,plErr(error.message),1);
     S.mode="in";S.tab="mecze";history.replaceState(null,"",location.pathname);return load()}
+  if(e.target.id=="cf"){const inp=$("#ci"),msg=$("#cm"),body=inp.value.trim();
+    if(!body)return;
+    if(LINK_RE.test(body))return say(msg,"Linki i adresy stron są niedozwolone.",1);
+    const {error}=await sb.from("chat_messages").insert({user_id:S.user.id,body});
+    if(error)return say(msg,"Nie udało się wysłać. Odczekaj kilka sekund między wiadomościami albo sprawdź, czy nie jesteś wyciszony.",1);
+    inp.value="";say(msg,"");await loadChat();const el=$("#cl");if(el)el.scrollTop=el.scrollHeight}
   if(e.target.id=="mf"){const mm=$("#mm");S.ml=f.get("league");S.mr=f.get("round")||"";S.mk=f.get("kickoff")||"";
     const {error}=await sb.from("matches").insert({league_id:+f.get("league"),round:f.get("round")?+f.get("round"):null,home:f.get("home").trim(),away:f.get("away").trim(),kickoff:new Date(f.get("kickoff")).toISOString()});
     if(error)return say(mm,"Nie udało się dodać meczu.",1);await load();say($("#mm"),"Dodano.")}});
