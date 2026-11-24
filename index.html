@@ -205,6 +205,16 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .bcard .okb{font-weight:700;color:var(--green)}
 .bcard .meter{margin-top:4px}
 
+
+/* prognoza społeczności */
+.fc{margin-top:10px}
+.fc .fh{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute);margin-bottom:4px;font-weight:600}
+.fbar{display:flex;height:22px;border-radius:99px;overflow:hidden;background:var(--line)}
+.fbar i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;font-weight:700;min-width:0;white-space:nowrap;overflow:hidden}
+.fbar .fh1{background:var(--green);color:var(--gi)}.fbar .fd{background:#B7C3BB;color:var(--ink)}.fbar .fa1{background:var(--gold);color:var(--goldi)}
+.fleg{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute);margin-top:3px}
+.fleg span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fleg .c{text-align:center;flex:none}.fleg .r{text-align:right}
+
 /* czat */
 .chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:12px}
 .cl{height:min(60vh,520px);overflow-y:auto;padding:4px 4px 8px}
@@ -301,7 +311,7 @@ regulamin:`<h2>Regulamin konkursu „Typerkowo”</h2><p class="upd">Obowiązuje
 <li>Typować można mecze wprowadzone do Serwisu przez Organizatora: Premier League, La Liga, Serie A, Bundesliga, Ligue 1 i Ekstraklasa oraz europejskie puchary: Liga Mistrzów, Liga Europy i Liga Konferencji.</li>
 <li>Typ polega na wskazaniu liczby goli obu drużyn. Typ można dodać i zmieniać <b>do momentu rozpoczęcia meczu</b> wskazanego w Serwisie. Po rozpoczęciu meczu typ jest zablokowany.</li>
 <li>Typuje się wynik po regulaminowym czasie gry (90 minut z doliczonym czasem), bez dogrywki i rzutów karnych.</li>
-<li>Typy innych uczestników są widoczne dopiero po rozpoczęciu danego meczu.</li>
+<li>Typy innych uczestników są widoczne dopiero po rozpoczęciu danego meczu. Wcześniej zalogowani uczestnicy widzą wyłącznie zbiorczą, anonimową „prognozę społeczności”, czyli procentowy podział typów na zwycięstwo gospodarza, remis i zwycięstwo gości.</li>
 <li>Wyniki meczów wprowadza ręcznie Organizator na podstawie oficjalnych wyników rozgrywek. Organizator może poprawić wynik, jeśli zostanie wpisany błędnie. Punkty przeliczają się wtedy automatycznie.</li>
 <li>Jeśli mecz zostanie przełożony, Organizator zmienia termin w Serwisie, a typy pozostają ważne do nowego terminu. Jeśli mecz zostanie odwołany lub przerwany bez rozstrzygnięcia, jest anulowany i nie liczy się do rankingu.</li></ol>
 <h3>4. Punktacja i ranking</h3><ol>
@@ -375,7 +385,7 @@ const flagName=n=>flag((S.leagues.find(l=>l.name==n)||{}).code);
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:"",cOpen:new Set(),cData:{},cCount:{},cRep:{},cRepd:new Set(),cReply:{},cDraft:{},cRepList:[],fr:[],unread:{},dm:null,dmMsgs:[],notifs:[],bell:false,lv:{}};
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:"",cOpen:new Set(),cData:{},cCount:{},cRep:{},cRepd:new Set(),cReply:{},cDraft:{},cRepList:[],fr:[],unread:{},dm:null,dmMsgs:[],notifs:[],bell:false,lv:{},fc:{}};
 let tsTok=null,tsId=null;
 function tsSync(){tsTok=null;tsId=null;if(!$("#ts")||!CFG.turnstile)return;
   const go=()=>{if(!$("#ts")||tsId!==null)return;tsId=turnstile.render("#ts",{sitekey:CFG.turnstile,language:"pl",callback:t=>{tsTok=t},"expired-callback":()=>{tsTok=null},"error-callback":()=>{tsTok=null}})};
@@ -399,7 +409,7 @@ async function load(){
   if(S.tab=="ranking")await loadBoard();
   if(S.tab=="profil")await loadProfile();
   if(S.user)await Promise.all([loadFriends(),loadUnread(),loadNotifs()]);else{S.fr=[];S.unread={};S.notifs=[];S.dm=null;S.bell=false}
-  await loadCounts();
+  await Promise.all([loadCounts(),loadForecast()]);
   render();startSocial();
   S.cOpen.forEach(id=>loadComments(id));cPoll()}
 
@@ -530,7 +540,7 @@ function card(m){
   else if(open){mid=`<div class="fin none">– : –</div>`;bot=`<span class="sub">Zaloguj się, aby typować.</span><button data-act="login">Zaloguj</button>`}
   else{mid=`<div class="fin none">– : –</div>`;bot=`<span>${tt}</span><span class="pill">Czeka na wynik</span>`}
   const s=open?soon(m.kickoff):"",tag=s?`<span class="soon">${s}</span>`:"";
-  return`<div class="match${fin?" p"+p:""}"><div class="meta"><span><span class="time">${hm(m.kickoff)}</span>${m.round?"kolejka "+m.round:""}</span>${tag}</div><div class="row"><div class="team r">${esc(m.home)}</div>${mid}<div class="team">${esc(m.away)}</div></div><div class="res">${bot}</div>${cbar(m)}</div>`}
+  return`<div class="match${fin?" p"+p:""}"><div class="meta"><span><span class="time">${hm(m.kickoff)}</span>${m.round?"kolejka "+m.round:""}</span>${tag}</div><div class="row"><div class="team r">${esc(m.home)}</div>${mid}<div class="team">${esc(m.away)}</div></div><div class="res">${bot}</div><div id="fc${m.id}">${fcHTML(m)}</div>${cbar(m)}</div>`}
 
 /* ===== komentarze do meczów ===== */
 function cbar(m){
@@ -685,6 +695,21 @@ async function loadNotifs(){
   const {data,error}=await sb.from("notifications").select("id,type,actor_id,ref,created_at,read_at,actor:profiles!notifications_actor_id_fkey(nick),match:matches!notifications_ref_fkey(home,away,home_goals,away_goals)").order("created_at",{ascending:false}).limit(30);
   if(error)return;
   S.notifs=data||[];drawBell()}
+
+/* ===== prognoza społeczności ===== */
+const FC_MIN=3;                                         // od ilu typów pokazujemy podział
+async function loadForecast(){
+  if(!S.user||!S.matches.length)return;
+  const {data,error}=await sb.rpc("match_forecast",{ids:S.matches.map(m=>m.id)});
+  if(error)return;
+  S.fc={};(data||[]).forEach(r=>S.fc[r.match_id]={h:+r.home,d:+r.draw,a:+r.away})}
+function fcHTML(m){
+  if(!S.user||S.fc===null)return"";
+  const f=S.fc[m.id],n=f?f.h+f.d+f.a:0;
+  if(!f||n<FC_MIN)return`<div class="fc"><div class="fh"><span>Prognoza społeczności</span><span>${n?`${n} ${n==1?"typ":"typy"}`:"brak typów"}</span></div><p class="sub" style="font-size:12px;margin:0">Pokażemy podział, gdy zbierzemy co najmniej ${FC_MIN} typy.</p></div>`;
+  let ph=Math.round(f.h/n*100),pd=Math.round(f.d/n*100),pa=100-ph-pd;if(pa<0){pa=0;pd=100-ph}
+  const seg=(c,v)=>v?`<i class="${c}" style="width:${v}%">${v>=12?v+"%":""}</i>`:"";
+  return`<div class="fc"><div class="fh"><span>Prognoza społeczności</span><span>${n} typów</span></div><div class="fbar" role="img" aria-label="${esc(m.home)} ${ph}%, remis ${pd}%, ${esc(m.away)} ${pa}%">${seg("fh1",ph)}${seg("fd",pd)}${seg("fa1",pa)}</div><div class="fleg"><span>${esc(m.home)} ${ph}%</span><span class="c">Remis ${pd}%</span><span class="r">${esc(m.away)} ${pa}%</span></div></div>`}
 
 function admRow(m){
   const fin=m.home_goals!=null,ed=S.editing.has(m.id),lock=fin&&!ed,dis=lock?" disabled":"";
@@ -880,6 +905,7 @@ document.addEventListener("click",async e=>{
     if(h===""||aw===""||h<0||aw<0||h>20||aw>20)return say(ok,"Wpisz gole od 0 do 20 dla obu drużyn.",1);
     const {error}=await sb.from("predictions").upsert({user_id:S.user.id,match_id:id,home_goals:+h,away_goals:+aw,updated_at:new Date().toISOString()},{onConflict:"user_id,match_id"});
     if(error)return say(ok,"Nie udało się zapisać. Mecz mógł się już zacząć.",1);
+    loadForecast().then(()=>{const mm=S.matches.find(x=>x.id==id),el=$("#fc"+id);if(mm&&el)el.innerHTML=fcHTML(mm)});
     S.tips[id]={home_goals:+h,away_goals:+aw};return say(ok,"Zapisano. Możesz zmienić typ do startu meczu.")}
   if(a=="res"){const h=$("#rh"+id).value,aw=$("#ra"+id).value;
     if((h===""||aw==="")&&!(h===""&&aw===""))return alert("Wpisz wynik obu drużyn.");
