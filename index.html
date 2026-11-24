@@ -149,6 +149,12 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .meter{height:6px;border-radius:99px;background:var(--line);margin-top:10px;overflow:hidden}.meter i{display:block;height:100%;background:var(--green);border-radius:99px}
 .lt{display:grid;grid-template-columns:1fr auto auto auto;gap:6px 14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:6px;font-size:15px}
 .lt b{font-weight:700;overflow-wrap:anywhere}.lt .sub{margin:0;font-size:13px}
+.psearch{display:flex;gap:8px;margin-top:18px}.psearch input{flex:1;min-width:0;font-size:16px;padding:10px 12px}
+.psearch button{display:flex;align-items:center;gap:6px;padding:9px 14px}.psearch .ic{width:20px;height:20px}
+.pres{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pres button{background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:99px;padding:6px 14px}
+.nickb{background:none;color:inherit;padding:0;font:inherit;font-weight:700;border-radius:4px;cursor:pointer}.nickb:hover{text-decoration:underline}
+.back{margin-top:14px}
 .lt .mo{display:none}
 @media (max-width:520px){.lt{grid-template-columns:1fr auto}.lt .hide{display:none}.lt .mo{display:inline}}
 </style>
@@ -167,7 +173,7 @@ const PRIZES=[["1","Zwycięzca miesiąca","Karta podarunkowa 50 zł dla gracza z
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,scope:"month",bleague:"",err:"",ml:"",mr:"",mk:""};
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:""};
 let tsTok=null,tsId=null;
 function tsSync(){tsTok=null;tsId=null;if(!$("#ts")||!CFG.turnstile)return;
   const go=()=>{if(!$("#ts")||tsId!==null)return;tsId=turnstile.render("#ts",{sitekey:CFG.turnstile,language:"pl",callback:t=>{tsTok=t},"expired-callback":()=>{tsTok=null},"error-callback":()=>{tsTok=null}})};
@@ -194,10 +200,20 @@ async function load(){
 
 async function loadProfile(){
   if(!S.user){S.prof=null;return}
+  let who=S.me;
+  if(S.viewNick&&S.viewNick!=S.me?.nick){
+    const r=await sb.from("profiles").select("id,nick,created_at,is_admin,is_moderator").eq("nick",S.viewNick).maybeSingle();
+    who=r.data;if(!who){S.prof={user:null,rows:[],all:[],notfound:true};return}}
   const [t,al]=await Promise.all([
-    sb.from("predictions").select("home_goals,away_goals,matches(home,away,kickoff,home_goals,away_goals,round,league_id,leagues(name))").eq("user_id",S.user.id),
+    sb.from("predictions").select("home_goals,away_goals,matches(home,away,kickoff,home_goals,away_goals,round,league_id,leagues(name))").eq("user_id",who.id),
     sb.rpc("get_leaderboard",{p_league:null,p_from:null,p_to:null})]);
-  S.prof={rows:t.data||[],all:al.data||[],err:!!t.error}}
+  S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error}}
+async function openProfile(nick){S.viewNick=nick&&nick!=S.me?.nick?nick:null;S.tab="profil";S.prof=null;render();await loadProfile();render();window.scrollTo(0,0)}
+async function searchPlayers(q){
+  const t=q.trim().replace(/[%_\\,()]/g," ").trim();S.pq=q;
+  if(t.length<2){S.pres=[];S.pmsg="Wpisz co najmniej 2 znaki.";return render()}
+  const r=await sb.from("profiles").select("nick").ilike("nick","%"+t+"%").order("nick").limit(12);
+  S.pres=r.data||[];S.pmsg=r.error?"Nie udało się wyszukać.":(S.pres.length?"":"Nie znaleziono gracza o takim nicku.");render()}
 
 const pc=(a,b)=>b?Math.round(a/b*100):null;
 function profStats(){
@@ -207,21 +223,25 @@ function profStats(){
   let best=0,cur=0;calc.forEach(x=>{if(x.p>=3){cur++;best=Math.max(best,cur)}else cur=0});
   const lg={};calc.forEach(x=>{const k=x.matches.leagues?.name||"Inne";const o=lg[k]=lg[k]||{n:0,p:0,h:0,e:0};o.n++;o.p+=x.p;if(x.p>=3)o.h++;if(x.p==4)o.e++});
   return{calc,n,total,hit,exact,best,cur,lg,pending:(S.prof?.rows||[]).length-n}}
-function rankOf(arr){const i=arr.findIndex(r=>r.nick==S.me?.nick);return i<0||!arr[i].tips_count?`<span class="tv">–</span>`:`<span class="tv">${i+1}.</span> <small class="tl">z ${arr.length}</small>`}
+function rankOf(arr,nick){const i=arr.findIndex(r=>r.nick==nick);return i<0||!arr[i].tips_count?`<span class="tv">–</span>`:`<span class="tv">${i+1}.</span> <small class="tl">z ${arr.length}</small>`}
 function tile(v,l,bar){return`<div class="tile"><div class="tv">${v}</div><div class="tl">${l}</div>${bar!=null?`<div class="meter" aria-hidden="true"><i style="width:${bar}%"></i></div>`:""}</div>`}
 function profView(){
   if(!S.user)return`<div class="box"><h2>Profil</h2><p class="sub">Zaloguj się, aby zobaczyć swój profil i statystyki.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
-  if(!S.prof)return`<p class="sub" style="margin-top:18px">Wczytuję profil…</p>`;
-  const st=profStats(),me=S.me||{},since=me.created_at?new Date(me.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"",role=me.is_admin?`<span class="bdg o">Organizator</span>`:me.is_moderator?`<span class="bdg a">Administrator</span>`:"";
+  const sch=`<form id="pf" class="psearch" role="search"><input id="pq" name="q" type="search" maxlength="20" autocomplete="off" placeholder="Szukaj gracza po nicku" aria-label="Szukaj gracza po nicku" value="${esc(S.pq||"")}"><button type="submit" aria-label="Szukaj">${icon("lupa")}<span>Szukaj</span></button></form>`
+   +(S.pres?(S.pres.length?`<div class="pres">${S.pres.map(r=>`<button data-act="pview" data-nick="${esc(r.nick)}">${esc(r.nick)}</button>`).join("")}</div>`:`<p class="sub">${esc(S.pmsg||"")}</p>`):"");
+  if(!S.prof)return sch+`<p class="sub" style="margin-top:18px">Wczytuję profil…</p>`;
+  if(S.prof.notfound)return sch+`<p class="note" style="margin-top:18px">Nie ma takiego gracza.</p><button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
+  const own=S.prof.own,st=profStats(),me=S.prof.user||{},since=me.created_at?new Date(me.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"",role=me.is_admin?`<span class="bdg o">Organizator</span>`:me.is_moderator?`<span class="bdg a">Administrator</span>`:"";
   const head=`<div class="phead"><div class="av" aria-hidden="true">${esc((me.nick||"?").charAt(0).toUpperCase())}</div><div><h2>${esc(me.nick||"")}</h2><p class="sub">${since?"Gracz od "+esc(since)+" ":""}${role}</p></div></div>`;
-  const rank=`<h2 class="sec">Miejsce w rankingu</h2><div class="tiles"><div class="tile"><div>${rankOf(S.side)}</div><div class="tl">Ten miesiąc, ranking nagrodowy (wszystkie ligi)</div></div><div class="tile"><div>${rankOf(S.prof.all)}</div><div class="tl">Cały sezon</div></div></div>`;
-  if(!st.n)return head+rank+`<h2 class="sec">Statystyki</h2><p class="note">Nie masz jeszcze rozliczonych typów. Statystyki pojawią się po pierwszych zakończonych meczach.${st.pending?` Czeka na wynik: ${st.pending}.`:""}</p>`;
+  const backBtn=own?"":`<button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
+  const rank=`<h2 class="sec">Miejsce w rankingu</h2><div class="tiles"><div class="tile"><div>${rankOf(S.side,me.nick)}</div><div class="tl">Ten miesiąc, ranking nagrodowy (wszystkie ligi)</div></div><div class="tile"><div>${rankOf(S.prof.all,me.nick)}</div><div class="tl">Cały sezon</div></div></div>`;
+  if(!st.n)return sch+backBtn+head+rank+`<h2 class="sec">Statystyki</h2><p class="note">${own?"Nie masz jeszcze rozliczonych typów. Statystyki pojawią się po pierwszych zakończonych meczach.":"Ten gracz nie ma jeszcze rozliczonych typów."}${own&&st.pending?` Czeka na wynik: ${st.pending}.`:""}</p>`;
   const sk=pc(st.hit,st.n),dk=pc(st.exact,st.n);
-  const tiles=`<div class="tiles">${tile(st.total,"Zdobyte punkty")}${tile(sk+"<small>%</small>","Skuteczność (trafiony zwycięzca lub remis)",sk)}${tile(dk+"<small>%</small>","Dokładne wyniki",dk)}${tile((st.total/st.n).toFixed(2).replace(".",","),"Średnio punktów na typ")}${tile(st.n,"Rozliczone typy"+(st.pending?` (czeka na wynik: ${st.pending})`:""))}${tile(st.best,"Najlepsza seria trafień"+(st.cur?` (teraz: ${st.cur})`:""))}</div>`;
+  const tiles=`<div class="tiles">${tile(st.total,"Zdobyte punkty")}${tile(sk+"<small>%</small>","Skuteczność (trafiony zwycięzca lub remis)",sk)}${tile(dk+"<small>%</small>","Dokładne wyniki",dk)}${tile((st.total/st.n).toFixed(2).replace(".",","),"Średnio punktów na typ")}${tile(st.n,"Rozliczone typy"+(own&&st.pending?` (czeka na wynik: ${st.pending})`:""))}${tile(st.best,"Najlepsza seria trafień"+(st.cur?` (teraz: ${st.cur})`:""))}</div>`;
   const lgRows=Object.entries(st.lg).sort((a,b)=>b[1].p-a[1].p).map(([k,o])=>`<tr><td>${esc(k)}</td><td class="n">${o.n}</td><td class="n">${o.p}</td><td class="n">${pc(o.h,o.n)}%</td><td class="n">${o.e}</td></tr>`).join("");
   const lgT=`<h2 class="sec">Według lig</h2><div style="overflow-x:auto"><table><thead><tr><th>Liga</th><th class="n">Typy</th><th class="n">Pkt</th><th class="n">Skut.</th><th class="n">Dokł.</th></tr></thead><tbody>${lgRows}</tbody></table></div>`;
   const last=st.calc.slice(-8).reverse().map(x=>{const m=x.matches;return`<div class="lt"><div><b>${esc(m.home)} – ${esc(m.away)}</b><p class="sub">${esc(m.leagues?.name||"")}<span class="mo"> · typ ${x.home_goals}:${x.away_goals} · wynik ${m.home_goals}:${m.away_goals}</span></p></div><span class="hide">typ ${x.home_goals}:${x.away_goals}</span><span class="hide">wynik ${m.home_goals}:${m.away_goals}</span><span class="pill p${x.p}">+${x.p} pkt</span></div>`}).join("");
-  return head+rank+`<h2 class="sec">Statystyki</h2>`+tiles+`<p class="sub">Statystyki liczą się z rozegranych meczów, w których wpisano wynik.</p>`+lgT+`<h2 class="sec">Ostatnie typy</h2>`+last}
+  return sch+backBtn+head+rank+`<h2 class="sec">Statystyki</h2>`+tiles+`<p class="sub">Statystyki liczą się z rozegranych meczów, w których wpisano wynik.</p>`+lgT+`<h2 class="sec">${own?"Ostatnie typy":"Ostatnie typy gracza"}</h2>`+last}
 
 async function loadBoard(){
   const n=new Date();let from=null,to=null;
@@ -299,7 +319,7 @@ function chatMsg(m){
       const n=muteCount(m.user_id),next=[1,6,12,24][Math.min(n,3)],am=activeMute(m.user_id);
       acts+=am?`<span>Wyciszony do ${esc(fmtT(am.until))}</span><button class="lnk" data-act="unmute" data-uid="${m.user_id}">Zdejmij</button>`
         :`<select id="mt${m.id}" aria-label="Czas wyciszenia">${[1,6,12,24].map(h=>`<option value="${h}" ${h==next?"selected":""}>${h} h</option>`).join("")}</select><button class="lnk bad" data-act="mute" data-id="${m.id}" data-uid="${m.user_id}" data-nick="${esc(p.nick)}">Wycisz</button><span>wyciszany wcześniej: ${n}×</span>`}}
-  return`<div class="msg${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><b>${esc(p.nick||"?")}</b>${badge}<time>${esc(ts)}</time></div><div class="mb">${esc(m.body)}</div>${acts?`<div class="ma">${acts}</div>`:""}</div>`}
+  return`<div class="msg${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${badge}<time>${esc(ts)}</time></div><div class="mb">${esc(m.body)}</div>${acts?`<div class="ma">${acts}</div>`:""}</div>`}
 function drawChat(force,toBottom){
   const el=$("#cl");if(!el)return;
   const ae=document.activeElement;
@@ -351,6 +371,7 @@ const IC={
  chat:'<path d="M20.5 12a8 8 0 0 1-11.6 7.1L3.5 20.5l1.4-4.7A8 8 0 1 1 20.5 12z"/><path d="M8.5 11.5h7M8.5 14.5h4"/>',
  nagrody:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12"/><path d="M12 8C10.5 4 6.5 4.5 7.3 7c.4 1.2 2.7 1.2 4.7 1zM12 8c1.5-4 5.5-3.5 4.7-1-.4 1.2-2.7 1.2-4.7 1z"/>',
  zasady:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6"/>',
+lupa:'<circle cx="11" cy="11" r="7"/><path d="M20.5 20.5L16 16"/>',
 profil:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21c.4-4.2 3.5-6.5 7.5-6.5s7.1 2.3 7.5 6.5"/>',
  admin:'<path d="M12 3l8 3v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>'};
 const icon=k=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[k]||""}</svg>`;
@@ -369,9 +390,10 @@ function render(){
 document.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;const a=b.dataset.act,id=+b.dataset.id;
   if(b.dataset.lg!==undefined){S.league=b.dataset.lg;return render()}
-  if(b.dataset.tab){S.tab=b.dataset.tab;if(S.tab=="ranking")await loadBoard();if(S.tab=="profil"){S.prof=null;render();await loadProfile()}return render()}
+  if(b.dataset.tab){S.tab=b.dataset.tab;if(S.tab=="ranking")await loadBoard();if(S.tab=="profil"){S.viewNick=null;S.pq="";S.pres=null;S.prof=null;render();await loadProfile()}return render()}
   if(a=="login"||a=="reg"){S.tab="auth";S.mode=a=="reg"?"up":"in";return render()}
   if(a=="forgot"){S.tab="auth";S.mode="reset";return render()}
+  if(a=="pview")return openProfile(b.dataset.nick);
   if(a=="out"){S.prof=null;await sb.auth.signOut();return}
   if(a=="goprize"){S.scope="month";S.bleague="";await loadBoard();return render()}
   if(a=="onlyrep"){S.onlyRep=!S.onlyRep;return render()}
@@ -397,6 +419,7 @@ document.addEventListener("change",async e=>{
   if(e.target.id=="sc"||e.target.id=="lb"){S.scope=$("#sc").value;S.bleague=$("#lb").value;await loadBoard();render()}});
 document.addEventListener("submit",async e=>{
   e.preventDefault();const f=new FormData(e.target);
+  if(e.target.id=="pf")return searchPlayers(f.get("q")||"");
   if(e.target.id=="af"){const am=$("#am"),email=f.get("email").trim(),pw=f.get("pw");
     if(S.mode=="up"){const nick=(f.get("nick")||"").trim();if(!f.get("ok"))return say(am,"Zaznacz zgodę: 18+ i regulamin.",1);
       if(CFG.turnstile&&!tsTok)return say(am,"Potwierdź, że nie jesteś robotem.",1);
