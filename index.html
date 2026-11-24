@@ -451,8 +451,8 @@ function profStats(){
   return{calc,n,total,hit,exact,best,cur,lg,days,friends,chats,bestDay,perfect,bestExact,pending:(S.prof?.rows||[]).length-n}}
 /* ===== poziomy (XP) i osiągnięcia: wszystko do ustawienia w tym bloku ===== */
 const XP_TIP=10;                                        // XP za każdy wytypowany mecz
-const XP_DIFF={e:{n:"Łatwa",xp:50},m:{n:"Średnia",xp:200},h:{n:"Trudna",xp:750},l:{n:"Legendarna",xp:2000},x:{n:"Mistrzowska",xp:1500}};
-const xpFor=L=>50*L*(L-1);                              // XP potrzebne, by osiągnąć poziom L (1 = 0, 2 = 100, 3 = 300, 4 = 600 ...)
+const XP_DIFF={e:{n:"Łatwa",xp:50},m:{n:"Średnia",xp:200},h:{n:"Trudna",xp:750},l:{n:"Legendarna",xp:1500},x:{n:"Mistrzowska",xp:2000}};
+const xpFor=L=>60*L*(L-1);                              // XP potrzebne, by osiągnąć poziom L (1 = 0, 2 = 120, 3 = 360, 4 = 720 ...)
 const ACH_GROUPS=[
  {name:"Typowanie",meta:{ic:"🎖️",name:"Wirtuoz typowania",desc:"Zdobądź wszystkie odznaki z kategorii Typowanie"},items:[
   {ic:"🥅",name:"Pierwszy strzał",desc:"Pierwszy poprawny typ (trafiony zwycięzca lub remis)",d:"e",goal:1,f:st=>st.hit},
