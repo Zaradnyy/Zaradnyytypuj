@@ -199,6 +199,7 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .xpsrc{margin-top:6px;font-size:13px}
 .achg{font-size:14px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 0}
 .lvchip{font-size:13px;font-weight:700;background:var(--gold);color:var(--goldi);border-radius:99px;padding:2px 10px;vertical-align:middle}
+.lvchip.sm{font-size:11px;padding:0 7px;margin-left:2px}
 .dif{border-radius:99px;padding:1px 8px;font-size:12px;font-weight:700}
 .dif.e{background:#d6efdf;color:#17623a}.dif.m{background:#fbeab0;color:#6d5000}.dif.h{background:#ffd8c0;color:#9a3b00}.dif.l{background:#e4d4ff;color:#58279c}
 .bcard .okb{font-weight:700;color:var(--green)}
@@ -374,7 +375,7 @@ const flagName=n=>flag((S.leagues.find(l=>l.name==n)||{}).code);
 const sb=supabase.createClient(CFG.url,CFG.key);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:"",cOpen:new Set(),cData:{},cCount:{},cRep:{},cRepd:new Set(),cReply:{},cDraft:{},cRepList:[],fr:[],unread:{},dm:null,dmMsgs:[],notifs:[],bell:false};
+const S={user:null,me:null,tab:"mecze",mode:"in",league:"",leagues:[],matches:[],tips:{},board:[],side:[],chat:[],reports:{},reported:new Set(),mutes:[],myMute:null,onlyRep:false,viewNick:null,editing:new Set(),pq:"",pres:null,pmsg:"",scope:"month",bleague:"",err:"",ml:"",mr:"",mk:"",cOpen:new Set(),cData:{},cCount:{},cRep:{},cRepd:new Set(),cReply:{},cDraft:{},cRepList:[],fr:[],unread:{},dm:null,dmMsgs:[],notifs:[],bell:false,lv:{}};
 let tsTok=null,tsId=null;
 function tsSync(){tsTok=null;tsId=null;if(!$("#ts")||!CFG.turnstile)return;
   const go=()=>{if(!$("#ts")||tsId!==null)return;tsId=turnstile.render("#ts",{sitekey:CFG.turnstile,language:"pl",callback:t=>{tsTok=t},"expired-callback":()=>{tsTok=null},"error-callback":()=>{tsTok=null}})};
@@ -411,7 +412,8 @@ async function loadProfile(){
   const [t,al]=await Promise.all([
     sb.from("predictions").select("home_goals,away_goals,created_at,matches(home,away,kickoff,home_goals,away_goals,round,league_id,leagues(name))").eq("user_id",who.id),
     sb.rpc("get_leaderboard",{p_league:null,p_from:null,p_to:null})]);
-  S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error}}
+  await ensureLevels([who.id],true);const sv=S.lv[who.id];
+  S.prof={user:who,own:who.id==S.user.id,rows:t.data||[],all:al.data||[],err:!!t.error,srv:sv&&sv.tips?{tips:sv.tips,days:sv.days}:null}}
 async function openProfile(nick){S.viewNick=nick&&nick!=S.me?.nick?nick:null;S.tab="profil";S.prof=null;render();await loadProfile();render();window.scrollTo(0,0)}
 async function searchPlayers(q){
   const t=q.trim().replace(/[%_\\,()]/g," ").trim();S.pq=q;
@@ -426,7 +428,7 @@ function profStats(){
   const n=calc.length,total=calc.reduce((s,x)=>s+x.p,0),hit=calc.filter(x=>x.p>=3).length,exact=calc.filter(x=>x.p==4).length;
   let best=0,cur=0;calc.forEach(x=>{if(x.p>=3){cur++;best=Math.max(best,cur)}else cur=0});
   const lg={};calc.forEach(x=>{const k=x.matches.leagues?.name||"Inne";const o=lg[k]=lg[k]||{n:0,p:0,h:0,e:0};o.n++;o.p+=x.p;if(x.p>=3)o.h++;if(x.p==4)o.e++});
-  const days=new Set((S.prof?.rows||[]).filter(x=>x.created_at).map(x=>new Date(x.created_at).toLocaleDateString("sv-SE"))).size;
+  const days=S.prof?.srv?S.prof.srv.days:new Set((S.prof?.rows||[]).filter(x=>x.created_at).map(x=>new Date(x.created_at).toLocaleDateString("sv-SE"))).size;
   return{calc,n,total,hit,exact,best,cur,lg,days,pending:(S.prof?.rows||[]).length-n}}
 /* ===== poziomy (XP) i osiągnięcia: wszystko do ustawienia w tym bloku ===== */
 const XP_TIP=10;                                        // XP za każdy wytypowany mecz
@@ -445,11 +447,21 @@ const ACH_GROUPS=[
   {ic:"🏃",name:"Maratończyk",desc:"Typowanie przez 90 różnych dni",d:"h",goal:90,f:st=>st.days},
   {ic:"🏆",name:"Weteran",desc:"Typowanie przez 365 różnych dni",d:"l",goal:365,f:st=>st.days}]}
 ];
-function xpInfo(st){
-  const tips=(S.prof?.rows||[]).length,tipXp=tips*XP_TIP;let achXp=0,got=0,all=0;
+function calcXp(st,tips){
+  const tipXp=tips*XP_TIP;let achXp=0,got=0,all=0;
   ACH_GROUPS.forEach(g=>g.items.forEach(a=>{all++;if((a.f(st)||0)>=a.goal){got++;achXp+=XP_DIFF[a.d].xp}}));
   const xp=tipXp+achXp;let L=1;while(xp>=xpFor(L+1))L++;
   return{xp,tips,tipXp,achXp,got,all,L,from:xpFor(L),to:xpFor(L+1)}}
+function xpInfo(st){return calcXp(st,S.prof?.srv?S.prof.srv.tips:(S.prof?.rows||[]).length)}
+async function ensureLevels(ids,force){
+  const need=[...new Set(ids.filter(Boolean))].filter(i=>force||!S.lv[i]);if(!need.length)return;
+  const {data,error}=await sb.rpc("player_levels",{uids:need});if(error)return;
+  need.forEach(i=>{if(!S.lv[i])S.lv[i]={tips:0,hits:0,exacts:0,days:0}});
+  (data||[]).forEach(r=>S.lv[r.user_id]={tips:+r.tips,hits:+r.hits,exacts:+r.exacts,days:+r.days})}
+function lvTag(uid){
+  const r=S.lv[uid];if(!r)return"";
+  const x=calcXp({hit:r.hits,exact:r.exacts,days:r.days},r.tips);
+  return`<span class="lvchip sm" title="Poziom ${x.L}">poz. ${x.L}</span>`}
 function badgesHTML(st){
   const x=xpInfo(st),pctL=Math.round((x.xp-x.from)/(x.to-x.from)*100);
   const lvl=`<h2 class="sec">Poziom i doświadczenie</h2><div class="xpcard"><div class="lvbig" aria-label="Poziom ${x.L}"><small>poziom</small>${x.L}</div><div class="xpbody"><div class="xprow"><b>${x.xp} XP</b><span class="sub">do poziomu ${x.L+1}: ${x.to-x.xp} XP</span></div><div class="meter" aria-hidden="true"><i style="width:${pctL}%"></i></div><p class="sub xpsrc">Typy: ${x.tips} × ${XP_TIP} = ${x.tipXp} XP · Osiągnięcia: ${x.achXp} XP. Za każdy wytypowany mecz dostajesz ${XP_TIP} XP, a za osiągnięcia jednorazowy bonus.</p></div></div>`;
@@ -526,6 +538,7 @@ async function loadCounts(){
 async function loadComments(mid){
   const {data,error}=await sb.from("match_comments").select("id,user_id,parent_id,body,created_at,profiles(nick,is_admin,is_moderator)").eq("match_id",mid).order("created_at").limit(300);
   if(error)return;
+  await ensureLevels((data||[]).map(c=>c.user_id));
   S.cData[mid]=data||[];S.cCount[mid]=(data||[]).length;
   const ids=(data||[]).map(c=>c.id);
   if(ids.length){const rp=await sb.from("comment_reports").select("comment_id,reporter_id").in("comment_id",ids);
@@ -555,7 +568,7 @@ function cItem(mid,c,top){
     const n=muteCount(c.user_id),next=[1,6,12,24][Math.min(n,3)],am=activeMute(c.user_id);
     acts+=am?`<span>Wyciszony do ${esc(fmtT(am.until))}</span><button class="lnk" data-act="cunmute" data-uid="${c.user_id}" data-mid="${mid}">Zdejmij</button>`
       :`<select id="cmt${c.id}" aria-label="Czas wyciszenia">${[1,6,12,24].map(h=>`<option value="${h}" ${h==next?"selected":""}>${h} h</option>`).join("")}</select><button class="lnk bad" data-act="cmute" data-id="${c.id}" data-mid="${mid}" data-uid="${c.user_id}" data-nick="${esc(p.nick||"")}">Wycisz</button><span>wyciszany wcześniej: ${n}×</span>`}
-  return`<div class="cmt${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${badge}<time>${esc(ts)}</time></div><div class="mb">${body}</div><div class="ma">${acts}</div></div>`}
+  return`<div class="cmt${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${lvTag(c.user_id)}${badge}<time>${esc(ts)}</time></div><div class="mb">${body}</div><div class="ma">${acts}</div></div>`}
 function cList(mid){
   const all=S.cData[mid];
   if(!all)return`<p class="sub">Ładowanie komentarzy…</p>`;
@@ -696,6 +709,7 @@ async function loadChat(light){
   if(!S.user)return;
   const {data}=await sb.from("chat_messages").select("id,body,created_at,user_id,profiles(nick,is_admin,is_moderator)").order("created_at",{ascending:false}).limit(60);
   S.chat=(data||[]).reverse();
+  await ensureLevels(S.chat.map(m=>m.user_id),!light);
   if(!light){
     const now=new Date().toISOString();
     const mine=await sb.from("chat_mutes").select("until").eq("user_id",S.user.id).gt("until",now).order("until",{ascending:false}).limit(1);
@@ -726,7 +740,7 @@ function chatMsg(m){
       const n=muteCount(m.user_id),next=[1,6,12,24][Math.min(n,3)],am=activeMute(m.user_id);
       acts+=am?`<span>Wyciszony do ${esc(fmtT(am.until))}</span><button class="lnk" data-act="unmute" data-uid="${m.user_id}">Zdejmij</button>`
         :`<select id="mt${m.id}" aria-label="Czas wyciszenia">${[1,6,12,24].map(h=>`<option value="${h}" ${h==next?"selected":""}>${h} h</option>`).join("")}</select><button class="lnk bad" data-act="mute" data-id="${m.id}" data-uid="${m.user_id}" data-nick="${esc(p.nick)}">Wycisz</button><span>wyciszany wcześniej: ${n}×</span>`}}
-  return`<div class="msg${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${badge}<time>${esc(ts)}</time></div><div class="mb">${esc(m.body)}</div>${acts?`<div class="ma">${acts}</div>`:""}</div>`}
+  return`<div class="msg${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${lvTag(m.user_id)}${badge}<time>${esc(ts)}</time></div><div class="mb">${esc(m.body)}</div>${acts?`<div class="ma">${acts}</div>`:""}</div>`}
 function drawChat(force,toBottom){
   const el=$("#cl");if(!el)return;
   const ae=document.activeElement;
