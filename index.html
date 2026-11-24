@@ -819,8 +819,8 @@ const isStaff=()=>!!(S.me?.is_admin||S.me?.is_moderator);
 const fmtT=t=>new Date(t).toLocaleString("pl-PL",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"});
 async function loadChat(light){
   if(!S.user)return;
-  let {data,error}=await sb.from("chat_messages").select("id,body,created_at,user_id,deleted_at,profiles(nick,is_admin,is_moderator,avatar_emoji,avatar_color)").order("created_at",{ascending:false}).limit(60);
-  if(error){console.warn("chat: brak nowych kolumn, uruchom typer-usuwanie.sql i typer-profil.sql",error.message);({data}=await sb.from("chat_messages").select("id,body,created_at,user_id,profiles(nick,is_admin,is_moderator)").order("created_at",{ascending:false}).limit(60))}
+  let {data,error}=await sb.from("chat_messages").select("id,body,created_at,user_id,deleted_at,profiles!user_id(nick,is_admin,is_moderator,avatar_emoji,avatar_color)").order("created_at",{ascending:false}).limit(60);
+  if(error){console.warn("chat: brak nowych kolumn, uruchom typer-usuwanie.sql i typer-profil.sql",error.message);({data}=await sb.from("chat_messages").select("id,body,created_at,user_id,profiles!user_id(nick,is_admin,is_moderator)").order("created_at",{ascending:false}).limit(60))}
   S.chat=(data||[]).reverse();
   await ensureLevels(S.chat.map(m=>m.user_id),!light);
   if(!light){
