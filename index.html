@@ -219,6 +219,24 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 .fleg{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute);margin-top:3px}
 .fleg span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fleg .c{text-align:center;flex:none}.fleg .r{text-align:right}
 
+
+/* awatary i personalizacja profilu */
+.avs{display:inline-grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--goldi);font:800 13px "Bricolage Grotesque",sans-serif;line-height:1;vertical-align:middle;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--green) 70%,transparent);overflow:hidden}
+.avs.lg{width:64px;height:64px;font-size:32px;box-shadow:inset 0 0 0 4px var(--green)}
+.avs.md{width:34px;height:34px;font-size:17px}
+.mh .avs,.fitem .avs,.frreq .avs{align-self:center}
+.avedit{display:flex;gap:14px;align-items:center;margin:6px 0 4px}
+.emg,.colg{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.emg button{width:42px;height:42px;font-size:22px;border-radius:10px;background:var(--bg);border:2px solid transparent;padding:0;color:inherit}
+.emg button[aria-pressed="true"]{border-color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent)}
+.colg button{width:34px;height:34px;border-radius:50%;padding:0;border:3px solid var(--card);box-shadow:0 0 0 1px var(--line)}
+.colg button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--green)}
+.kbox textarea{width:100%;max-width:520px;font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);resize:vertical}
+.kbox select{max-width:380px;width:100%}
+.pabout{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-top:10px}
+.pabout .pb{margin:0 0 8px;overflow-wrap:anywhere;white-space:pre-wrap}.pabout .pchips{display:flex;gap:8px;flex-wrap:wrap}
+.pabout .pchip{background:var(--bg);border-radius:99px;padding:4px 12px;font-size:14px;font-weight:600}
+
 /* czat */
 .chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:12px}
 .cl{height:min(60vh,520px);overflow-y:auto;padding:4px 4px 8px}
@@ -335,9 +353,10 @@ regulamin:`<h2>Regulamin konkursu „Typerkowo”</h2><p class="upd">Obowiązuje
 <li>Organizator rozpatruje reklamację w ciągu 14 dni od jej otrzymania i informuje zgłaszającego o decyzji. Decyzja Organizatora jest ostateczna w zakresie przyznania punktów i nagrody, z zachowaniem praw wynikających z przepisów prawa.</li></ol>
 <h3>7. Czat, znajomi i profile graczy</h3><ol>
 <li>Serwis udostępnia zalogowanym uczestnikom ogólny czat oraz możliwość komentowania meczów (komentarz główny i odpowiedzi pod nim). Wiadomość na czacie może mieć do 300 znaków, a komentarz do 500 znaków. Wiadomości i komentarze są widoczne dla wszystkich zalogowanych uczestników. Uczestnicy mogą ponadto zapraszać się nawzajem do grona znajomych i wymieniać wiadomości prywatne (do 500 znaków) wyłącznie ze znajomymi, którzy zaakceptowali zaproszenie. Wiadomości prywatne są widoczne tylko dla nadawcy i odbiorcy, a zasady z pkt 7.2 obowiązują także w nich.</li>
-<li>Na czacie i w komentarzach do meczów zabronione są: wulgaryzmy i treści obraźliwe, hejt i groźby, treści dyskryminujące, spam i reklamy, linki oraz adresy stron internetowych, treści naruszające prawo lub prawa osób trzecich oraz ujawnianie danych osobowych (własnych i cudzych).</li>
+<li>Na czacie, w komentarzach do meczów, w wiadomościach prywatnych oraz w opisie profilu zabronione są: wulgaryzmy i treści obraźliwe, hejt i groźby, treści dyskryminujące, spam i reklamy, linki oraz adresy stron internetowych, treści naruszające prawo lub prawa osób trzecich oraz ujawnianie danych osobowych (własnych i cudzych).</li>
 <li>Uczestnik może zgłosić wiadomość lub komentarz przyciskiem „Zgłoś”. Zgłoszenia rozpatruje Organizator oraz osoby z rangą „Administrator”, czyli moderatorzy wyznaczeni przez Organizatora.</li>
 <li>Moderatorzy mogą usuwać wiadomości i komentarze naruszające regulamin (usunięcie komentarza głównego usuwa także odpowiedzi pod nim), a autor może usunąć własny komentarz. Organizator może czasowo wyciszyć uczestnika (na 1, 6, 12 lub 24 godziny), w czasie którego uczestnik nie może pisać na czacie ani komentować meczów. Za kolejne naruszenia wyciszenia mogą być dłuższe. W przypadku poważnych lub powtarzających się naruszeń Organizator może wykluczyć uczestnika zgodnie z pkt 2.5.</li>
+<li>Uczestnik może spersonalizować swój profil: wybrać awatar (emoji i kolor tła), dodać krótki opis (do 160 znaków), ulubioną drużynę i ligę. Są to dane dobrowolne i widoczne dla innych uczestników. Organizator i Administratorzy mogą wyczyścić awatar lub opis naruszający regulamin.</li>
 <li>Nick, statystyki (m.in. punkty, skuteczność i miejsce w rankingu) oraz typy z rozpoczętych meczów są widoczne w Serwisie dla innych uczestników, także w profilu gracza. Adres e-mail nie jest widoczny dla innych uczestników.</li>
 <li>W zakładce „Konto” uczestnik może zmienić nick (raz na 30 dni), adres e-mail i hasło oraz samodzielnie usunąć konto.</li></ol>
 <h3>8. Dane osobowe</h3><p>Zasady przetwarzania danych osobowych opisuje <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>
@@ -356,6 +375,7 @@ polityka:`<h2>Polityka prywatności</h2><p class="upd">Obowiązuje od 1 grudnia 
 <tr><td>Adres e-mail zwycięzcy</td><td>Przekazanie nagrody, kontakt</td><td>Art. 6 ust. 1 lit. b</td></tr>
 <tr><td>Dane techniczne (np. adres IP, dziennik zdarzeń)</td><td>Bezpieczeństwo Serwisu i zapobieganie nadużyciom</td><td>Art. 6 ust. 1 lit. f (prawnie uzasadniony interes)</td></tr>
 <tr><td>Treść korespondencji i reklamacji</td><td>Obsługa zgłoszeń</td><td>Art. 6 ust. 1 lit. f</td></tr>
+<tr><td>Awatar (emoji i kolor), opis profilu, ulubiona drużyna i liga (dobrowolne)</td><td>Personalizacja profilu widocznego dla innych uczestników</td><td>Art. 6 ust. 1 lit. a (zgoda, podanie tych danych jest dobrowolne i możesz je w każdej chwili usunąć lub zmienić w zakładce „Konto”)</td></tr>
 <tr><td>Wiadomości na czacie, komentarze do meczów, lista znajomych, wiadomości prywatne, zgłoszenia, informacje o wyciszeniach</td><td>Prowadzenie czatu i komentarzy, moderacja, ochrona uczestników</td><td>Art. 6 ust. 1 lit. f</td></tr>
 <tr><td>Statystyki profilu (np. skuteczność typów, miejsce w rankingu)</td><td>Wyświetlanie profilu gracza w Serwisie</td><td>Art. 6 ust. 1 lit. b</td></tr>
 </tbody></table></div>
@@ -423,7 +443,7 @@ async function loadProfile(){
   if(!S.user){S.prof=null;return}
   let who=S.me;
   if(S.viewNick&&S.viewNick!=S.me?.nick){
-    const r=await sb.from("profiles").select("id,nick,created_at,is_admin,is_moderator").eq("nick",S.viewNick).maybeSingle();
+    const r=await sb.from("profiles").select("id,nick,created_at,is_admin,is_moderator,avatar_emoji,avatar_color,bio,fav_team,fav_league").eq("nick",S.viewNick).maybeSingle();
     who=r.data;if(!who){S.prof={user:null,rows:[],all:[],notfound:true};return}}
   const [t,al]=await Promise.all([
     sb.from("predictions").select("home_goals,away_goals,created_at,matches(home,away,kickoff,home_goals,away_goals,round,league_id,leagues(name))").eq("user_id",who.id),
@@ -434,7 +454,7 @@ async function openProfile(nick){S.viewNick=nick&&nick!=S.me?.nick?nick:null;S.t
 async function searchPlayers(q){
   const t=q.trim().replace(/[%_\\,()]/g," ").trim();S.pq=q;
   if(t.length<2){S.pres=[];S.pmsg="Wpisz co najmniej 2 znaki.";return render()}
-  const r=await sb.from("profiles").select("id,nick").ilike("nick","%"+t+"%").order("nick").limit(12);
+  const r=await sb.from("profiles").select("id,nick,avatar_emoji,avatar_color").ilike("nick","%"+t+"%").order("nick").limit(12);
   S.pres=(r.data||[]).filter(x=>x.id!=S.user.id);S.pmsg=r.error?"Nie udało się wyszukać.":(S.pres.length?"":"Nie znaleziono gracza o takim nicku.");render()}
 
 const pc=(a,b)=>b?Math.round(a/b*100):null;
@@ -509,6 +529,33 @@ function badgesHTML(st){
     return`<div class="bcard${ok?" on":""}"><div class="bi" aria-hidden="true">${a.ic}</div><div class="bl"><span class="dif ${a.d}">${df.n}</span> +${df.xp} XP</div><div class="bn">${esc(a.name)}</div><div class="bnext sub">${esc(a.desc)}</div>${ok?`<div class="okb">✓ Zdobyte</div>`:`<div class="meter" aria-hidden="true"><i style="width:${Math.round(v/gl*100)}%"></i></div><div class="bnext sub">${v}/${gl}</div>`}</div>`}).join("")}</div>`).join("");
   return lvl+`<h2 class="sec">Osiągnięcia <small class="sub">(${x.got}/${x.all})</small></h2>`+groups}
 
+/* ===== awatary i personalizacja profilu ===== */
+const AV_EMOJI=["⚽","🥅","🏆","🥇","🔥","⚡","🎯","🧤","👟","🏟️","🎽","📣","🦁","🐯","🦅","🐺","🐻","🦊","🐉","🦄","🐙","🦈","🐸","🐧","🦉","👑","💎","🚀","🌟","😎","🤓","🥳","😈","🤠","👽","🤖","🧠","💪","🍀","🎩"];
+const AV_COLORS=["#1E6B45","#F2C230","#D94B3D","#2F6FDE","#7B4FD6","#EE8A2B","#1AA39A","#E0568F","#2E3A34","#5CB8E6"];
+function avHTML(p,cls){
+  const e=p&&p.avatar_emoji,c=p&&p.avatar_color,letter=((p&&p.nick)||"?").charAt(0).toUpperCase();
+  const dark=c&&["#1E6B45","#D94B3D","#2F6FDE","#7B4FD6","#2E3A34","#E0568F","#1AA39A"].includes(c);
+  return`<span class="avs${cls?" "+cls:""}" style="${c?`background:${esc(c)};${dark?"color:#fff":""}`:""}" aria-hidden="true">${esc(e||letter)}</span>`}
+function drawPed(){
+  const ped=S.ped||{emoji:"",color:""},prev=$("#avprev");
+  if(prev)prev.innerHTML=avHTML({nick:S.me?.nick,avatar_emoji:ped.emoji,avatar_color:ped.color},"lg");
+  document.querySelectorAll("[data-emo]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.emo==ped.emoji)));
+  document.querySelectorAll("[data-col]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.col==ped.color)))}
+function profEditForm(){
+  const me=S.me||{};S.ped=S.ped||{emoji:me.avatar_emoji||"",color:me.avatar_color||""};
+  return`<form id="ppf" class="kbox"><h3>Wygląd profilu</h3><p class="sub">Awatar, opis i ulubiona drużyna są widoczne dla wszystkich graczy. Wszystko jest dobrowolne.</p>
+   <div class="avedit"><span id="avprev">${avHTML({nick:me.nick,avatar_emoji:S.ped.emoji,avatar_color:S.ped.color},"lg")}</span><button type="button" class="ghost" data-act="avreset">Usuń awatar</button></div>
+   <label>Awatar</label><div class="emg">${AV_EMOJI.map(e=>`<button type="button" data-emo="${e}" aria-pressed="${e==S.ped.emoji}" aria-label="Emoji ${e}">${e}</button>`).join("")}</div>
+   <label>Kolor tła awatara</label><div class="colg">${AV_COLORS.map(c=>`<button type="button" data-col="${c}" style="background:${c}" aria-pressed="${c==S.ped.color}" aria-label="Kolor ${c}"></button>`).join("")}</div>
+   <label for="kb">O mnie (do 160 znaków, bez linków)</label><textarea id="kb" name="bio" rows="3" maxlength="160">${esc(me.bio||"")}</textarea>
+   <label for="kt">Ulubiona drużyna</label><input id="kt" name="team" maxlength="40" autocomplete="off" value="${esc(me.fav_team||"")}">
+   <label for="kl">Ulubiona liga</label><select id="kl" name="league"><option value="">Brak</option>${S.leagues.map(l=>`<option value="${esc(l.code)}"${me.fav_league==l.code?" selected":""}>${esc(l.name)}</option>`).join("")}</select>
+   <p id="mpp" class="err" role="status"></p><button type="submit">Zapisz profil</button></form>`}
+function profAbout(me,own){
+  const lg=S.leagues.find(l=>l.code==me.fav_league);
+  if(!me.bio&&!me.fav_team&&!lg)return own?`<div class="pabout"><p class="sub" style="margin:0">Dodaj awatar, opis i ulubioną drużynę, żeby inni lepiej Cię poznali. <button class="lnk" data-act="editprof">Edytuj profil</button></p></div>`:"";
+  return`<div class="pabout">${me.bio?`<p class="pb">${esc(me.bio)}</p>`:""}<div class="pchips">${me.fav_team?`<span class="pchip">❤️ ${esc(me.fav_team)}</span>`:""}${lg?`<span class="pchip">${flag(lg.code)}${esc(lg.name)}</span>`:""}</div></div>`}
+
 function rankOf(arr,nick){const i=arr.findIndex(r=>r.nick==nick);return i<0||!arr[i].tips_count?`<span class="tv">–</span>`:`<span class="tv">${i+1}.</span> <small class="tl">z ${arr.length}</small>`}
 function tile(v,l,bar){return`<div class="tile"><div class="tv">${v}</div><div class="tl">${l}</div>${bar!=null?`<div class="meter" aria-hidden="true"><i style="width:${bar}%"></i></div>`:""}</div>`}
 function kontoView(){
@@ -516,7 +563,8 @@ function kontoView(){
   const me=S.me||{},since=me.created_at?new Date(me.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"",ch=me.nick_changed_at?new Date(new Date(me.nick_changed_at).getTime()+30*864e5):null,wait=ch&&ch>Date.now()?ch.toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"";
   return`<h2 class="sec" style="margin-top:18px">Moje konto</h2>
   <div class="kbox"><h3>Dane konta</h3><div class="row2"><span>E-mail</span><b>${esc(S.user.email||"")}</b></div><div class="row2"><span>Nick</span><b>${esc(me.nick||"")}</b></div>${since?`<div class="row2"><span>Konto od</span><b>${esc(since)}</b></div>`:""}
-   <p class="sub">Nick, statystyki i typy z rozpoczętych meczów są widoczne dla innych graczy. Adresu e-mail nikt poza Tobą nie widzi.</p></div>
+   <p class="sub">Nick, awatar, opis profilu, statystyki i typy z rozpoczętych meczów są widoczne dla innych graczy. Adresu e-mail nikt poza Tobą nie widzi.</p></div>
+  ${profEditForm()}
   <form id="nkf" class="kbox"><h3>Zmień nick</h3><p class="sub">3–20 znaków, widoczny w rankingu i na czacie. Zmiana możliwa raz na 30 dni.${wait?` Najbliższa zmiana: od ${esc(wait)}.`:""}</p>
    <label for="kn">Nowy nick</label><input id="kn" name="nick" minlength="3" maxlength="20" required autocomplete="off"><p id="mn" class="err" role="status"></p><button type="submit">Zapisz nick</button></form>
   <form id="emf" class="kbox"><h3>Zmień e-mail</h3><p class="sub">Wyślemy link potwierdzający. Adres zmieni się dopiero po jego kliknięciu.</p>
@@ -532,7 +580,7 @@ function profView(){
   if(!S.prof)return sch+`<p class="sub" style="margin-top:18px">Wczytuję profil…</p>`;
   if(S.prof.notfound)return sch+`<p class="note" style="margin-top:18px">Nie ma takiego gracza.</p><button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
   const own=S.prof.own,st=profStats(),me=S.prof.user||{},since=me.created_at?new Date(me.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"",role=me.is_admin?`<span class="bdg o">Organizator</span>`:me.is_moderator?`<span class="bdg a">Administrator</span>`:"";
-  const head=`<div class="phead"><div class="av" aria-hidden="true">${esc((me.nick||"?").charAt(0).toUpperCase())}</div><div><h2>${esc(me.nick||"")} <span class="lvchip" title="Poziom">poz. ${xpInfo(profStats()).L}</span></h2><p class="sub">${since?"Gracz od "+esc(since)+" ":""}${role}</p></div>${own?"":`<div class="pact">${friendBtn(me.id,me.nick)}</div>`}</div>`;
+  const head=`<div class="phead">${avHTML(me,"lg")}<div><h2>${esc(me.nick||"")} <span class="lvchip" title="Poziom">poz. ${xpInfo(profStats()).L}</span></h2><p class="sub">${since?"Gracz od "+esc(since)+" ":""}${role}</p></div><div class="pact">${own?`<button class="ghost" data-act="editprof">Edytuj profil</button>`:friendBtn(me.id,me.nick)}</div></div>${profAbout(me,own)}${!own&&isStaff()&&!me.is_admin&&(me.bio||me.avatar_emoji||me.fav_team)?`<p><button class="lnk bad" data-act="preset" data-uid="${me.id}">Wyczyść awatar i opis (moderacja)</button></p>`:""}`;
   const backBtn=own?"":`<button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
   const rank=`<h2 class="sec">Miejsce w rankingu</h2><div class="tiles"><div class="tile"><div>${rankOf(S.side,me.nick)}</div><div class="tl">Ten miesiąc, ranking nagrodowy (wszystkie ligi)</div></div><div class="tile"><div>${rankOf(S.prof.all,me.nick)}</div><div class="tl">Cały sezon</div></div></div>`;
   if(!st.n)return sch+backBtn+head+rank+badgesHTML(st)+`<h2 class="sec">Statystyki</h2><p class="note">${own?"Nie masz jeszcze rozliczonych typów. Statystyki pojawią się po pierwszych zakończonych meczach.":"Ten gracz nie ma jeszcze rozliczonych typów."}${own&&st.pending?` Czeka na wynik: ${st.pending}.`:""}</p>`;
@@ -576,7 +624,7 @@ async function loadCounts(){
   const {data}=await sb.rpc("comment_counts",{ids:S.matches.map(m=>m.id)});
   if(data){S.cCount={};data.forEach(r=>S.cCount[r.match_id]=+r.n)}}
 async function loadComments(mid){
-  const {data,error}=await sb.from("match_comments").select("id,user_id,parent_id,body,created_at,profiles(nick,is_admin,is_moderator)").eq("match_id",mid).order("created_at").limit(300);
+  const {data,error}=await sb.from("match_comments").select("id,user_id,parent_id,body,created_at,profiles(nick,is_admin,is_moderator,avatar_emoji,avatar_color)").eq("match_id",mid).order("created_at").limit(300);
   if(error)return;
   await ensureLevels((data||[]).map(c=>c.user_id));
   S.cData[mid]=data||[];S.cCount[mid]=(data||[]).length;
@@ -608,7 +656,7 @@ function cItem(mid,c,top){
     const n=muteCount(c.user_id),next=[1,6,12,24][Math.min(n,3)],am=activeMute(c.user_id);
     acts+=am?`<span>Wyciszony do ${esc(fmtT(am.until))}</span><button class="lnk" data-act="cunmute" data-uid="${c.user_id}" data-mid="${mid}">Zdejmij</button>`
       :`<select id="cmt${c.id}" aria-label="Czas wyciszenia">${[1,6,12,24].map(h=>`<option value="${h}" ${h==next?"selected":""}>${h} h</option>`).join("")}</select><button class="lnk bad" data-act="cmute" data-id="${c.id}" data-mid="${mid}" data-uid="${c.user_id}" data-nick="${esc(p.nick||"")}">Wycisz</button><span>wyciszany wcześniej: ${n}×</span>`}
-  return`<div class="cmt${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${lvTag(c.user_id)}${badge}<time>${esc(ts)}</time></div><div class="mb">${body}</div><div class="ma">${acts}</div></div>`}
+  return`<div class="cmt${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh">${avHTML(p)}<button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${lvTag(c.user_id)}${badge}<time>${esc(ts)}</time></div><div class="mb">${body}</div><div class="ma">${acts}</div></div>`}
 function cList(mid){
   const all=S.cData[mid];
   if(!all)return`<p class="sub">Ładowanie komentarzy…</p>`;
@@ -645,9 +693,9 @@ function drawCRep(){
 let soTimer=null,soCh=null,dmShown=false;
 async function loadFriends(){
   if(!S.user){S.fr=[];return}
-  const {data,error}=await sb.from("friendships").select("id,requester_id,addressee_id,status,requester:profiles!friendships_requester_id_fkey(id,nick),addressee:profiles!friendships_addressee_id_fkey(id,nick)");
+  const {data,error}=await sb.from("friendships").select("id,requester_id,addressee_id,status,requester:profiles!friendships_requester_id_fkey(id,nick,avatar_emoji,avatar_color),addressee:profiles!friendships_addressee_id_fkey(id,nick,avatar_emoji,avatar_color)");
   if(error)return;
-  S.fr=(data||[]).map(r=>{const rq=r.requester_id==S.user.id,o=rq?r.addressee:r.requester;return{id:r.id,status:r.status,incoming:!rq,uid:rq?r.addressee_id:r.requester_id,nick:o?.nick||"?"}})}
+  S.fr=(data||[]).map(r=>{const rq=r.requester_id==S.user.id,o=rq?r.addressee:r.requester;return{id:r.id,status:r.status,incoming:!rq,uid:rq?r.addressee_id:r.requester_id,nick:o?.nick||"?",p:o||null}})}
 const frOf=uid=>S.fr.find(f=>f.uid==uid);
 async function loadUnread(){
   if(!S.user){S.unread={};return}
@@ -680,18 +728,18 @@ function friendsListHTML(){
   const acc=S.fr.filter(f=>f.status=="accepted").sort((a,b)=>(S.unread[b.uid]||0)-(S.unread[a.uid]||0)||a.nick.localeCompare(b.nick,"pl")),
     inc=S.fr.filter(f=>f.status=="pending"&&f.incoming),out=S.fr.filter(f=>f.status=="pending"&&!f.incoming);
   let h="";
-  if(inc.length)h+=`<h3>Zaproszenia (${inc.length})</h3>`+inc.map(f=>`<div class="frreq"><button class="nickb" data-act="pview" data-nick="${esc(f.nick)}">${esc(f.nick)}</button><span class="ab"><button data-act="facc" data-id="${f.id}">Akceptuj</button><button class="ghost" data-act="fdec" data-id="${f.id}">Odrzuć</button></span></div>`).join("");
-  h+=`<h3>Znajomi (${acc.length})</h3>`+(acc.length?acc.map(f=>`<button class="fitem" data-act="dmopen" data-uid="${f.uid}" data-nick="${esc(f.nick)}" aria-current="${S.dm&&S.dm.id==f.uid}">${esc(f.nick)}${S.unread[f.uid]?`<i class="nbadge">${S.unread[f.uid]}</i>`:""}</button>`).join(""):`<p class="sub">Nie masz jeszcze znajomych.</p>`);
+  if(inc.length)h+=`<h3>Zaproszenia (${inc.length})</h3>`+inc.map(f=>`<div class="frreq"><span style="display:flex;gap:8px;align-items:center">${avHTML({...f.p,nick:f.nick})}<button class="nickb" data-act="pview" data-nick="${esc(f.nick)}">${esc(f.nick)}</button></span><span class="ab"><button data-act="facc" data-id="${f.id}">Akceptuj</button><button class="ghost" data-act="fdec" data-id="${f.id}">Odrzuć</button></span></div>`).join("");
+  h+=`<h3>Znajomi (${acc.length})</h3>`+(acc.length?acc.map(f=>`<button class="fitem" data-act="dmopen" data-uid="${f.uid}" data-nick="${esc(f.nick)}" aria-current="${S.dm&&S.dm.id==f.uid}">${avHTML({...f.p,nick:f.nick},"md")}${esc(f.nick)}${S.unread[f.uid]?`<i class="nbadge">${S.unread[f.uid]}</i>`:""}</button>`).join(""):`<p class="sub">Nie masz jeszcze znajomych.</p>`);
   if(out.length)h+=`<h3>Wysłane zaproszenia</h3>`+out.map(f=>`<div class="frreq"><button class="nickb" data-act="pview" data-nick="${esc(f.nick)}">${esc(f.nick)}</button><button class="ghost" data-act="fdec" data-id="${f.id}">Anuluj</button></div>`).join("");
   return h}
 function drawFriendsList(){const el=$("#frl");if(el)el.innerHTML=friendsListHTML()}
 function dmHTML(){
   if(!S.dm)return`<p class="sub" style="padding:8px">Wybierz znajomego z listy, aby napisać wiadomość. Nowych znajomych znajdziesz wyszukiwarką powyżej albo klikając nick na czacie lub w rankingu.</p>`;
-  return`<div class="dmhead"><span><button class="ghost dmback" data-act="dmback">← Lista</button> <button class="nickb" data-act="pview" data-nick="${esc(S.dm.nick)}" style="font-size:18px">${esc(S.dm.nick)}</button></span><button class="lnk bad" data-act="funf" data-id="${(frOf(S.dm.id)||{}).id}" data-uid="${S.dm.id}" data-nick="${esc(S.dm.nick)}">Usuń ze znajomych</button></div>
+  return`<div class="dmhead"><span style="display:flex;gap:8px;align-items:center"><button class="ghost dmback" data-act="dmback">← Lista</button>${avHTML({...(frOf(S.dm.id)||{}).p,nick:S.dm.nick},"md")}<button class="nickb" data-act="pview" data-nick="${esc(S.dm.nick)}" style="font-size:18px">${esc(S.dm.nick)}</button></span><button class="lnk bad" data-act="funf" data-id="${(frOf(S.dm.id)||{}).id}" data-uid="${S.dm.id}" data-nick="${esc(S.dm.nick)}">Usuń ze znajomych</button></div>
   <div id="dl" class="dml" aria-live="polite"></div><form id="df" class="cf"><input id="di" data-key="dm" maxlength="500" autocomplete="off" placeholder="Napisz wiadomość do ${esc(S.dm.nick)}" aria-label="Wiadomość prywatna" value="${esc(S.cDraft.dm||"")}"><button type="submit">Wyślij</button></form><p id="dme" class="err"></p>`}
 function friendsView(){
   if(!S.user)return`<div class="box"><h2>Znajomi</h2><p class="sub">Zaloguj się, aby dodawać znajomych i pisać z nimi.</p><button data-act="login">Zaloguj się</button> <button class="ghost" data-act="reg">Załóż konto</button></div>`;
-  return`<h2 class="sec" style="margin-top:18px">Znajomi</h2><p class="sub">Wiadomości prywatne możesz wymieniać tylko ze znajomymi. Zaproszenie musi zostać zaakceptowane. Bez linków, wulgaryzmów i reklam.</p>${S.dm?"":""}<form id="pf" class="psearch" role="search"><input id="pq" name="q" type="search" maxlength="20" autocomplete="off" placeholder="Szukaj gracza po nicku, aby dodać go do znajomych" aria-label="Szukaj gracza po nicku" value="${esc(S.pq||"")}"><button type="submit" aria-label="Szukaj">${icon("lupa")}<span>Szukaj</span></button></form>${S.pres?(S.pres.length?`<div class="sres">${S.pres.map(r=>`<div class="frreq"><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}">${esc(r.nick)}</button><span class="ab">${friendBtn(r.id,r.nick)}</span></div>`).join("")}</div>`:`<p class="sub">${esc(S.pmsg||"")}</p>`):""}<div class="frwrap${S.dm?" open":""}"><div class="frcol" id="frl">${friendsListHTML()}</div><div class="dmcol" id="dmc">${dmHTML()}</div></div>`}
+  return`<h2 class="sec" style="margin-top:18px">Znajomi</h2><p class="sub">Wiadomości prywatne możesz wymieniać tylko ze znajomymi. Zaproszenie musi zostać zaakceptowane. Bez linków, wulgaryzmów i reklam.</p>${S.dm?"":""}<form id="pf" class="psearch" role="search"><input id="pq" name="q" type="search" maxlength="20" autocomplete="off" placeholder="Szukaj gracza po nicku, aby dodać go do znajomych" aria-label="Szukaj gracza po nicku" value="${esc(S.pq||"")}"><button type="submit" aria-label="Szukaj">${icon("lupa")}<span>Szukaj</span></button></form>${S.pres?(S.pres.length?`<div class="sres">${S.pres.map(r=>`<div class="frreq"><span style="display:flex;gap:8px;align-items:center">${avHTML(r)}<button class="nickb" data-act="pview" data-nick="${esc(r.nick)}">${esc(r.nick)}</button></span><span class="ab">${friendBtn(r.id,r.nick)}</span></div>`).join("")}</div>`:`<p class="sub">${esc(S.pmsg||"")}</p>`):""}<div class="frwrap${S.dm?" open":""}"><div class="frcol" id="frl">${friendsListHTML()}</div><div class="dmcol" id="dmc">${dmHTML()}</div></div>`}
 async function loadDM(){
   if(!S.dm||!S.user)return;
   const a=S.user.id,b=S.dm.id;
@@ -769,7 +817,7 @@ const isStaff=()=>!!(S.me?.is_admin||S.me?.is_moderator);
 const fmtT=t=>new Date(t).toLocaleString("pl-PL",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"});
 async function loadChat(light){
   if(!S.user)return;
-  const {data}=await sb.from("chat_messages").select("id,body,created_at,user_id,deleted_at,profiles(nick,is_admin,is_moderator)").order("created_at",{ascending:false}).limit(60);
+  const {data}=await sb.from("chat_messages").select("id,body,created_at,user_id,deleted_at,profiles(nick,is_admin,is_moderator,avatar_emoji,avatar_color)").order("created_at",{ascending:false}).limit(60);
   S.chat=(data||[]).reverse();
   await ensureLevels(S.chat.map(m=>m.user_id),!light);
   if(!light){
@@ -803,7 +851,7 @@ function chatMsg(m){
       const n=muteCount(m.user_id),next=[1,6,12,24][Math.min(n,3)],am=activeMute(m.user_id);
       acts+=am?`<span>Wyciszony do ${esc(fmtT(am.until))}</span><button class="lnk" data-act="unmute" data-uid="${m.user_id}">Zdejmij</button>`
         :`<select id="mt${m.id}" aria-label="Czas wyciszenia">${[1,6,12,24].map(h=>`<option value="${h}" ${h==next?"selected":""}>${h} h</option>`).join("")}</select><button class="lnk bad" data-act="mute" data-id="${m.id}" data-uid="${m.user_id}" data-nick="${esc(p.nick)}">Wycisz</button><span>wyciszany wcześniej: ${n}×</span>`}}
-  return`<div class="msg${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh"><button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${lvTag(m.user_id)}${badge}<time>${esc(ts)}</time></div><div class="mb">${esc(m.body)}</div>${acts?`<div class="ma">${acts}</div>`:""}</div>`}
+  return`<div class="msg${mine?" mine":""}${isStaff()&&rc?" rep":""}"><div class="mh">${avHTML(p)}<button class="nickb" data-act="pview" data-nick="${esc(p.nick||"")}" title="Zobacz profil">${esc(p.nick||"?")}</button>${lvTag(m.user_id)}${badge}<time>${esc(ts)}</time></div><div class="mb">${esc(m.body)}</div>${acts?`<div class="ma">${acts}</div>`:""}</div>`}
 function drawChat(force,toBottom){
   const el=$("#cl");if(!el)return;
   const ae=document.activeElement;
@@ -882,6 +930,8 @@ function render(){
 document.addEventListener("click",async e=>{
   if(S.bell&&!e.target.closest(".bellwrap")){S.bell=false;drawBell()}
   const b=e.target.closest("button");if(!b)return;const a=b.dataset.act,id=+b.dataset.id;
+  if(b.dataset.emo!==undefined){S.ped=S.ped||{emoji:"",color:""};S.ped.emoji=b.dataset.emo;if(!S.ped.color)S.ped.color=AV_COLORS[0];return drawPed()}
+  if(b.dataset.col!==undefined){S.ped=S.ped||{emoji:"",color:""};S.ped.color=b.dataset.col;return drawPed()}
   if(b.dataset.lg!==undefined){S.league=b.dataset.lg;return render()}
   if(b.dataset.per!==undefined){S.scope=b.dataset.per;await loadBoard();return render()}
   if(b.dataset.rl!==undefined){S.bleague=b.dataset.rl;await loadBoard();return render()}
@@ -892,6 +942,9 @@ document.addEventListener("click",async e=>{
   if(a=="out"){S.prof=null;await sb.auth.signOut();return}
   if(a=="goprize"){S.scope="month";S.bleague="";await loadBoard();return render()}
   if(a=="onlyrep"){S.onlyRep=!S.onlyRep;return render()}
+  if(a=="avreset"){S.ped={emoji:"",color:""};return drawPed()}
+  if(a=="editprof"){S.tab="konto";render();const f=$("#ppf");if(f)f.scrollIntoView({block:"start"});return}
+  if(a=="preset"){if(!confirm("Wyczyścić awatar, opis i ulubioną drużynę tego gracza?"))return;const {error}=await sb.rpc("staff_reset_profile",{target:b.dataset.uid});if(error)return alert("Nie udało się wyczyścić profilu.");await loadProfile();return render()}
   if(a=="bell"){S.bell=!S.bell;return drawBell()}
   if(a=="nrem"){S.bell=false;S.tab="mecze";render();window.scrollTo(0,0);return}
   if(a=="nread"){const now=new Date().toISOString();await sb.from("notifications").update({read_at:now}).is("read_at",null).eq("user_id",S.user.id);S.notifs.forEach(n=>{if(!n.read_at)n.read_at=now});return drawBell()}
@@ -971,6 +1024,10 @@ document.addEventListener("submit",async e=>{
     inp.value="";delete S.cDraft[inp.dataset.key];if(pid)delete S.cReply[mid];if(er)say(er,"");
     await loadComments(mid);return}
   if(e.target.id=="pf")return searchPlayers(f.get("q")||"");
+  if(e.target.id=="ppf"){const m=$("#mpp"),ped=S.ped||{emoji:"",color:""};
+    const {error}=await sb.rpc("update_profile",{p_emoji:ped.emoji||"",p_color:ped.color||"",p_bio:(f.get("bio")||"").trim(),p_team:(f.get("team")||"").trim(),p_league:f.get("league")||""});
+    if(error){const t=error.message||"";return say(m,/links/.test(t)?"Opis i nazwa drużyny nie mogą zawierać linków.":/length/.test(t)?"Opis lub nazwa drużyny są za długie.":"Nie udało się zapisać profilu.",1)}
+    S.ped=null;await load();render();return say($("#mpp"),"Profil zapisany.")}
   if(e.target.id=="nkf"){const m=$("#mn"),n=(f.get("nick")||"").trim();
     const {error}=await sb.rpc("change_nick",{new_nick:n});if(error)return say(m,plErr(error.message),1);
     await load();render();const m2=$("#mn");return say(m2,"Nick zmieniony.")}
