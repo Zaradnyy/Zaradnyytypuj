@@ -615,7 +615,7 @@ async function loadBoard(){
   S.board=data||[];if(error)S.err="Nie udało się wczytać rankingu."}
 
 // mecze zawsze osobno dla każdej ligi i posortowane godzinami (niezależnie od kolejności wpisywania)
-function groups(list,desc){return S.leagues.map(l=>({l,items:list.filter(m=>m.league_id==l.id).sort((a,b)=>(new Date(a.kickoff)-new Date(b.kickoff))*(desc?-1:1))})).filter(g=>g.items.length)}
+function groups(list,desc){return S.leagues.map(l=>({l,items:list.filter(m=>m.league_id==l.id).sort((a,b)=>(new Date(a.kickoff)-new Date(b.kickoff))*(desc?-1:1))})).filter(g=>g.items.length).sort((a,b)=>(new Date(a.items[0].kickoff)-new Date(b.items[0].kickoff))*(desc?-1:1))}
 function section(list,desc,fn){return groups(list,desc).map(g=>{let last="";return`<h3 class="lg">${flag(g.l.code)}${esc(g.l.name)}</h3>`+g.items.map(m=>{const d=dayOf(m.kickoff),h=d!=last?`<div class="day">${esc(d)}</div>`:"";last=d;return h+fn(m)}).join("")}).join("")}
 
 function card(m){
