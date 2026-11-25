@@ -321,6 +321,7 @@ tr.you td{background:color-mix(in srgb,var(--gold) 28%,transparent);font-weight:
 <script>
 // ===== USTAWIENIA (tu zmieniasz nazwę i nagrody) =====
 const CFG={url:"https://kjvgibqcvegdgxmiqhhg.supabase.co",key:"sb_publishable_kEH6hdANVsbif6gyXMrDuA_1EU74Bxg",name:"Typerkowo",turnstile:"0x4AAAAAAGQhZXxeOWrQldB7"};
+const PRIZE_ON=false;   // true = pokaż baner nagrody, zakładkę „Nagrody” i opisy nagrody (regulamin trzeba wtedy uzupełnić o pkt „Nagroda”)
 const PRIZE_BADGE="50 zł";
 // Linki do mediów społecznościowych: wklej adresy profili między cudzysłowy (puste = ikona nieaktywna)
 const SOCIAL={facebook:"",instagram:"",tiktok:"",x:""};
@@ -329,13 +330,13 @@ const PRIZES=[["1","Zwycięzca miesiąca","Karta podarunkowa 50 zł dla gracza z
 // =====================================================
 
 const LEGAL={
-regulamin:`<h2>Regulamin konkursu „Typerkowo”</h2><p class="upd">Obowiązuje od 1 grudnia 2026 r.</p>
+regulamin:`<h2>Regulamin serwisu „Typerkowo”</h2><p class="upd">Obowiązuje od 1 grudnia 2026 r.</p>
 <h3>1. Postanowienia ogólne</h3><ol>
-<li>Organizatorem serwisu internetowego „Typerkowo” dostępnego pod adresem https://typerkowo.pl (dalej: „Serwis”) oraz konkursu opisanego w tym regulaminie (dalej: „Konkurs”) jest Patryk Rajdukowski, osoba fizyczna (dalej: „Organizator”). Kontakt: <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>.</li>
-<li>Konkurs polega na typowaniu wyników meczów piłkarskich i zbieraniu punktów w rankingu. O wyniku decyduje wiedza i umiejętność przewidywania wyników przez uczestnika.</li>
-<li>Udział w Konkursie jest <b>całkowicie bezpłatny</b>. Organizator nie pobiera od uczestników żadnych opłat, wpisowego ani stawek, a nagrody są finansowane wyłącznie przez Organizatora.</li>
-<li>Konkurs nie jest grą hazardową, loterią ani zakładem wzajemnym w rozumieniu ustawy o grach hazardowych.</li>
-<li>Serwis i Konkurs nie są powiązane z żadną ligą, klubem piłkarskim ani bukmacherem.</li></ol>
+<li>Organizatorem serwisu internetowego „Typerkowo” dostępnego pod adresem https://typerkowo.pl (dalej: „Serwis”) oraz gry w typowanie wyników meczów opisanej w tym regulaminie (dalej: „Gra”) jest Patryk Rajdukowski, osoba fizyczna (dalej: „Organizator”). Kontakt: <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>.</li>
+<li>Gra polega na typowaniu wyników meczów piłkarskich i zbieraniu punktów w rankingu. O wyniku decyduje wiedza i umiejętność przewidywania wyników przez uczestnika. Gra ma charakter wyłącznie rozrywkowy.</li>
+<li>Udział w Grze jest <b>całkowicie bezpłatny</b> i nie wiąże się z żadnymi nagrodami ani korzyściami majątkowymi. Organizator nie pobiera od uczestników żadnych opłat, wpisowego ani stawek.</li>
+<li>Gra nie jest grą hazardową, loterią ani zakładem wzajemnym w rozumieniu ustawy o grach hazardowych.</li>
+<li>Serwis i Gra są niezależnym projektem i nie są powiązane z żadną ligą, klubem piłkarskim, federacją, UEFA ani bukmacherem. Nazwy klubów i rozgrywek należą do ich właścicieli i są używane wyłącznie w celu wskazania, jakich meczów dotyczą typy.</li></ol>
 <h3>2. Uczestnictwo</h3><ol>
 <li>Uczestnikiem może być osoba fizyczna, która ukończyła 18 lat i ma pełną zdolność do czynności prawnych.</li>
 <li>Aby wziąć udział, należy założyć konto w Serwisie, podając adres e-mail, hasło i nick, oraz potwierdzić adres e-mail.</li>
@@ -352,31 +353,24 @@ regulamin:`<h2>Regulamin konkursu „Typerkowo”</h2><p class="upd">Obowiązuje
 <h3>4. Punktacja i ranking</h3><ol>
 <li>Za każdy mecz uczestnik otrzymuje:<ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis,</li><li><b>+1 punkt</b> dodatkowo za dokładnie trafiony wynik (razem 4 punkty),</li><li><b>0 punktów</b> w pozostałych przypadkach oraz za mecz niewytypowany. Przykład: typ 3:0 przy wyniku 3:0 daje 4 punkty (3 + 1), a typ 4:0 przy wyniku 3:0 daje 3 punkty.</li></ul></li>
 <li>Organizator może wyznaczyć jeden mecz dziennie jako „Mecz dnia”. W takim meczu punkty są podwojone: <b>6 punktów</b> za trafionego zwycięzcę lub remis i <b>8 punktów</b> za dokładnie trafiony wynik. Oznaczenie jest widoczne przy meczu przed jego rozpoczęciem.</li>
-<li>Serwis prezentuje ranking tygodniowy, miesięczny i sezonowy oraz osobne rankingi dla poszczególnych lig. Nagroda (pkt 5) dotyczy wyłącznie rankingu miesięcznego ze wszystkich lig łącznie. Pozostałe rankingi służą zabawie i nie dają prawa do nagrody.</li>
+<li>Serwis prezentuje ranking tygodniowy, miesięczny i sezonowy oraz osobne rankingi dla poszczególnych lig. Rankingi mają charakter wyłącznie rozrywkowy i nie wiążą się z nagrodami.</li>
 <li>W przypadku takiej samej liczby punktów o kolejności decyduje: (a) większa liczba dokładnie trafionych wyników, (b) wcześniejsza data założenia konta.</li></ol>
-<h3>5. Nagroda</h3><ol>
-<li>Co miesiąc kalendarzowy Organizator przyznaje jedną nagrodę: <b>kartę podarunkową o wartości 50 zł</b>. Rodzaj karty (sklep lub usługodawcę) wybiera Organizator.</li>
-<li>Nagrodę otrzymuje uczestnik z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig łącznie, obejmującym mecze rozpoczęte w danym miesiącu, według zasad z pkt 4.3. Rankingi tygodniowy, sezonowy i rankingi poszczególnych lig nie dają prawa do nagrody.</li>
-<li>Zwycięzca zostanie wskazany w Serwisie lub powiadomiony wiadomością e-mail w ciągu 7 dni od zakończenia miesiąca.</li>
-<li>Zwycięzca powinien zgłosić się do Organizatora na adres e-mail z konta w ciągu 7 dni od powiadomienia. Brak zgłoszenia w tym terminie oznacza utratę prawa do nagrody, a nagroda nie przechodzi na kolejną osobę.</li>
-<li>Nagroda zostanie przekazana w formie kodu karty na adres e-mail zwycięzcy. Nagroda nie podlega wymianie na gotówkę ani na inną nagrodę.</li>
-<li>Nagroda może podlegać opodatkowaniu zgodnie z obowiązującymi przepisami. Organizator wypełnia ciążące na nim obowiązki podatkowe i może w tym celu poprosić zwycięzcę o dane niezbędne do ich realizacji.</li></ol>
-<h3>6. Reklamacje</h3><ol>
-<li>Reklamacje dotyczące Konkursu można zgłaszać e-mailem na adres <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a> w ciągu 14 dni od zdarzenia, którego dotyczą.</li>
-<li>Organizator rozpatruje reklamację w ciągu 14 dni od jej otrzymania i informuje zgłaszającego o decyzji. Decyzja Organizatora jest ostateczna w zakresie przyznania punktów i nagrody, z zachowaniem praw wynikających z przepisów prawa.</li></ol>
-<h3>7. Czat, znajomi i profile graczy</h3><ol>
-<li>Serwis udostępnia zalogowanym uczestnikom ogólny czat oraz możliwość komentowania meczów (komentarz główny i odpowiedzi pod nim). Wiadomość na czacie może mieć do 300 znaków, a komentarz do 500 znaków. Wiadomości i komentarze są widoczne dla wszystkich zalogowanych uczestników. Uczestnicy mogą ponadto zapraszać się nawzajem do grona znajomych i wymieniać wiadomości prywatne (do 500 znaków) wyłącznie ze znajomymi, którzy zaakceptowali zaproszenie. Wiadomości prywatne są widoczne tylko dla nadawcy i odbiorcy, a zasady z pkt 7.2 obowiązują także w nich.</li>
+<h3>5. Reklamacje</h3><ol>
+<li>Reklamacje dotyczące Gry można zgłaszać e-mailem na adres <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a> w ciągu 14 dni od zdarzenia, którego dotyczą.</li>
+<li>Organizator rozpatruje reklamację w ciągu 14 dni od jej otrzymania i informuje zgłaszającego o decyzji. Decyzja Organizatora jest ostateczna w zakresie przyznania punktów, z zachowaniem praw wynikających z przepisów prawa.</li></ol>
+<h3>6. Czat, znajomi i profile graczy</h3><ol>
+<li>Serwis udostępnia zalogowanym uczestnikom ogólny czat oraz możliwość komentowania meczów (komentarz główny i odpowiedzi pod nim). Wiadomość na czacie może mieć do 300 znaków, a komentarz do 500 znaków. Wiadomości i komentarze są widoczne dla wszystkich zalogowanych uczestników. Uczestnicy mogą ponadto zapraszać się nawzajem do grona znajomych i wymieniać wiadomości prywatne (do 500 znaków) wyłącznie ze znajomymi, którzy zaakceptowali zaproszenie. Wiadomości prywatne są widoczne tylko dla nadawcy i odbiorcy, a zasady z pkt 6.2 obowiązują także w nich.</li>
 <li>Na czacie, w komentarzach do meczów, w wiadomościach prywatnych oraz w opisie profilu zabronione są: wulgaryzmy i treści obraźliwe, hejt i groźby, treści dyskryminujące, spam i reklamy, linki oraz adresy stron internetowych, treści naruszające prawo lub prawa osób trzecich oraz ujawnianie danych osobowych (własnych i cudzych).</li>
 <li>Uczestnik może zgłosić wiadomość lub komentarz przyciskiem „Zgłoś”. Zgłoszenia rozpatruje Organizator oraz osoby z rangą „Administrator”, czyli moderatorzy wyznaczeni przez Organizatora.</li>
 <li>Moderatorzy mogą usuwać wiadomości i komentarze naruszające regulamin (usunięcie komentarza głównego usuwa także odpowiedzi pod nim), a autor może usunąć własny komentarz. Organizator może czasowo wyciszyć uczestnika (na 1, 6, 12 lub 24 godziny), w czasie którego uczestnik nie może pisać na czacie ani komentować meczów. Za kolejne naruszenia wyciszenia mogą być dłuższe. W przypadku poważnych lub powtarzających się naruszeń Organizator może wykluczyć uczestnika zgodnie z pkt 2.5.</li>
 <li>Uczestnik może spersonalizować swój profil: wybrać awatar (emoji i kolor tła), dodać krótki opis (do 160 znaków), ulubioną drużynę i ligę. Są to dane dobrowolne i widoczne dla innych uczestników. Organizator i Administratorzy mogą wyczyścić awatar lub opis naruszający regulamin.</li>
 <li>Nick, statystyki (m.in. punkty, skuteczność i miejsce w rankingu) oraz typy z rozpoczętych meczów są widoczne w Serwisie dla innych uczestników, także w profilu gracza. Adres e-mail nie jest widoczny dla innych uczestników.</li>
 <li>W zakładce „Konto” uczestnik może zmienić nick (raz na 30 dni), adres e-mail i hasło oraz samodzielnie usunąć konto.</li></ol>
-<h3>8. Dane osobowe</h3><p>Zasady przetwarzania danych osobowych opisuje <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>
-<h3>9. Postanowienia końcowe</h3><ol>
+<h3>7. Dane osobowe</h3><p>Zasady przetwarzania danych osobowych opisuje <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>
+<h3>8. Postanowienia końcowe</h3><ol>
 <li>Organizator nie odpowiada za przerwy w działaniu Serwisu wynikające z przyczyn technicznych niezależnych od niego ani za błędy w danych o meczach spowodowane pomyłką, o ile niezwłocznie je poprawi.</li>
-<li>Organizator może zmienić regulamin z ważnych przyczyn (np. zmiana przepisów, zakresu rozgrywek lub nagród). O zmianach poinformuje w Serwisie. Zmiany nie dotyczą już rozegranych meczów.</li>
-<li>Organizator może zakończyć Konkurs, informując o tym w Serwisie z co najmniej 14-dniowym wyprzedzeniem. Nagroda za zakończone miesiące zostanie przyznana.</li>
+<li>Organizator może zmienić regulamin z ważnych przyczyn (np. zmiana przepisów lub zakresu rozgrywek). O zmianach poinformuje w Serwisie. Zmiany nie dotyczą już rozegranych meczów.</li>
+<li>Organizator może zakończyć Grę, informując o tym w Serwisie z co najmniej 14-dniowym wyprzedzeniem.</li>
 <li>W sprawach nieuregulowanych stosuje się prawo polskie.</li>
 <li>Regulamin wchodzi w życie z dniem 1 grudnia 2026 r.</li></ol>`,
 polityka:`<h2>Polityka prywatności</h2><p class="upd">Obowiązuje od 1 grudnia 2026 r.</p>
@@ -384,8 +378,7 @@ polityka:`<h2>Polityka prywatności</h2><p class="upd">Obowiązuje od 1 grudnia 
 <h3>2. Jakie dane zbieramy i po co</h3>
 <div style="overflow-x:auto"><table><thead><tr><th>Dane</th><th>Cel</th><th>Podstawa prawna (RODO)</th></tr></thead><tbody>
 <tr><td>Adres e-mail, hasło (zapisywane w postaci zaszyfrowanej), nick</td><td>Założenie i obsługa konta, logowanie</td><td>Art. 6 ust. 1 lit. b (umowa, czyli korzystanie z Serwisu na zasadach regulaminu)</td></tr>
-<tr><td>Typy, punkty, pozycja w rankingu</td><td>Prowadzenie Konkursu i rankingów</td><td>Art. 6 ust. 1 lit. b</td></tr>
-<tr><td>Adres e-mail zwycięzcy</td><td>Przekazanie nagrody, kontakt</td><td>Art. 6 ust. 1 lit. b</td></tr>
+<tr><td>Typy, punkty, pozycja w rankingu</td><td>Prowadzenie Gry i rankingów</td><td>Art. 6 ust. 1 lit. b</td></tr>
 <tr><td>Dane techniczne (np. adres IP, dziennik zdarzeń)</td><td>Bezpieczeństwo Serwisu i zapobieganie nadużyciom</td><td>Art. 6 ust. 1 lit. f (prawnie uzasadniony interes)</td></tr>
 <tr><td>Treść korespondencji i reklamacji</td><td>Obsługa zgłoszeń</td><td>Art. 6 ust. 1 lit. f</td></tr>
 <tr><td>Awatar (emoji i kolor), opis profilu, ulubiona drużyna i liga (dobrowolne)</td><td>Personalizacja profilu widocznego dla innych uczestników</td><td>Art. 6 ust. 1 lit. a (zgoda, podanie tych danych jest dobrowolne i możesz je w każdej chwili usunąć lub zmienić w zakładce „Konto”)</td></tr>
@@ -396,7 +389,7 @@ polityka:`<h2>Polityka prywatności</h2><p class="upd">Obowiązuje od 1 grudnia 
 <h3>3. Komu przekazujemy dane</h3><p>Dane są przetwarzane przy pomocy dostawców usług technicznych:</p>
 <ul><li><b>Supabase</b> (baza danych i logowanie),</li><li><b>Vercel</b> (hosting strony),</li><li><b>Resend</b> (wysyłka e-maili, np. potwierdzenia konta i resetu hasła),</li><li><b>Cloudflare</b> (zabezpieczenie formularzy przed botami, usługa Turnstile),</li><li><b>OVHcloud</b> (domena oraz skrzynka e-mail kontakt@typerkowo.pl).</li></ul>
 <p>Część tych dostawców może przetwarzać dane poza Europejskim Obszarem Gospodarczym, w tym w USA. Wtedy odbywa się to na podstawie mechanizmów przewidzianych w RODO (np. standardowe klauzule umowne lub decyzja o odpowiednim stopniu ochrony). Nie sprzedajemy danych i nie wykorzystujemy ich do reklam.</p>
-<h3>4. Jak długo przechowujemy dane</h3><p>Dane konta i typy przechowujemy do czasu usunięcia konta. Konto możesz usunąć samodzielnie w zakładce „Konto”, a wraz z nim znikają Twój profil, typy, punkty, wiadomości z czatu, komentarze, znajomi i wiadomości prywatne. Kopie zapasowe u dostawców mogą istnieć jeszcze przez krótki czas. Dane dotyczące przyznanej nagrody mogą być przechowywane dłużej, jeśli jest to potrzebne do obrony przed roszczeniami lub wynika z przepisów. Dzienniki techniczne są przechowywane przez dostawców przez krótki okres zgodnie z ich zasadami.</p>
+<h3>4. Jak długo przechowujemy dane</h3><p>Dane konta i typy przechowujemy do czasu usunięcia konta. Konto możesz usunąć samodzielnie w zakładce „Konto”, a wraz z nim znikają Twój profil, typy, punkty, wiadomości z czatu, komentarze, znajomi i wiadomości prywatne. Kopie zapasowe u dostawców mogą istnieć jeszcze przez krótki czas. Dzienniki techniczne są przechowywane przez dostawców przez krótki okres zgodnie z ich zasadami.</p>
 <h3>5. Twoje prawa</h3><p>Masz prawo do: dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie. Nick, adres e-mail i hasło możesz zmienić, a konto usunąć samodzielnie w zakładce „Konto”. W pozostałych sprawach napisz na <a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>. Masz też prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (<a href="https://uodo.gov.pl" target="_blank" rel="noopener">uodo.gov.pl</a>).</p>
 <h3>6. Pliki cookies i pamięć przeglądarki</h3><p>Serwis korzysta z pamięci przeglądarki (np. localStorage lub ciasteczek) wyłącznie w celach niezbędnych do działania: utrzymania sesji po zalogowaniu. Nie używamy cookies reklamowych ani analitycznych. Formularze logowania i rejestracji korzystają z zabezpieczenia Cloudflare Turnstile, które służy wyłącznie do sprawdzenia, że formularz wypełnia człowiek, i może w tym celu zapisywać dane techniczne w przeglądarce. Serwis korzysta z czcionek Google Fonts, przy czym zapytania o czcionki trafiają do serwerów Google.</p>
 <h3>7. Zmiany polityki</h3><p>Polityka może być aktualizowana. O istotnych zmianach poinformujemy w Serwisie. Obowiązuje od 1 grudnia 2026 r.</p>`};
@@ -598,7 +591,7 @@ function profView(){
   const own=S.prof.own,st=profStats(),me=S.prof.user||{},since=me.created_at?new Date(me.created_at).toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"",role=me.is_admin?`<span class="bdg o">Organizator</span>`:me.is_moderator?`<span class="bdg a">Administrator</span>`:"";
   const head=`<div class="phead">${avHTML(me,"xl")}<div><h2>${esc(me.nick||"")} <span class="lvchip" title="Poziom">poz. ${xpInfo(profStats()).L}</span></h2><p class="sub">${since?"Gracz od "+esc(since)+" ":""}${role}</p></div><div class="pact">${own?`<button class="ghost" data-act="editprof">Edytuj profil</button>`:friendBtn(me.id,me.nick)}</div></div>${profAbout(me,own)}${!own&&isStaff()&&!me.is_admin&&(me.bio||me.avatar_emoji||me.fav_team)?`<p><button class="lnk bad" data-act="preset" data-uid="${me.id}">Wyczyść awatar i opis (moderacja)</button></p>`:""}`;
   const backBtn=own?"":`<button class="ghost back" data-act="pview" data-nick="">Wróć do swojego profilu</button>`;
-  const rank=`<h2 class="sec">Miejsce w rankingu</h2><div class="tiles"><div class="tile"><div>${rankOf(S.side,me.nick)}</div><div class="tl">Ten miesiąc, ranking nagrodowy (wszystkie ligi)</div></div><div class="tile"><div>${rankOf(S.prof.all,me.nick)}</div><div class="tl">Cały sezon</div></div></div>`;
+  const rank=`<h2 class="sec">Miejsce w rankingu</h2><div class="tiles"><div class="tile"><div>${rankOf(S.side,me.nick)}</div><div class="tl">Ten miesiąc (wszystkie ligi)</div></div><div class="tile"><div>${rankOf(S.prof.all,me.nick)}</div><div class="tl">Cały sezon</div></div></div>`;
   if(!st.n)return sch+backBtn+head+rank+badgesHTML(st)+`<h2 class="sec">Statystyki</h2><p class="note">${own?"Nie masz jeszcze rozliczonych typów. Statystyki pojawią się po pierwszych zakończonych meczach.":"Ten gracz nie ma jeszcze rozliczonych typów."}${own&&st.pending?` Czeka na wynik: ${st.pending}.`:""}</p>`;
   const sk=pc(st.hit,st.n),dk=pc(st.exact,st.n);
   const tiles=`<div class="tiles">${tile(st.total,"Zdobyte punkty")}${tile(sk+"<small>%</small>","Skuteczność (trafiony zwycięzca lub remis)",sk)}${tile(dk+"<small>%</small>","Dokładne wyniki",dk)}${tile((st.total/st.n).toFixed(2).replace(".",","),"Średnio punktów na typ")}${tile(st.n,"Rozliczone typy"+(own&&st.pending?` (czeka na wynik: ${st.pending})`:""))}${tile(st.best,"Najlepsza seria trafień"+(st.cur?` (teraz: ${st.cur})`:""))}</div>`;
@@ -814,7 +807,7 @@ function admRow(m){
 
 function leagueSel(id,val,all){return`<select id="${id}" aria-label="Liga">${all?`<option value="">Wszystkie ligi</option>`:""}${S.leagues.map(l=>`<option value="${all?l.code:l.id}" ${val==(all?l.code:l.id)?"selected":""}>${esc(l.name)}</option>`).join("")}</select>`}
 
-function prizebar(c){const n=new Date(),d=Math.ceil((new Date(n.getFullYear(),n.getMonth()+1,1)-n)/864e5);return`<div class="prizebar ${c||""}"><div class="pbadge">${esc(PRIZE_BADGE)}</div><div><b>Nagroda miesiąca</b><br><span>${esc(PRIZE_LINE)} Do końca miesiąca: ${d} ${d==1?"dzień":"dni"}.</span></div></div>`}
+function prizebar(c){if(!PRIZE_ON)return"";const n=new Date(),d=Math.ceil((new Date(n.getFullYear(),n.getMonth()+1,1)-n)/864e5);return`<div class="prizebar ${c||""}"><div class="pbadge">${esc(PRIZE_BADGE)}</div><div><b>Nagroda miesiąca</b><br><span>${esc(PRIZE_LINE)} Do końca miesiąca: ${d} ${d==1?"dzień":"dni"}.</span></div></div>`}
 
 function aside(){
   if(S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="znajomi"||S.tab=="regulamin"||S.tab=="polityka")return"";
@@ -902,10 +895,10 @@ function view(){
     const chips=`<div class="chips" role="group" aria-label="Liga"><button class="chip" data-lg="" aria-pressed="${!S.league}">Wszystkie</button>${S.leagues.map(l=>`<button class="chip" data-lg="${esc(l.code)}" aria-pressed="${S.league==l.code}">${flag(l.code)}${esc(l.name)}</button>`).join("")}</div>`;
     return prizebar("inl")+chips+`<h2 class="sec">Do typowania</h2>`+(section(up,false,card)||`<p class="sub">Brak nadchodzących meczów. Zajrzyj później.</p>`)+`<h2 class="sec">Rozegrane (ostatnie 14 dni)</h2>`+(section(past,true,card)||`<p class="sub">Jeszcze nic.</p>`)}
   if(S.tab=="ranking"){
-    const b=S.board,top=b.slice(0,3).filter(r=>r.total_points>0),k=top.length,rest=b.slice(k),prize=S.scope=="month"&&!S.bleague;
+    const b=S.board,top=b.slice(0,3).filter(r=>r.total_points>0),k=top.length,rest=b.slice(k),prize=PRIZE_ON&&S.scope=="month"&&!S.bleague;
     return`<div class="seg" role="group" aria-label="Okres">${[["month","Ten miesiąc"],["week","Ten tydzień"],["all","Cały sezon"]].map(([v,n])=>`<button data-per="${v}" aria-pressed="${S.scope==v}">${n}</button>`).join("")}</div>
     <div class="chips rchips" role="group" aria-label="Liga"><button class="chip" data-rl="" aria-pressed="${!S.bleague}">Wszystkie ligi</button>${S.leagues.map(l=>`<button class="chip" data-rl="${esc(l.code)}" aria-pressed="${S.bleague==l.code}">${flag(l.code)}${esc(l.name)}</button>`).join("")}</div>`+
-    (prize?`<div class="note nprize"><b>Ranking nagrodowy.</b> Zwycięzca miesiąca (wszystkie ligi razem) dostaje kartę podarunkową ${esc(PRIZE_BADGE)}.</div>`
+    (!PRIZE_ON?"":prize?`<div class="note nprize"><b>Ranking nagrodowy.</b> Zwycięzca miesiąca (wszystkie ligi razem) dostaje kartę podarunkową ${esc(PRIZE_BADGE)}.</div>`
       :`<div class="note">Ten ranking jest tylko dla zabawy, bez nagrody. Nagrodę dostaje zwycięzca rankingu miesięcznego ze wszystkich lig. <button class="lnk" data-act="goprize">Pokaż ranking nagrodowy</button></div>`)+podium(top,prize)+
     (rest.length?`<div style="overflow-x:auto"><table><thead><tr><th>Miejsce</th><th>Gracz</th><th class="n">Punkty</th><th class="n">Dokładne</th><th class="n">Typy</th></tr></thead><tbody>${rest.map((r,i)=>`<tr class="${r.nick==S.me?.nick?"you":""}"><td class="pos">${k+i+1}</td><td><button class="nickb" data-act="pview" data-nick="${esc(r.nick)}" title="Zobacz profil">${esc(r.nick)}</button></td><td class="n">${r.total_points}</td><td class="n">${r.exact_hits}</td><td class="n">${r.tips_count}</td></tr>`).join("")}</tbody></table></div>`:(b.length?"":`<p class="sub">Brak graczy.</p>`))}
   if(S.tab=="profil")return profView();
@@ -913,7 +906,7 @@ function view(){
   if(S.tab=="regulamin"||S.tab=="polityka")return legalView(S.tab);
   if(S.tab=="nowosci")return newsView();
   if(S.tab=="nagrody")return`<h2 class="sec" style="margin-top:18px">Do wygrania</h2>${PRIZES.map(p=>`<div class="prize"><div class="medal">${esc(p[0])}</div><div><h3>${esc(p[1])}</h3><p>${esc(p[2])}</p></div></div>`).join("")}`;
-  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li><b>Mecz dnia ⭐</b>: jeden wybrany mecz dziennie ma <b>podwójne punkty</b>, czyli <b>6 pkt</b> za trafionego zwycięzcę lub remis i <b>8 pkt</b> za dokładny wynik.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>. Co miesiąc nagradzamy gracza z największą liczbą punktów w rankingu miesięcznym ze wszystkich lig kartą podarunkową 50 zł, a nagrodę funduje organizator. Pozostałe rankingi (tygodniowy, sezonowy i dla poszczególnych lig) są tylko dla zabawy.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Pełne zasady znajdziesz w dokumentach: <button class="lnk" data-tab="regulamin">Regulamin</button> i <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>`;
+  if(S.tab=="zasady")return`<h2 class="sec" style="margin-top:18px">Jak to działa</h2><ul><li><b>3 punkty</b> za trafionego zwycięzcę lub remis.</li><li><b>+1 punkt</b> dodatkowo za dokładny wynik, czyli razem <b>4 punkty</b>. Przykład: typ 3:0 i wynik 3:0 to 4 pkt, a typ 4:0 przy wyniku 3:0 to 3 pkt.</li><li><b>Mecz dnia ⭐</b>: jeden wybrany mecz dziennie ma <b>podwójne punkty</b>, czyli <b>6 pkt</b> za trafionego zwycięzcę lub remis i <b>8 pkt</b> za dokładny wynik.</li><li>Typy możesz zmieniać do rozpoczęcia meczu. Potem są zablokowane.</li><li>Cudze typy widać dopiero po starcie meczu.</li><li>Udział jest <b>bezpłatny</b>, a Typerkowo to zabawa dla fanów piłki. Rankingi (tygodniowy, miesięczny, sezonowy i dla poszczególnych lig) służą rywalizacji i dobrej zabawie.</li><li>Przy remisie w rankingu decyduje liczba dokładnych trafień, a potem wcześniejsza data założenia konta.</li></ul><p class="note">Pełne zasady znajdziesz w dokumentach: <button class="lnk" data-tab="regulamin">Regulamin</button> i <button class="lnk" data-tab="polityka">Polityka prywatności</button>.</p>`;
   if(S.tab=="admin"&&isStaff())return`<h2 class="sec" style="margin-top:18px">Dodaj mecz</h2><form id="mf"><div class="grid">${leagueSel("ml",S.ml||S.leagues[0]?.id,0).replace('id="ml"','id="ml" name="league"')}<input name="round" type="number" min="1" placeholder="Kolejka" value="${esc(S.mr)}"><input name="home" placeholder="Gospodarz" required><input name="away" placeholder="Gość" required><input name="kickoff" type="datetime-local" required aria-label="Start meczu" value="${esc(S.mk)}"></div><button type="submit">Dodaj mecz</button> <span id="mm"></span></form>
    <p class="sub">Mecze są automatycznie grupowane według ligi i sortowane według godziny, więc kolejność wpisywania nie ma znaczenia. Liga, kolejka i data zostają w formularzu po dodaniu meczu.</p>
    <h2 class="sec">Wyniki i mecze</h2>${section(S.matches,false,admRow)||`<p class="sub">Brak meczów.</p>`}`;
@@ -975,7 +968,7 @@ function dsumHTML(){const d=S.dsum;if(!d)return"";
 document.addEventListener("keydown",e=>{if(e.key=="Escape"&&S.dsum)dsClose(false)});
 document.addEventListener("click",e=>{if(e.target.classList&&e.target.classList.contains("dsov"))dsClose(false)});
 function render(){
-  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],["nagrody","Nagrody"],["nowosci","Nowości"],["zasady","Zasady"]];if(S.user){tabs.push(["konto","Konto"]);tabs.splice(3,0,["znajomi","Znajomi"])}if(isStaff())tabs.push(["admin","Admin"]);
+  const tabs=[["mecze","Mecze"],["ranking","Ranking"],["chat","Czat"],["profil","Profil"],...(PRIZE_ON?[["nagrody","Nagrody"]]:[]),["nowosci","Nowości"],["zasady","Zasady"]];if(S.user){tabs.push(["konto","Konto"]);tabs.splice(3,0,["znajomi","Znajomi"])}if(isStaff())tabs.push(["admin","Admin"]);
   const kept=S.tab=="chat"&&$("#ci")?$("#ci").value:null;
   const bell=S.user?`<span class="bellwrap">${bellInner()}</span>`:"";
   const meBox=S.user?`<span class="nick">${esc(S.me?.nick||"")}</span><button class="ghost" data-act="out">Wyloguj</button>`:`<button data-act="login">Zaloguj</button><button class="ghost" data-act="reg">Załóż konto</button>`;
@@ -984,7 +977,7 @@ function render(){
   $("#app").innerHTML=`<aside class="side">${brand}<nav aria-label="Menu główne">${items}</nav><div class="sideme">${meBox}</div>${socials("sbar")}</aside>
   <div class="top"><div class="in"><div class="brandrow">${brand}<div class="me">${bell}${meBox}</div></div></div></div>
   <nav class="bnav" aria-label="Menu główne">${items}</nav>
-  <div class="wrap">${S.user?`<div class="dtop"><span class="bellwrap">${bellInner()}</span></div>`:""}${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="znajomi"||S.tab=="regulamin"||S.tab=="polityka"?" one":""}"><main>${view()}</main>${aside()}</div><footer class="foot"><span>© ${esc(CFG.name)}</span><button class="lnk" data-tab="regulamin">Regulamin</button><button class="lnk" data-tab="polityka">Polityka prywatności</button><a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>${socials("ftr")}<span class="sub" style="font-size:12px">Emoji: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener">Twemoji</a> (CC-BY 4.0)</span></footer></div>${dsumHTML()}`;
+  <div class="wrap">${S.user?`<div class="dtop"><span class="bellwrap">${bellInner()}</span></div>`:""}${S.err?`<p class="err">${S.err}</p>`:""}<div class="layout${S.tab=="auth"||S.tab=="admin"||S.tab=="profil"||S.tab=="konto"||S.tab=="znajomi"||S.tab=="regulamin"||S.tab=="polityka"?" one":""}"><main>${view()}</main>${aside()}</div><footer class="foot"><span>© ${esc(CFG.name)}</span><button class="lnk" data-tab="regulamin">Regulamin</button><button class="lnk" data-tab="polityka">Polityka prywatności</button><a href="mailto:kontakt@typerkowo.pl">kontakt@typerkowo.pl</a>${socials("ftr")}<span class="sub" style="font-size:12px">Typerkowo jest niezależnym projektem i nie jest powiązane z żadnym klubem, ligą ani UEFA.</span><span class="sub" style="font-size:12px">Emoji: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener">Twemoji</a> (CC-BY 4.0)</span></footer></div>${dsumHTML()}`;
   chatSync(kept);dmSync();tsSync()}
 
 document.addEventListener("click",async e=>{
